@@ -1,0 +1,849 @@
+import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+void main() {
+  runApp(const KipHelperApp());
+}
+
+class KipHelperApp extends StatelessWidget {
+  const KipHelperApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'KIP Helper',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent, brightness: Brightness.light),
+        useMaterial3: true,
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          filled: true,
+          fillColor: Colors.grey[100],
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
+      ),
+      darkTheme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blueAccent, brightness: Brightness.dark),
+        useMaterial3: true,
+        inputDecorationTheme: InputDecorationTheme(
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+          filled: true,
+          fillColor: Colors.grey[900],
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        ),
+      ),
+      themeMode: ThemeMode.system,
+      home: const MainPage(),
+    );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  const MainPage({super.key});
+
+  @override
+  State<MainPage> createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(length: 4, vsync: this);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('KIP Helper'),
+        centerTitle: true,
+        bottom: TabBar(
+          controller: _tabController,
+          labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 11),
+          unselectedLabelStyle: const TextStyle(fontSize: 11),
+          isScrollable: true,
+          tabs: const [
+            Tab(icon: Icon(Icons.calculate), text: 'Калькуляторы'),
+            Tab(icon: Icon(Icons.book), text: 'Siemens SIPART'),
+            Tab(icon: Icon(Icons.bolt), text: 'РЭМТЭК'),
+            Tab(icon: Icon(Icons.water_drop_outlined), text: 'СУ-1С'),
+          ],
+        ),
+      ),
+      body: TabBarView(
+        controller: _tabController,
+        children: const [
+          CalculatorsGroup(),
+          SiemensGuide(),
+          RemTekGuide(),
+          Su1sGuide(),
+        ],
+      ),
+    );
+  }
+}
+
+// ================= ГРУППА КАЛЬКУЛЯТОРОВ =================
+class CalculatorsGroup extends StatelessWidget {
+  const CalculatorsGroup({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+      length: 3,
+      child: Column(
+        children: [
+          const TabBar(
+            labelColor: Colors.blue,
+            unselectedLabelColor: Colors.grey,
+            tabs: [
+              Tab(text: 'Температура'),
+              Tab(text: 'Давление'),
+              Tab(text: 'Сопротивление'),
+            ],
+          ),
+          const Expanded(
+            child: TabBarView(
+              children: [
+                TemperatureConverter(),
+                PressureConverter(),
+                ResistanceConverter(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// 1. КОНВЕРТЕР ТЕМПЕРАТУРЫ
+class TemperatureConverter extends StatefulWidget {
+  const TemperatureConverter({super.key});
+  @override
+  State<TemperatureConverter> createState() => _TemperatureConverterState();
+}
+
+class _TemperatureConverterState extends State<TemperatureConverter> {
+  final TextEditingController _controller = TextEditingController();
+  String _fromUnit = 'C';
+  String _toUnit = 'F';
+  String _result = '0';
+
+  final List<Map<String, String>> units = [
+    {'code': 'C', 'name': '°C'},
+    {'code': 'F', 'name': '°F'},
+    {'code': 'K', 'name': 'K'},
+  ];
+
+  void _calculate() {
+    if (_controller.text.isEmpty) {
+      setState(() => _result = '---');
+      return;
+    }
+    double input = double.tryParse(_controller.text.replaceAll(',', '.')) ?? 0;
+    double tempInC;
+
+    switch (_fromUnit) {
+      case 'C': tempInC = input; break;
+      case 'F': tempInC = (input - 32) * 5 / 9; break;
+      case 'K': tempInC = input - 273.15; break;
+      default: tempInC = input;
+    }
+
+    double output;
+    switch (_toUnit) {
+      case 'C': output = tempInC; break;
+      case 'F': output = (tempInC * 9 / 5) + 32; break;
+      case 'K': output = tempInC + 273.15; break;
+      default: output = tempInC;
+    }
+
+    setState(() => _result = output.toStringAsFixed(2));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text('Конвертер температуры', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 20),
+        TextField(
+          controller: _controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(labelText: 'Значение', prefixIcon: Icon(Icons.numbers)),
+          onChanged: (_) => _calculate(),
+        ),
+        const SizedBox(height: 20),
+        Row(children: [
+          Expanded(
+            child: DropdownButtonFormField<String>(
+              value: _fromUnit,
+              decoration: const InputDecoration(labelText: 'Из'),
+              items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!))).toList(),
+              onChanged: (val) { if (val != null) { setState(() => _fromUnit = val); _calculate(); } },
+            ),
+          ),
+          const Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Icon(Icons.arrow_forward)),
+          Expanded(
+            child: DropdownButtonFormField<String>(
+              value: _toUnit,
+              decoration: const InputDecoration(labelText: 'В'),
+              items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!))).toList(),
+              onChanged: (val) { if (val != null) { setState(() => _toUnit = val); _calculate(); } },
+            ),
+          ),
+        ]),
+        const Spacer(),
+        _ResultCard(result: _result, unit: _toUnit == 'C' ? '°C' : (_toUnit == 'F' ? '°F' : 'K'), context: context),
+        const Spacer(),
+      ]),
+    );
+  }
+}
+
+// 2. КОНВЕРТЕР ДАВЛЕНИЯ
+class PressureConverter extends StatefulWidget {
+  const PressureConverter({super.key});
+  @override
+  State<PressureConverter> createState() => _PressureConverterState();
+}
+
+class _PressureConverterState extends State<PressureConverter> {
+  final TextEditingController _controller = TextEditingController();
+  String _fromUnit = 'bar';
+  String _toUnit = 'kgf_cm2';
+  String _result = '0';
+
+  final Map<String, double> toPa = {
+    'Pa': 1, 'kPa': 1000, 'MPa': 1000000, 'bar': 100000, 'atm': 101325,
+    'mmHg': 133.322, 'mmH2O': 9.80665, 'kgf_cm2': 98066.5,
+  };
+
+  final List<Map<String, String>> units = [
+    {'code': 'Pa', 'name': 'Па'}, {'code': 'kPa', 'name': 'кПа'}, {'code': 'MPa', 'name': 'МПа'},
+    {'code': 'bar', 'name': 'бар'}, {'code': 'atm', 'name': 'атм'},
+    {'code': 'mmHg', 'name': 'мм рт. ст.'}, {'code': 'mmH2O', 'name': 'мм вод. ст.'}, {'code': 'kgf_cm2', 'name': 'кгс/см²'},
+  ];
+
+  void _calculate() {
+    if (_controller.text.isEmpty) {
+      setState(() => _result = '---');
+      return;
+    }
+    double input = double.tryParse(_controller.text.replaceAll(',', '.')) ?? 0;
+    double valInPa = input * toPa[_fromUnit]!;
+    double output = valInPa / toPa[_toUnit]!;
+    setState(() => _result = output.abs() > 1000 ? output.toStringAsFixed(1) : output.toStringAsFixed(4));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text('Конвертер давления', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 20),
+        TextField(
+          controller: _controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: const InputDecoration(labelText: 'Значение', prefixIcon: Icon(Icons.speed)),
+          onChanged: (_) => _calculate(),
+        ),
+        const SizedBox(height: 20),
+        Row(children: [
+          Expanded(
+            child: DropdownButtonFormField<String>(
+              value: _fromUnit,
+              decoration: const InputDecoration(labelText: 'Из'),
+              items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!, style: const TextStyle(fontSize: 13)))).toList(),
+              onChanged: (val) { if (val != null) { setState(() => _fromUnit = val); _calculate(); } },
+            ),
+          ),
+          const Padding(padding: EdgeInsets.symmetric(horizontal: 10), child: Icon(Icons.arrow_forward)),
+          Expanded(
+            child: DropdownButtonFormField<String>(
+              value: _toUnit,
+              decoration: const InputDecoration(labelText: 'В'),
+              items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!, style: const TextStyle(fontSize: 13)))).toList(),
+              onChanged: (val) { if (val != null) { setState(() => _toUnit = val); _calculate(); } },
+            ),
+          ),
+        ]),
+        const Spacer(),
+        _ResultCard(result: _result, unit: units.firstWhere((u) => u['code'] == _toUnit)['name'] ?? '', context: context),
+        const Spacer(),
+      ]),
+    );
+  }
+}
+
+// 3. КОНВЕРТЕР СОПРОТИВЛЕНИЯ (ТС)
+class ResistanceConverter extends StatefulWidget {
+  const ResistanceConverter({super.key});
+  @override
+  State<ResistanceConverter> createState() => _ResistanceConverterState();
+}
+
+class _ResistanceConverterState extends State<ResistanceConverter> {
+  final TextEditingController _controller = TextEditingController();
+  String _sensorType = '100П';
+  bool _modeTempToOhm = true;
+  String _result = '0';
+  final List<String> sensors = ['100П', '50П', '100М', '50М'];
+
+  void _calculate() {
+    if (_controller.text.isEmpty) {
+      setState(() => _result = '---');
+      return;
+    }
+    double input = double.tryParse(_controller.text.replaceAll(',', '.')) ?? 0;
+    double r0, alpha;
+
+    if (_sensorType.contains('П')) {
+      alpha = 0.00385;
+      r0 = _sensorType == '100П' ? 100.0 : 50.0;
+    } else {
+      alpha = 0.00428;
+      r0 = _sensorType == '100М' ? 100.0 : 50.0;
+    }
+
+    double output;
+    if (_modeTempToOhm) {
+      output = r0 * (1 + alpha * input);
+    } else {
+      if (input == 0) {
+        setState(() => _result = 'Ошибка');
+        return;
+      }
+      output = ((input / r0) - 1) / alpha;
+    }
+    setState(() => _result = output.toStringAsFixed(2));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text('Расчет ТС', style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 10),
+        Card(
+          color: Colors.blue[50],
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(children: [
+              Text('Тип: $_sensorType', style: const TextStyle(fontWeight: FontWeight.bold)),
+              Text(_modeTempToOhm ? "Режим: °C → Ом" : "Режим: Ом → °C", style: TextStyle(color: Colors.blue[800], fontStyle: FontStyle.italic)),
+            ]),
+          ),
+        ),
+        const SizedBox(height: 20),
+        DropdownButtonFormField<String>(
+          value: _sensorType,
+          decoration: const InputDecoration(labelText: 'Тип датчика', prefixIcon: Icon(Icons.memory)),
+          items: sensors.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontWeight: FontWeight.bold)))).toList(),
+          onChanged: (val) { if (val != null) { setState(() => _sensorType = val); _calculate(); } },
+        ),
+        const SizedBox(height: 15),
+        Card(
+          child: SwitchListTile(
+            title: Text(_modeTempToOhm ? "Ввод: Температура" : "Ввод: Сопротивление"),
+            value: _modeTempToOhm,
+            activeColor: Colors.blue,
+            onChanged: (val) { setState(() => _modeTempToOhm = val); _calculate(); },
+            secondary: const Icon(Icons.swap_horiz),
+          ),
+        ),
+        const SizedBox(height: 15),
+        TextField(
+          controller: _controller,
+          keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          decoration: InputDecoration(
+            labelText: _modeTempToOhm ? '°C' : 'Ом',
+            prefixIcon: const Icon(Icons.edit),
+          ),
+          onChanged: (_) => _calculate(),
+        ),
+        const Spacer(),
+        _ResultCard(result: _result, unit: _modeTempToOhm ? 'Ом' : '°C', context: context, subtitle: 'По линейной формуле ГОСТ'),
+        const SizedBox(height: 10),
+      ]),
+    );
+  }
+}
+
+// Общий виджет карточки результата
+class _ResultCard extends StatelessWidget {
+  final String result;
+  final String unit;
+  final BuildContext context;
+  final String? subtitle;
+
+  const _ResultCard({required this.result, required this.unit, required this.context, this.subtitle});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4))],
+      ),
+      child: Column(children: [
+        Text('Результат:', style: TextStyle(fontSize: 18, color: Theme.of(context).colorScheme.onPrimaryContainer)),
+        const SizedBox(height: 8),
+        Baseline(
+          baseline: 48.0,
+          baselineType: TextBaseline.alphabetic,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(result, style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+              const SizedBox(width: 8),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 12.0),
+                child: Text(unit, style: TextStyle(fontSize: 24, color: Theme.of(context).colorScheme.primary)),
+              ),
+            ],
+          ),
+        ),
+        if (subtitle != null) ...[
+          const SizedBox(height: 8),
+          Text(subtitle!, style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+        ],
+      ]),
+    );
+  }
+}
+
+// ================= SIEMENS SIPART PS2 (ПОДРОБНОЕ ОПИСАНИЕ ШАГОВ) =================
+class SiemensGuide extends StatefulWidget {
+  const SiemensGuide({super.key});
+  @override
+  State<SiemensGuide> createState() => _SiemensGuideState();
+}
+
+class _SiemensGuideState extends State<SiemensGuide> with SingleTickerProviderStateMixin {
+  late TabController _subTabController;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _subTabController = TabController(length: 4, vsync: this);
+    _searchController.addListener(() => setState(() => _searchQuery = _searchController.text.toLowerCase()));
+  }
+
+  @override
+  void dispose() {
+    _subTabController.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  final List<Map<String, dynamic>> _allParams = [
+    {'group': 'Инициализация', 'code': '1.YFCT', 'name': 'Тип привода', 'desc': 'Настройка типа привода.', 'values': 'turn, WAY...', 'default': 'WAY'},
+    {'group': 'Инициализация', 'code': '2.YAGL', 'name': 'Угол поворота', 'desc': 'Номинальный угол.', 'values': '33°, 90°', 'default': '33°'},
+    {'group': 'Инициализация', 'code': '4.INITA', 'name': 'Авто инициализация', 'desc': 'Запуск автонастройки.', 'values': 'NOINI, Strt', 'default': 'NOINI'},
+    {'group': 'Рабочие', 'code': '34.DEBA', 'name': 'Мертвая зона', 'desc': 'Зона нечувствительности.', 'values': 'Auto, 0.1...10%', 'default': 'Auto'},
+    {'group': 'Рабочие', 'code': '40.YCDO', 'name': 'Плотное закрытие (низ)', 'desc': 'Усилие закрытия.', 'values': '0.0...100%', 'default': '0.5'},
+  ];
+
+  final List<Map<String, String>> _errors = [
+    {'code': 'RUN1', 'msg': 'Нет движения', 'cause': 'Нет воздуха', 'action': 'Проверить PZ'},
+    {'code': 'RANGE', 'msg': 'Выход за диапазон', 'cause': 'Муфта сбилась', 'action': 'Покрутить муфту'},
+    {'code': 'MIDDL', 'msg': 'Нет середины', 'cause': 'Рычаг криво', 'action': 'Выставить горизонт'},
+    {'code': 'NOINI', 'msg': 'Не инициализирован', 'cause': 'Первый пуск', 'action': 'Запустить 4.INITA'},
+  ];
+
+  final List<Map<String, String>> _diagnostics = [
+    {'code': '1.STRKS', 'name': 'Число ходов', 'desc': 'Ресурс клапана.', 'unit': '-'},
+    {'code': '11.LEAK', 'name': 'Утечка', 'desc': 'Тест герметичности.', 'unit': '%/мин'},
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: TextField(
+            controller: _searchController,
+            decoration: InputDecoration(hintText: 'Поиск (параметр, ошибка)...', prefixIcon: const Icon(Icons.search)),
+          ),
+        ),
+        TabBar(
+          controller: _subTabController,
+          isScrollable: true,
+          tabs: const [Tab(text: '🚀 Пуск'), Tab(text: '📖 Параметры'), Tab(text: '🆘 Ошибки'), Tab(text: '📊 Диагностика')],
+        ),
+        Expanded(
+          child: TabBarView(
+            controller: _subTabController,
+            children: [_buildStartupTab(), _buildParamsTab(), _buildErrorsTab(), _buildDiagnosticsTab()],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStartupTab() {
+    if (_searchQuery.isNotEmpty) return const Center(child: Text("Поиск не активен на этой вкладке"));
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(children: [
+        _infoCard('Подготовка', ['✅ Давление PZ > 1.4 бар', '✅ Рычаг перпендикулярно']),
+        const SizedBox(height: 16),
+        
+        // Подробное описание Автоматической инициализации
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                CircleAvatar(backgroundColor: Colors.blue, radius: 16, child: const Text('1', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                const SizedBox(width: 12),
+                const Text('Автоматическая инициализация', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ]),
+              const SizedBox(height: 12),
+              const Text('1. Меню -> 4.INITA -> Выбрать Strt -> Удерживать MODE > 5 сек.', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              const Text('Этапы процесса (RUN1–RUN5):', style: TextStyle(fontStyle: FontStyle.italic)),
+              const SizedBox(height: 4),
+              _runStep('RUN 1', 'Определение направления действия. Привод делает короткий импульс.'),
+              _runStep('RUN 2', 'Проверка перемещения и подстройка пределов хода (0% и 100%).'),
+              _runStep('RUN 3', 'Определение времени хода + Тест герметичности (LEAKG).'),
+              _runStep('RUN 4', 'Минимизация значений приращения контроллера (поиск мин. импульса).'),
+              _runStep('RUN 5', 'Оптимизация переходного режима (расчет коэффициентов).'),
+              const SizedBox(height: 8),
+              const Text('Финал: Появляется надпись FINISH.', style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+            ]),
+          ),
+        ),
+
+        const SizedBox(height: 16),
+        
+        // Подробное описание Ручной инициализации
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                CircleAvatar(backgroundColor: Colors.orange, radius: 16, child: const Text('2', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                const SizedBox(width: 12),
+                const Text('Ручная инициализация', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              ]),
+              const SizedBox(height: 12),
+              const Text('Использовать, если автоматика выдает ошибку (RANGE, MIDDL).', style: TextStyle(fontStyle: FontStyle.italic)),
+              const SizedBox(height: 8),
+              const Text('1. Меню -> 5.INITM -> Выбрать Strt -> Удерживать MODE.', style: TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 8),
+              _runStep('Шаг А', 'Довести клапан в НИЖНИЙ предел кнопками +/- -> Нажать MODE (ok).'),
+              _runStep('Шаг Б', 'Довести клапан в ВЕРХНИЙ предел кнопками +/- -> Нажать MODE.'),
+              _runStep('Шаг В', 'Если запрос Set Middl: выставить рычаг горизонтально -> Нажать MODE.'),
+              const SizedBox(height: 8),
+              const Text('Далее прибор сам пройдет RUN 3–RUN 5.', style: TextStyle(color: Colors.blue)),
+            ]),
+          ),
+        ),
+      ]),
+    );
+  }
+
+  Widget _runStep(String title, String desc) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6, left: 28),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text('• ', style: TextStyle(color: Colors.grey[700])),
+        Expanded(child: RichText(text: TextSpan(
+          style: const TextStyle(color: Colors.black87, fontSize: 14),
+          children: [
+            TextSpan(text: '$title: ', style: const TextStyle(fontWeight: FontWeight.bold)),
+            TextSpan(text: desc),
+          ],
+        ))),
+      ]),
+    );
+  }
+
+  Widget _buildParamsTab() {
+    final filtered = _allParams.where((p) => p['code'].toString().toLowerCase().contains(_searchQuery) || p['name'].toString().toLowerCase().contains(_searchQuery)).toList();
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: filtered.length,
+      itemBuilder: (ctx, i) {
+        final p = filtered[i];
+        return Card(
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ExpansionTile(
+            leading: CircleAvatar(child: Text(p['code'].toString().split('.')[0])),
+            title: Text(p['code'], style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+            subtitle: Text(p['name']),
+            children: [
+              Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text('📝 ${p['desc']}'),
+                const SizedBox(height: 8),
+                Text('⚙️ Варианты: ${p['values']}', style: const TextStyle(fontStyle: FontStyle.italic)),
+                const SizedBox(height: 8),
+                Container(padding: const EdgeInsets.all(8), color: Colors.green[50], child: Text('🏭 Заводское: ${p['default']}', style: TextStyle(color: Colors.green[800], fontWeight: FontWeight.bold))),
+              ])),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildErrorsTab() {
+    final filtered = _errors.where((e) => e['code']!.toLowerCase().contains(_searchQuery)).toList();
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: filtered.isEmpty ? _errors.length : filtered.length,
+      itemBuilder: (ctx, i) {
+        final e = filtered.isEmpty ? _errors[i] : filtered[i];
+        return Card(
+          color: Colors.red[50],
+          margin: const EdgeInsets.only(bottom: 12),
+          child: ListTile(
+            leading: const Icon(Icons.error, color: Colors.red),
+            title: Text(e['code']!, style: const TextStyle(fontWeight: FontWeight.bold)),
+            subtitle: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(e['msg']!),
+              Text('⚠️ ${e['cause']}', style: const TextStyle(color: Colors.black87)),
+              Text('🛠 ${e['action']}', style: TextStyle(color: Colors.green[800], fontWeight: FontWeight.bold)),
+            ]),
+            isThreeLine: true,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDiagnosticsTab() {
+    final filtered = _diagnostics.where((d) => d['code']!.toLowerCase().contains(_searchQuery)).toList();
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: filtered.isEmpty ? _diagnostics.length : filtered.length,
+      itemBuilder: (ctx, i) {
+        final d = filtered.isEmpty ? _diagnostics[i] : filtered[i];
+        return Card(margin: const EdgeInsets.only(bottom: 12), child: ListTile(
+          leading: const Icon(Icons.analytics, color: Colors.purple),
+          title: Text(d['code']!, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace')),
+          subtitle: Text('${d['name']}: ${d['desc']} (${d['unit']})'),
+        ));
+      },
+    );
+  }
+
+  Widget _infoCard(String title, List<String> items) {
+    return Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      const Divider(),
+      ...items.map((i) => Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Text('• $i'))),
+    ])));
+  }
+}
+
+// ================= РЭМТЭК (С ВИДЕО!) =================
+class RemTekGuide extends StatelessWidget {
+  const RemTekGuide({super.key});
+
+  Future<void> _launchVideo(String url) async {
+    final Uri uri = Uri.parse(url);
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      throw Exception('Не удалось открыть $url');
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text('Электроприводы РЭМТЭК (П2)', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Text('Настройка через блок БУР-П2 / БУР-М', style: TextStyle(color: Colors.grey[600])),
+        const SizedBox(height: 20),
+
+        _videoCard(
+          title: '🎥 Видео: Калибровка точек 0% и 100%',
+          url: 'https://www.youtube.com/watch?v=mlZlgcLODEc',
+          description: 'Показан вход в меню (B2), выбор подпунктов (B2.1.2) и запись положений.',
+          steps: [
+            '1. Войти в меню (удерживать СТОП).',
+            '2. Найти раздел B2 -> B2.1 -> B2.1.2.',
+            '3. Для точки 0%: довести вал вручную в закрытое состояние, нажать СТОП.',
+            '4. Для точки 100%: довести вал в открытое состояние, нажать СТОП.',
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        _videoCard(
+          title: '🎥 Видео: Настройка моментов и времени хода',
+          url: 'https://www.youtube.com/watch?v=gx6hJQGNCvo&t=273s',
+          description: 'Настройка предельных моментов и ограничение времени хода.',
+          steps: [
+            '1. Раздел B2.2: Настройка моментов.',
+            '2. Установить момент ОТКРЫТИЯ и ЗАКРЫТИЯ.',
+            '3. Раздел B2 (время): Ограничить время хода.',
+            '4. Сохранить настройки и выйти.',
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        const Text('Расшифровка индикации', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
+            _codeRow('МУ', 'Местное Управление'),
+            _codeRow('Мз', 'Момент защиты (активен)'),
+            _codeRow('Пр', 'Процесс / Работа'),
+            _codeRow('ERR / Треугольник', 'Авария или требование калибровки'),
+          ])),
+        ),
+        const SizedBox(height: 40),
+      ]),
+    );
+  }
+
+  Widget _videoCard({required String title, required String url, required String description, required List<String> steps}) {
+    return Card(
+      elevation: 4,
+      color: Colors.blue[50],
+      child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(children: [
+          const Icon(Icons.play_circle_outline, size: 32, color: Colors.red),
+          const SizedBox(width: 12),
+          Expanded(child: Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold))),
+        ]),
+        const SizedBox(height: 8),
+        Text(description, style: const TextStyle(fontStyle: FontStyle.italic)),
+        const SizedBox(height: 16),
+        ElevatedButton.icon(
+          onPressed: () => _launchVideo(url),
+          icon: const Icon(Icons.youtube_searched_for),
+          label: const Text('Открыть видео на YouTube'),
+          style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white),
+        ),
+        const SizedBox(height: 16),
+        const Text('Порядок действий:', style: TextStyle(fontWeight: FontWeight.bold)),
+        ...steps.map((s) => Padding(padding: const EdgeInsets.only(top: 4, left: 8), child: Text(s))),
+      ])),
+    );
+  }
+
+  Widget _codeRow(String code, String desc) {
+    return Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Row(children: [
+      Text(code, style: const TextStyle(fontWeight: FontWeight.bold, fontFamily: 'monospace', fontSize: 16)),
+      const SizedBox(width: 12),
+      Expanded(child: Text(desc)),
+    ]));
+  }
+}
+
+// ================= СУ-1С (БЕЗ СЛОВА "СЛЕПОЙ") =================
+class Su1sGuide extends StatelessWidget {
+  const Su1sGuide({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        const Text('Сигнализатор СУ-1С', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 8),
+        Text('Диагностика мультиметром', style: TextStyle(color: Colors.grey[600])),
+        const SizedBox(height: 20),
+
+        // Место для будущей картинки схемы
+        // Когда добавишь картинку в assets/images/su1s_scheme.png, раскомментируй строку ниже:
+        // Image.asset('assets/images/su1s_scheme.png', height: 200), 
+        // const SizedBox(height: 20),
+
+        const Text('🗺️ Карта клеммной колодки', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        Card(
+          child: Padding(padding: const EdgeInsets.all(16), child: Column(children: [
+            _terminalRow('1', 'Уровень (Общий / COM)'),
+            _terminalRow('2', 'Уровень (Нормально Разомкнутый / NO)'),
+            _terminalRow('3', 'Уровень (Нормально Замкнутый / NC)'),
+            const Divider(),
+            _terminalRow('4', 'Исправность (Общий / COM)'),
+            _terminalRow('5', 'Исправность (Нормально Разомкнутый / NO)'),
+            const Divider(),
+            _terminalRow('6', 'Питание (+) 24В'),
+            _terminalRow('7', 'Питание (-) 0В'),
+            const Divider(),
+            _terminalRow('8, 9', 'Заземление'),
+            _terminalRow('10, 11', 'Подогрев (опция)'),
+          ])),
+        ),
+        const SizedBox(height: 20),
+
+        const Text('🛠 Чек-лист проверки мультиметром', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        const SizedBox(height: 12),
+        
+        _checkCard('1. Проверка питания', [
+          'Режим мультиметра: Постоянное напряжение (V=).',
+          'Щупы на контакты: 6 (+) и 7 (-).',
+          'Норма: 24 ± 2 Вольта.',
+          'Если 0В: Нет питания в линии.'
+        ]),
+        const SizedBox(height: 12),
+
+        _checkCard('2. Проверка реле УРОВНЯ (1-2-3)', [
+          'Режим мультиметра: Прозвонка (Ω).',
+          'БАК ПУСТОЙ:',
+          '  • 1-3 (НЗ): Должен звониться (0 Ом).',
+          '  • 1-2 (НР): Не должен звониться (∞).',
+          'БАК ПОЛНЫЙ:',
+          '  • 1-3 (НЗ): Не должен звониться.',
+          '  • 1-2 (НР): Должен звониться.',
+          'Диагноз: Если не переключается — реле сгорело.'
+        ]),
+        const SizedBox(height: 12),
+
+        _checkCard('3. Проверка реле ИСПРАВНОСТЬ (4-5)', [
+          'Режим мультиметра: Прозвонка.',
+          'НОРМА (Прибор жив): Цепь 4-5 РАЗОМКНУТА (тишина).',
+          'АВАРИЯ (Обрыв датчика): Цепь 4-5 ЗАМКНУТА (звонок).',
+          'Важно: Этот контакт часто висит на общей аварийной шине.'
+        ]),
+        const SizedBox(height: 40),
+      ]),
+    );
+  }
+
+  Widget _terminalRow(String num, String desc) {
+    return Padding(padding: const EdgeInsets.symmetric(vertical: 4), child: Row(children: [
+      Container(width: 30, height: 30, alignment: Alignment.center, decoration: BoxDecoration(color: Colors.blue[100], borderRadius: BorderRadius.circular(4)), child: Text(num, style: const TextStyle(fontWeight: FontWeight.bold))),
+      const SizedBox(width: 12),
+      Expanded(child: Text(desc)),
+    ]));
+  }
+
+  Widget _checkCard(String title, List<String> steps) {
+    return Card(
+      child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.blue)),
+        const Divider(),
+        ...steps.map((s) => Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(s, style: const TextStyle(fontSize: 14)))),
+      ])),
+    );
+  }
+}

@@ -141,9 +141,9 @@ class _TemperatureConverterState extends State<TemperatureConverter> {
         TextField(controller: _controller, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Значение', prefixIcon: Icon(Icons.numbers)), onChanged: (_) => _calculate()),
         const SizedBox(height: 16),
         Row(children: [
-          Expanded(child: DropdownButtonFormField<String>(value: _fromUnit, decoration: const InputDecoration(labelText: 'Из'), items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!))).toList(), onChanged: (v) { if(v!=null){setState((){_fromUnit=v;_calculate();});} })),
+          Expanded(child: DropdownButtonFormField<String>(initialValue: _fromUnit, decoration: const InputDecoration(labelText: 'Из'), items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!))).toList(), onChanged: (v) { if(v!=null){setState((){_fromUnit=v;_calculate();});} })),
           const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward)),
-          Expanded(child: DropdownButtonFormField<String>(value: _toUnit, decoration: const InputDecoration(labelText: 'В'), items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!))).toList(), onChanged: (v) { if(v!=null){setState((){_toUnit=v;_calculate();});} })),
+          Expanded(child: DropdownButtonFormField<String>(initialValue: _toUnit, decoration: const InputDecoration(labelText: 'В'), items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!))).toList(), onChanged: (v) { if(v!=null){setState((){_toUnit=v;_calculate();});} })),
         ]),
         const SizedBox(height: 24),
         _ResultCard(result: _result, unit: _toUnit == 'C' ? '°C' : (_toUnit == 'F' ? '°F' : 'K'), context: context),
@@ -180,9 +180,9 @@ class _PressureConverterState extends State<PressureConverter> {
         TextField(controller: _controller, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Значение', prefixIcon: Icon(Icons.speed)), onChanged: (_) => _calculate()),
         const SizedBox(height: 16),
         Row(children: [
-          Expanded(child: DropdownButtonFormField<String>(value: _fromUnit, decoration: const InputDecoration(labelText: 'Из'), items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!, style: const TextStyle(fontSize: 12)))).toList(), onChanged: (v) { if(v!=null){setState((){_fromUnit=v;_calculate();});} })),
+          Expanded(child: DropdownButtonFormField<String>(initialValue: _fromUnit, decoration: const InputDecoration(labelText: 'Из'), items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!, style: const TextStyle(fontSize: 12)))).toList(), onChanged: (v) { if(v!=null){setState((){_fromUnit=v;_calculate();});} })),
           const Padding(padding: EdgeInsets.symmetric(horizontal: 8), child: Icon(Icons.arrow_forward)),
-          Expanded(child: DropdownButtonFormField<String>(value: _toUnit, decoration: const InputDecoration(labelText: 'В'), items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!, style: const TextStyle(fontSize: 12)))).toList(), onChanged: (v) { if(v!=null){setState((){_toUnit=v;_calculate();});} })),
+          Expanded(child: DropdownButtonFormField<String>(initialValue: _toUnit, decoration: const InputDecoration(labelText: 'В'), items: units.map((u) => DropdownMenuItem(value: u['code'], child: Text(u['name']!, style: const TextStyle(fontSize: 12)))).toList(), onChanged: (v) { if(v!=null){setState((){_toUnit=v;_calculate();});} })),
         ]),
         const SizedBox(height: 24),
         _ResultCard(result: _result, unit: units.firstWhere((u) => u['code'] == _toUnit)['name'] ?? '', context: context),
@@ -220,9 +220,9 @@ class _ResistanceConverterState extends State<ResistanceConverter> {
           Text(_modeTempToOhm ? "Режим: °C → Ом" : "Режим: Ом → °C", style: TextStyle(color: Colors.blue[800], fontStyle: FontStyle.italic)),
         ]))),
         const SizedBox(height: 16),
-        DropdownButtonFormField<String>(value: _sensorType, decoration: const InputDecoration(labelText: 'Тип датчика', prefixIcon: Icon(Icons.memory)), items: sensors.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontWeight: FontWeight.bold)))).toList(), onChanged: (v) { if(v!=null){setState((){_sensorType=v;_calculate();});} }),
+        DropdownButtonFormField<String>(initialValue: _sensorType, decoration: const InputDecoration(labelText: 'Тип датчика', prefixIcon: Icon(Icons.memory)), items: sensors.map((s) => DropdownMenuItem(value: s, child: Text(s, style: const TextStyle(fontWeight: FontWeight.bold)))).toList(), onChanged: (v) { if(v!=null){setState((){_sensorType=v;_calculate();});} }),
         const SizedBox(height: 12),
-        Card(child: SwitchListTile(title: Text(_modeTempToOhm ? "Ввод: Температура" : "Ввод: Сопротивление"), value: _modeTempToOhm, activeColor: Colors.blue, onChanged: (v) { setState((){_modeTempToOhm=v;_calculate();}); }, secondary: const Icon(Icons.swap_horiz), contentPadding: const EdgeInsets.symmetric(horizontal: 8))),
+        Card(child: SwitchListTile(title: Text(_modeTempToOhm ? "Ввод: Температура" : "Ввод: Сопротивление"), value: _modeTempToOhm, activeThumbColor: Colors.blue, onChanged: (v) { setState((){_modeTempToOhm=v;_calculate();}); }, secondary: const Icon(Icons.swap_horiz), contentPadding: const EdgeInsets.symmetric(horizontal: 8))),
         const SizedBox(height: 12),
         TextField(controller: _controller, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: InputDecoration(labelText: _modeTempToOhm ? '°C' : 'Ом', prefixIcon: const Icon(Icons.edit)), onChanged: (_) => _calculate()),
         const SizedBox(height: 24),
@@ -242,7 +242,7 @@ class _ResultCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.1), blurRadius: 8, offset: const Offset(0, 4))],
+        boxShadow: [BoxShadow(color: Colors.black.withValues(alpha:0.1), blurRadius: 8, offset: const Offset(0, 4))],
       ),
       child: Column(children: [
         Text('Результат:', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.onPrimaryContainer)),
@@ -657,7 +657,7 @@ class _SiemensGuideState extends State<SiemensGuide> with SingleTickerProviderSt
 
   Widget _modeCard(String title, List<String> content, Color color) {
     return Card(
-      color: color.withOpacity(0.1),
+      color: color.withValues(alpha:0.1),
       child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: color)),
         const Divider(),
@@ -1326,7 +1326,7 @@ Widget _buildGalleryTab() {
             ]),
           ),
         ]),
-      )).toList(), // .toList() обязателен после map() для Spread-оператора ...
+      )), // .toList() обязателен после map() для Spread-оператора ...
     ]),
   );
 }

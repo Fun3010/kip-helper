@@ -1,17 +1,18 @@
-# kip_helper
+# KIP Helper 🛠️
 
-A new Flutter project.
+Приложение-помощник для слесаря КИПиА на Flutter.
 
-## Getting Started
+## Функционал
+- 🔢 Калькуляторы: температура, давление, сопротивление ТС
+- ⚙️ Инструкции по настройке:
+  - Siemens SIPART PS2
+  - РЭМТЭК (исп. 8/81)
+  - СОКРАТ-Р3/Н3
+  - СУ-1С
+- 🆘 Справочники ошибок и кодов диагностики
+- 📸 Галерея реальных аварий с пошаговым решением
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Сборка
+```bash
+flutter pub get
+flutter run

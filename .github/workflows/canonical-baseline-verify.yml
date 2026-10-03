@@ -126,8 +126,7 @@ jobs:
             echo "Signing secret/private key material is present in the CI working tree" >&2
             exit 1
           fi
-          if git ls-files | grep -E '(^|/)([^/]+\.(jks|keystore)|key\.properties|local\.properties)
- ; then
+          if git ls-files | grep -E '(^|/)([^/]+\.(jks|keystore)|key\.properties|local\.properties)$' ; then
             echo "Forbidden signing/local configuration file is tracked by Git" >&2
             exit 1
           fi

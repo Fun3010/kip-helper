@@ -119,12 +119,16 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          if find . -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname 'key.properties' -o -iname 'local.properties' \) -print | grep -q .; then
-            echo "Secret/local configuration file is tracked or present" >&2
+          echo "--- local/generated safety files after build ---"
+          find . -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname 'key.properties' -o -iname 'local.properties' \) -print | sort || true
+
+          if find . -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname 'key.properties' \) -print | grep -q .; then
+            echo "Signing secret/private key material is present in the CI working tree" >&2
             exit 1
           fi
-          if git ls-files | grep -E '(^|/)([^/]+\.(jks|keystore)|key\.properties|local\.properties)$' ; then
-            echo "Forbidden tracked file detected" >&2
+          if git ls-files | grep -E '(^|/)([^/]+\.(jks|keystore)|key\.properties|local\.properties)
+ ; then
+            echo "Forbidden signing/local configuration file is tracked by Git" >&2
             exit 1
           fi
           echo "safety_scan=PASS"

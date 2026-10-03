@@ -1,0 +1,115 @@
+name: Canonical baseline verification
+
+on:
+  push:
+    branches:
+      - transport/canonical-sync-2026-10-03
+    paths:
+      - ".github/workflows/canonical-baseline-verify.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-canonical-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout canonical sync branch
+        uses: actions/checkout@v4
+        with:
+          ref: chore/canonical-sync-1.2.1
+          fetch-depth: 0
+
+      - name: Install Flutter 3.41.6
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl -fsSL https://storage.googleapis.com/flutter_infra_release/releases/releases_linux.json -o /tmp/flutter-releases.json
+          python - <<'PY' > /tmp/flutter-url.txt
+          import json
+          data=json.load(open("/tmp/flutter-releases.json",encoding="utf-8"))
+          matches=[r for r in data["releases"] if r.get("version")=="3.41.6" and r.get("channel")=="stable"]
+          if len(matches)!=1:
+              raise SystemExit(f"Expected one Flutter 3.41.6 stable release, got {len(matches)}")
+          print(data["base_url"].rstrip("/")+"/"+matches[0]["archive"].lstrip("/"))
+          PY
+          FLUTTER_URL="$(cat /tmp/flutter-url.txt)"
+          echo "Flutter archive: $FLUTTER_URL"
+          curl -fsSL "$FLUTTER_URL" -o /tmp/flutter.tar.xz
+          sudo rm -rf /opt/flutter
+          sudo tar -xf /tmp/flutter.tar.xz -C /opt
+          sudo chown -R "$USER":"$USER" /opt/flutter
+          git config --global --add safe.directory /opt/flutter
+          echo "/opt/flutter/bin" >> "$GITHUB_PATH"
+
+      - name: Toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter --version
+          dart --version
+          java -version
+          flutter doctor -v
+
+      - name: Restore dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter pub get
+
+      - name: Verify formatting
+        shell: bash
+        run: |
+          set -euo pipefail
+          dart format --output=none --set-exit-if-changed lib test
+
+      - name: Static analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter analyze
+
+      - name: Full test suite
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter test 2>&1 | tee /tmp/flutter-test.log
+          tail -n 20 /tmp/flutter-test.log
+
+      - name: Build debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter build apk --debug
+          test -s build/app/outputs/flutter-apk/app-debug.apk
+          stat -c 'debug_apk_bytes=%s' build/app/outputs/flutter-apk/app-debug.apk
+
+      - name: Verify release signing guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          flutter build apk --release > /tmp/release-guard.log 2>&1
+          rc=$?
+          set -e
+          tail -n 120 /tmp/release-guard.log
+          if [ "$rc" -eq 0 ]; then
+            echo "Release build unexpectedly succeeded without private signing configuration" >&2
+            exit 1
+          fi
+          grep -q "Release signing is not configured" /tmp/release-guard.log
+          echo "release_guard=PASS"
+
+      - name: Final repository safety scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          if find . -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname 'key.properties' -o -iname 'local.properties' \) -print | grep -q .; then
+            echo "Secret/local configuration file is tracked or present" >&2
+            exit 1
+          fi
+          if git ls-files | grep -E '(^|/)([^/]+\.(jks|keystore)|key\.properties|local\.properties)$' ; then
+            echo "Forbidden tracked file detected" >&2
+            exit 1
+          fi
+          echo "safety_scan=PASS"

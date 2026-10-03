@@ -1,0 +1,143 @@
+name: Canonical source transport
+
+on:
+  push:
+    branches:
+      - transport/canonical-sync-2026-10-03
+    paths:
+      - ".github/workflows/canonical-sync-transport.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  import-canonical-source:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout transport branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate canonical archive
+        shell: bash
+        run: |
+          set -euo pipefail
+          ARCHIVE="$GITHUB_WORKSPACE/.transport/kip-helper-source-2026-10-02.zip"
+          test -f "$ARCHIVE"
+          test "$(stat -c %s "$ARCHIVE")" = "2180721"
+          echo "6b9d84ecfc74270f0e358215b7b843fb09541583b36b6374e6f6eb8c0c3a05e1  $ARCHIVE" | sha256sum -c -
+
+          rm -rf /tmp/kip-canonical
+          mkdir -p /tmp/kip-canonical
+          python - <<'PY'
+          from pathlib import Path
+          from zipfile import ZipFile
+          import hashlib, json, sys
+
+          archive = Path(".transport/kip-helper-source-2026-10-02.zip")
+          root = Path("/tmp/kip-canonical")
+
+          with ZipFile(archive) as z:
+              z.extractall(root)
+
+          manifest = json.loads((root / "SOURCE_MANIFEST.json").read_text(encoding="utf-8"))
+          errors = []
+          for rel, expected in manifest.items():
+              path = root / rel
+              if not path.is_file():
+                  errors.append(f"MISSING {rel}")
+                  continue
+              actual = hashlib.sha256(path.read_bytes()).hexdigest()
+              if actual != expected:
+                  errors.append(f"HASH {rel}: {actual} != {expected}")
+
+          actual_files = {
+              p.relative_to(root).as_posix()
+              for p in root.rglob("*")
+              if p.is_file()
+          }
+          allowed_extras = {"SOURCE_MANIFEST.json", "RESTORE.md"}
+          extras = actual_files - set(manifest) - allowed_extras
+          missing_extras = allowed_extras - actual_files
+
+          if errors or extras or missing_extras:
+              print("\n".join(errors), file=sys.stderr)
+              if extras:
+                  print(f"UNEXPECTED EXTRA FILES: {sorted(extras)}", file=sys.stderr)
+              if missing_extras:
+                  print(f"MISSING REQUIRED EXTRA FILES: {sorted(missing_extras)}", file=sys.stderr)
+              raise SystemExit(1)
+
+          print(f"manifest_ok={len(manifest)}")
+          print(f"actual_files={len(actual_files)}")
+          PY
+
+          grep -qx 'version: 1.2.1+4' /tmp/kip-canonical/pubspec.yaml
+          grep -q 'namespace = "ru.kiphelper.app"' /tmp/kip-canonical/android/app/build.gradle.kts
+          grep -q 'applicationId = "ru.kiphelper.app"' /tmp/kip-canonical/android/app/build.gradle.kts
+          grep -q 'applicationIdSuffix = ".dev"' /tmp/kip-canonical/android/app/build.gradle.kts
+
+          if find /tmp/kip-canonical -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname 'key.properties' -o -iname 'local.properties' -o -iname '*.apk' \) -print | grep -q .; then
+            echo "Forbidden signing/local/build artifact found" >&2
+            exit 1
+          fi
+
+          if grep -RIl --binary-files=without-match -E 'BEGIN (RSA |EC |OPENSSH )?PRIVATE KEY' /tmp/kip-canonical | grep -q .; then
+            echo "Private key material found" >&2
+            exit 1
+          fi
+
+      - name: Import into synchronization branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          TARGET=/tmp/kip-sync-target
+          rm -rf "$TARGET" /tmp/kip-superpowers
+
+          git fetch origin chore/canonical-sync-1.2.1
+          git worktree add -B canonical-sync-target "$TARGET" origin/chore/canonical-sync-1.2.1
+
+          if [ -d "$TARGET/docs/superpowers" ]; then
+            cp -a "$TARGET/docs/superpowers" /tmp/kip-superpowers
+          fi
+
+          find "$TARGET" -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/kip-canonical/. "$TARGET/"
+
+          if [ -d /tmp/kip-superpowers ]; then
+            mkdir -p "$TARGET/docs"
+            cp -a /tmp/kip-superpowers "$TARGET/docs/superpowers"
+          fi
+
+          cd "$TARGET"
+
+          test ! -e lib/main.dart.tmp
+          grep -qx 'version: 1.2.1+4' pubspec.yaml
+          grep -q 'applicationId = "ru.kiphelper.app"' android/app/build.gradle.kts
+
+          if find . -type f \( -iname '*.jks' -o -iname '*.keystore' -o -iname 'key.properties' -o -iname 'local.properties' -o -iname '*.apk' \) -print | grep -q .; then
+            echo "Forbidden file entered target tree" >&2
+            exit 1
+          fi
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+
+          echo "---- staged diff summary ----"
+          git diff --cached --stat
+          git diff --cached --quiet && { echo "No canonical changes staged" >&2; exit 1; }
+
+          git commit -m "chore: restore canonical KIP Helper 1.2.1 source"
+          git push origin HEAD:chore/canonical-sync-1.2.1
+
+          {
+            echo "## Canonical import"
+            echo
+            echo "- Archive SHA-256: `6b9d84ecfc74270f0e358215b7b843fb09541583b36b6374e6f6eb8c0c3a05e1`"
+            echo "- Manifest entries verified: 190"
+            echo "- Version: `1.2.1+4`"
+            echo "- Package: `ru.kiphelper.app`"
+            echo "- Commit: `$(git rev-parse HEAD)`"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -69,6 +69,15 @@ jobs:
           set -euo pipefail
           flutter analyze
 
+      - name: Diagnose Flutter test fonts
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo '--- exact candidate fonts in Flutter 3.41.6 ---'
+          find /opt/flutter -type f \( -iname 'Ahem.ttf' -o -iname 'Roboto*.ttf' -o -iname '*Roboto*.otf' \) -print | sort
+          echo '--- material_fonts directory if present ---'
+          find /opt/flutter/bin/cache/artifacts/material_fonts -maxdepth 2 -type f -print 2>/dev/null | sort || true
+
       - name: Full test suite
         shell: bash
         run: |

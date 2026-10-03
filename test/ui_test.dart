@@ -129,7 +129,7 @@ void main() {
       final loader = FontLoader(family)
         ..addFont(
           File(
-            '${fonts.path}/roboto-regular.ttf',
+            '${fonts.path}/Roboto-Regular.ttf',
           ).readAsBytes().then((bytes) => ByteData.sublistView(bytes)),
         );
       await loader.load();

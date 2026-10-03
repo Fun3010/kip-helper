@@ -78,6 +78,12 @@ jobs:
           echo '--- material_fonts directory if present ---'
           find /opt/flutter/bin/cache/artifacts/material_fonts -maxdepth 2 -type f -print 2>/dev/null | sort || true
 
+      - name: Focused UI regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter test test/ui_test.dart
+
       - name: Full test suite
         shell: bash
         run: |

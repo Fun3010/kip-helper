@@ -42,7 +42,8 @@ const guides = <InstrumentGuide>[
               sourceKey: 'sipart-compact',
               locator: '§ 7.1.2 · РЭ с. 74',
               state: GuideEvidenceState.verified,
-              note: 'Диапазон давления питания 1,4–7 бар закреплён точной страницей РЭ.',
+              note:
+                  'Диапазон давления питания 1,4–7 бар закреплён точной страницей РЭ.',
             ),
           ],
         },
@@ -275,7 +276,8 @@ const guides = <InstrumentGuide>[
               sourceKey: 'sokrat-re',
               locator: 'рег. 213–214 · РЭ с. 23; рег. 217 · с. 24, табл. 13–14',
               state: GuideEvidenceState.verified,
-              note: 'Единицы и масштаб регистров закреплены точными страницами РЭ.',
+              note:
+                  'Единицы и масштаб регистров закреплены точными страницами РЭ.',
             ),
           ],
         },

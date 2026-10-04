@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kip_helper/data/guides.dart';
+import 'package:kip_helper/models/guide.dart';
 import 'dart:io';
 
 void main() {
@@ -43,6 +44,72 @@ void main() {
       }
     }
   });
+  test('Exemplar guides trace every paragraph to explicit evidence', () {
+    const exemplarIds = {'sipart', 'sokrat', 'su1s', 'stm10'};
+    final exemplars = guides.where((g) => exemplarIds.contains(g.id)).toList();
+
+    expect(exemplars.length, exemplarIds.length);
+    for (final guide in exemplars) {
+      final keyedSources = guide.sources.where((source) => source.key != null);
+      expect(
+        keyedSources.map((source) => source.key).toSet().length,
+        guide.sources.length,
+        reason: '${guide.id}: every exemplar source needs a unique key',
+      );
+
+      for (final section in guide.sections) {
+        for (
+          var paragraphIndex = 0;
+          paragraphIndex < section.paragraphs.length;
+          paragraphIndex++
+        ) {
+          final evidence = section.evidenceFor(paragraphIndex);
+          expect(
+            evidence,
+            isNotEmpty,
+            reason:
+                '${guide.id} / ${section.title} / paragraph $paragraphIndex',
+          );
+          for (final item in evidence) {
+            expect(item.locator.trim(), isNotEmpty);
+            expect(
+              guide.sourceByKey(item.sourceKey),
+              isNotNull,
+              reason: '${guide.id}: missing source key ${item.sourceKey}',
+            );
+          }
+        }
+      }
+    }
+
+    final sokrat = guides.firstWhere((g) => g.id == 'sokrat');
+    expect(
+      sokrat.sections
+          .expand((section) => section.evidenceByParagraph.values)
+          .expand((items) => items)
+          .where((item) => item.state == GuideEvidenceState.verified)
+          .any((item) => item.locator.contains('PDF с. 51–52')),
+      isTrue,
+    );
+
+    final stm10 = guides.firstWhere((g) => g.id == 'stm10');
+    final stm10States = stm10.sections
+        .expand((section) => section.evidenceByParagraph.values)
+        .expand((items) => items)
+        .map((item) => item.state)
+        .toSet();
+    expect(stm10States, contains(GuideEvidenceState.needsVisualCheck));
+    expect(stm10States, contains(GuideEvidenceState.workingChecklist));
+  });
+
+  test('Evidence participates in catalogue search', () {
+    expect(
+      guides.where((g) => g.matches('визуально закрепить')).single.id,
+      'stm10',
+    );
+    expect(guides.where((g) => g.matches('pdf с. 51–52')).single.id, 'sokrat');
+  });
+
   test('Search covers model scopes, codes and empty results', () {
     expect(guides.where((g) => g.matches('ргау.407834.006')).single.id, 'su1s');
     expect(guides.where((g) => g.matches('a01')).single.id, 'sokrat');

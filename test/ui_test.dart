@@ -70,6 +70,28 @@ void main() {
     expect(find.byType(GuideIllustrationCard), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+  testWidgets('Fact evidence exposes verification state on the guide page', (
+    tester,
+  ) async {
+    phone(tester, width: 320);
+    await tester.pumpWidget(
+      screen(
+        GuidePage(guide: guides.firstWhere((g) => g.id == 'stm10')),
+        scale: 1.5,
+      ),
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Развернуть всё'));
+    await tester.pumpAndSettle();
+    expect(find.text('Скан · нужна визуальная сверка'), findsWidgets);
+    expect(
+      find.text('Рабочий чек-лист · не дословная процедура'),
+      findsWidgets,
+    );
+    expect(find.textContaining('АПИ2.840.069 РЭ'), findsWidgets);
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('Category filter combines with search and resets', (
     tester,
   ) async {

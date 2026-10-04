@@ -23,12 +23,7 @@ class GuideEvidence {
 }
 
 class GuideSource {
-  const GuideSource({
-    required this.title,
-    this.key,
-    this.url,
-    this.document,
-  });
+  const GuideSource({required this.title, this.key, this.url, this.document});
 
   final String title;
   final String? key;

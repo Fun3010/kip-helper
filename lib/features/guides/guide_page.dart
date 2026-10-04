@@ -72,10 +72,11 @@ class _GuidePageState extends State<GuidePage> {
                     children: [
                       Text(
                         _evidenceStateLabel(evidence.state),
-                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          fontWeight: FontWeight.w600,
-                        ),
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(
+                              color: colors.onSurfaceVariant,
+                              fontWeight: FontWeight.w600,
+                            ),
                       ),
                       const SizedBox(height: 2),
                       Text(
@@ -89,10 +90,11 @@ class _GuidePageState extends State<GuidePage> {
                         const SizedBox(height: 2),
                         Text(
                           evidence.note!,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: colors.onSurfaceVariant,
-                            height: 1.35,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: colors.onSurfaceVariant,
+                                height: 1.35,
+                              ),
                         ),
                       ],
                     ],
@@ -244,8 +246,9 @@ class _GuidePageState extends State<GuidePage> {
                                   section.paragraphs[paragraphIndex],
                                   style: const TextStyle(height: 1.55),
                                 ),
-                                for (final evidence
-                                    in section.evidenceFor(paragraphIndex))
+                                for (final evidence in section.evidenceFor(
+                                  paragraphIndex,
+                                ))
                                   _evidenceRow(context, guide, evidence),
                               ],
                             ),

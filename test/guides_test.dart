@@ -107,10 +107,7 @@ void main() {
       guides.where((g) => g.matches('визуально закрепить')).single.id,
       'stm10',
     );
-    expect(
-      guides.where((g) => g.matches('pdf с. 51–52')).single.id,
-      'sokrat',
-    );
+    expect(guides.where((g) => g.matches('pdf с. 51–52')).single.id, 'sokrat');
   });
 
   test('Search covers model scopes, codes and empty results', () {

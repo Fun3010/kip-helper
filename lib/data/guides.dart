@@ -72,7 +72,8 @@ const guides = <InstrumentGuide>[
             ),
             GuideEvidence(
               sourceKey: 'sipart-product',
-              locator: 'исполнения без переключателя передачи/фрикционной муфты',
+              locator:
+                  'исполнения без переключателя передачи/фрикционной муфты',
               state: GuideEvidenceState.verified,
             ),
           ],
@@ -527,7 +528,8 @@ const guides = <InstrumentGuide>[
           1: [
             GuideEvidence(
               sourceKey: 'stm10-re',
-              locator: 'методика проверки нуля/чувствительности нужного исполнения',
+              locator:
+                  'методика проверки нуля/чувствительности нужного исполнения',
               state: GuideEvidenceState.needsVisualCheck,
               note:
                   'Точные страницы и процедура будут добавлены только после OCR и визуальной сверки сканированного РЭ.',

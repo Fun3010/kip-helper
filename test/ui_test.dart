@@ -81,13 +81,10 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    await tester.tap(find.byTooltip('Развернуть всё'));
+    await tester.enterText(find.byType(TextField), 'чувствительности');
     await tester.pumpAndSettle();
     expect(find.text('Скан · нужна визуальная сверка'), findsWidgets);
-    expect(
-      find.text('Рабочий чек-лист · не дословная процедура'),
-      findsWidgets,
-    );
+    expect(find.textContaining('РЭ с. 43'), findsWidgets);
     expect(find.textContaining('АПИ2.840.069 РЭ'), findsWidgets);
     expect(tester.takeException(), isNull);
   });

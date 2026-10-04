@@ -133,7 +133,8 @@ void main() {
     expect(
       sipartEvidence.any(
         (item) =>
-            item.state == GuideEvidenceState.locatorPending &&
+            item.state == GuideEvidenceState.verified &&
+            item.locator.contains('РЭ с. 210') &&
             item.locator.contains('RUN1/RUN2/RUN3'),
       ),
       isTrue,

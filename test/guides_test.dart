@@ -175,7 +175,7 @@ void main() {
 
   test('Evidence participates in catalogue search', () {
     expect(
-      guides.where((g) => g.matches('визуальной сверки')).single.id,
+      guides.where((g) => g.matches('визуально сверить')).single.id,
       'stm10',
     );
     expect(guides.where((g) => g.matches('рэ с. 51–52')).single.id, 'sokrat');

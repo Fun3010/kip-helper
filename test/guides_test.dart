@@ -83,12 +83,59 @@ void main() {
     }
 
     final sokrat = guides.firstWhere((g) => g.id == 'sokrat');
+    final sokratEvidence = sokrat.sections
+        .expand((section) => section.evidenceByParagraph.values)
+        .expand((items) => items)
+        .toList();
     expect(
-      sokrat.sections
-          .expand((section) => section.evidenceByParagraph.values)
-          .expand((items) => items)
-          .where((item) => item.state == GuideEvidenceState.verified)
-          .any((item) => item.locator.contains('PDF с. 51–52')),
+      sokratEvidence.any(
+        (item) =>
+            item.state == GuideEvidenceState.verified &&
+            item.locator.contains('РЭ с. 58') &&
+            item.locator.contains('с. 59'),
+      ),
+      isTrue,
+    );
+    expect(
+      sokratEvidence.any(
+        (item) =>
+            item.state == GuideEvidenceState.verified &&
+            item.locator.contains('РЭ с. 23') &&
+            item.locator.contains('с. 24'),
+      ),
+      isTrue,
+    );
+
+    final su1s = guides.firstWhere((g) => g.id == 'su1s');
+    final su1sVerified = su1s.sections
+        .expand((section) => section.evidenceByParagraph.values)
+        .expand((items) => items)
+        .where((item) => item.state == GuideEvidenceState.verified)
+        .map((item) => item.locator)
+        .join(' ');
+    for (final page in ['с. 7', 'с. 13', 'с. 27', 'с. 38']) {
+      expect(su1sVerified, contains(page));
+    }
+
+    final sipart = guides.firstWhere((g) => g.id == 'sipart');
+    final sipartEvidence = sipart.sections
+        .expand((section) => section.evidenceByParagraph.values)
+        .expand((items) => items)
+        .toList();
+    expect(
+      sipartEvidence.any(
+        (item) =>
+            item.state == GuideEvidenceState.verified &&
+            item.locator.contains('РЭ с. 74'),
+      ),
+      isTrue,
+    );
+    expect(
+      sipartEvidence.any(
+        (item) =>
+            item.state == GuideEvidenceState.locatorPending &&
+            item.locator.contains('RUN1/RUN2/RUN3'),
+      ),
       isTrue,
     );
 
@@ -98,16 +145,28 @@ void main() {
         .expand((items) => items)
         .map((item) => item.state)
         .toSet();
+    expect(stm10States, contains(GuideEvidenceState.verified));
     expect(stm10States, contains(GuideEvidenceState.needsVisualCheck));
     expect(stm10States, contains(GuideEvidenceState.workingChecklist));
+    expect(
+      stm10.sections
+          .expand((section) => section.evidenceByParagraph.values)
+          .expand((items) => items)
+          .any(
+            (item) =>
+                item.state == GuideEvidenceState.verified &&
+                item.locator.contains('РЭ с. 4'),
+          ),
+      isTrue,
+    );
   });
 
   test('Evidence participates in catalogue search', () {
     expect(
-      guides.where((g) => g.matches('визуально закрепить')).single.id,
+      guides.where((g) => g.matches('визуальной сверки')).single.id,
       'stm10',
     );
-    expect(guides.where((g) => g.matches('pdf с. 51–52')).single.id, 'sokrat');
+    expect(guides.where((g) => g.matches('рэ с. 51–52')).single.id, 'sokrat');
   });
 
   test('Search covers model scopes, codes and empty results', () {

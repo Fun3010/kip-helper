@@ -155,6 +155,17 @@ void main() {
           .expand((items) => items)
           .any(
             (item) =>
+                item.state == GuideEvidenceState.needsVisualCheck &&
+                item.locator.contains('РЭ с. 43'),
+          ),
+      isTrue,
+    );
+    expect(
+      stm10.sections
+          .expand((section) => section.evidenceByParagraph.values)
+          .expand((items) => items)
+          .any(
+            (item) =>
                 item.state == GuideEvidenceState.verified &&
                 item.locator.contains('РЭ с. 4'),
           ),

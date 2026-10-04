@@ -526,7 +526,8 @@ const guides = <InstrumentGuide>[
           1: [
             GuideEvidence(
               sourceKey: 'stm10-re',
-              locator: '§ 3.2 · РЭ с. 43 · проверка нуля и чувствительности по ГС',
+              locator:
+                  '§ 3.2 · РЭ с. 43 · проверка нуля и чувствительности по ГС',
               state: GuideEvidenceState.needsVisualCheck,
               note:
                   'Раздел и страница установлены по текстовому слою РЭ; официальный скан этой страницы ещё нужно визуально сверить.',

@@ -22,28 +22,27 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'sipart-compact',
-              locator: '§§ 5.6–5.7',
-              state: GuideEvidenceState.locatorPending,
+              locator: '§§ 5.6–5.7 · РЭ с. 59–65',
+              state: GuideEvidenceState.verified,
               note:
-                  'Тип привода и монтаж подтверждены разделами руководства; номер PDF-страницы ещё не зафиксирован.',
+                  'Раздельные процедуры для линейного и поворотного привода закреплены точным диапазоном страниц.',
             ),
           ],
           1: [
             GuideEvidence(
               sourceKey: 'sipart-compact',
-              locator: '§§ 5.6–5.8 · автоматическая инициализация',
-              state: GuideEvidenceState.locatorPending,
+              locator: '§§ 5.6.2, 5.7.2, 5.8 · РЭ с. 60–66',
+              state: GuideEvidenceState.verified,
               note:
-                  'Полный ход при инициализации подтверждён; номер PDF-страницы ещё не зафиксирован.',
+                  'Автоматическая инициализация и её отмена закреплены точными страницами компактного РЭ.',
             ),
           ],
           2: [
             GuideEvidence(
               sourceKey: 'sipart-compact',
-              locator: '§ 7.1.2 · пневматические характеристики',
-              state: GuideEvidenceState.locatorPending,
-              note:
-                  'Диапазон 1,4–7 бар подтверждён; точная PDF-страница ещё не закреплена.',
+              locator: '§ 7.1.2 · РЭ с. 74',
+              state: GuideEvidenceState.verified,
+              note: 'Диапазон давления питания 1,4–7 бар закреплён точной страницей РЭ.',
             ),
           ],
         },
@@ -67,8 +66,8 @@ const guides = <InstrumentGuide>[
           1: [
             GuideEvidence(
               sourceKey: 'sipart-compact',
-              locator: '4.INITA; §§ 5.6–5.8',
-              state: GuideEvidenceState.locatorPending,
+              locator: '4.INITA · РЭ с. 56; §§ 5.6.2 и 5.7.2 · с. 60 и 64',
+              state: GuideEvidenceState.verified,
             ),
             GuideEvidence(
               sourceKey: 'sipart-product',
@@ -192,10 +191,10 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'sokrat-re',
-              locator: '§ 3.10 · PDF с. 51–52; § 3.11',
-              state: GuideEvidenceState.locatorPending,
+              locator: '§ 3.10 · РЭ с. 51–53; § 3.11 · с. 54',
+              state: GuideEvidenceState.verified,
               note:
-                  'Страницы полного хода закреплены; для § 3.11 точная PDF-страница ещё не внесена в карточку.',
+                  'Крайние положения и настройка отключения по моменту закреплены точными страницами РЭ.',
             ),
           ],
         },
@@ -258,10 +257,9 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'sokrat-re',
-              locator: 'табл. 36 и 38',
-              state: GuideEvidenceState.locatorPending,
-              note:
-                  'Коды сверены с таблицами РЭ; точные PDF-страницы таблиц ещё не закреплены.',
+              locator: 'табл. 36 · РЭ с. 58; табл. 38 · с. 59',
+              state: GuideEvidenceState.verified,
+              note: 'Коды аварий закреплены точными таблицами и страницами РЭ.',
             ),
           ],
         },
@@ -275,10 +273,9 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'sokrat-re',
-              locator: 'табл. 13–14',
-              state: GuideEvidenceState.locatorPending,
-              note:
-                  'Единицы и масштаб проверены по РЭ; точные PDF-страницы таблиц ещё не закреплены.',
+              locator: 'рег. 213–214 · РЭ с. 23; рег. 217 · с. 24, табл. 13–14',
+              state: GuideEvidenceState.verified,
+              note: 'Единицы и масштаб регистров закреплены точными страницами РЭ.',
             ),
           ],
         },
@@ -357,26 +354,25 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'su1s-re',
-              locator: 'пп. 1.4.5 и 2.5.2',
-              state: GuideEvidenceState.locatorPending,
-              note:
-                  'Карта контактов подтверждена; номер PDF-страницы ещё не закреплён.',
+              locator: 'п. 1.4.5 · РЭ с. 13',
+              state: GuideEvidenceState.verified,
+              note: 'Назначение контактов закреплено точной страницей РЭ.',
             ),
           ],
           1: [
             GuideEvidence(
               sourceKey: 'su1s-re',
-              locator: 'пп. 1.4.5 и 2.5.2; схема исполнения',
-              state: GuideEvidenceState.locatorPending,
+              locator: 'п. 1.4.5 · РЭ с. 13',
+              state: GuideEvidenceState.verified,
             ),
           ],
           2: [
             GuideEvidence(
               sourceKey: 'su1s-re',
-              locator: 'приложение Л; приложение А',
-              state: GuideEvidenceState.locatorPending,
+              locator: 'приложение Л · РЭ с. 38; приложение А · с. 27',
+              state: GuideEvidenceState.verified,
               note:
-                  'Приложения установлены точно; PDF-страницы ещё не закреплены.',
+                  'Расположение контактов и внешняя схема закреплены точными страницами приложений.',
             ),
           ],
         },
@@ -391,15 +387,15 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'su1s-re',
-              locator: 'п. 1.2.2',
-              state: GuideEvidenceState.locatorPending,
+              locator: 'п. 1.2.2 · РЭ с. 7',
+              state: GuideEvidenceState.verified,
             ),
           ],
           1: [
             GuideEvidence(
               sourceKey: 'su1s-re',
-              locator: 'п. 1.2.7',
-              state: GuideEvidenceState.locatorPending,
+              locator: 'п. 1.2.7 · РЭ с. 7',
+              state: GuideEvidenceState.verified,
             ),
           ],
         },
@@ -414,16 +410,16 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'su1s-re',
-              locator: 'релейные выходы РЭ + безопасная методика измерения',
+              locator: 'п. 2.5.3 · РЭ с. 23–24',
               state: GuideEvidenceState.workingChecklist,
               note:
-                  'Формулировка безопасной проверки является рабочим чек-листом, а не дословной процедурой изготовителя.',
+                  'РЭ подтверждает проверку контактов омметром; требование исключить внешнее напряжение сформулировано как безопасный рабочий чек-лист.',
             ),
           ],
           1: [
             GuideEvidence(
               sourceKey: 'su1s-re',
-              locator: 'питание электронной части и релейные выходы',
+              locator: 'п. 2.5.3 · РЭ с. 23–24',
               state: GuideEvidenceState.workingChecklist,
             ),
           ],
@@ -492,10 +488,10 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'stm10-re',
-              locator: 'пп. 1.1.1–1.1.3',
-              state: GuideEvidenceState.needsVisualCheck,
+              locator: 'пп. 1.1.1–1.1.3 · РЭ с. 4',
+              state: GuideEvidenceState.verified,
               note:
-                  'Назначение подтверждено индексированным фрагментом официального PDF. Полное текстовое извлечение скана не удалось; страницу нужно визуально закрепить.',
+                  'Страница сканированного РЭ визуально сверена: назначение и термохимический принцип подтверждены.',
             ),
           ],
           1: [

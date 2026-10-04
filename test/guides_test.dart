@@ -178,7 +178,7 @@ void main() {
       guides.where((g) => g.matches('визуально сверить')).single.id,
       'stm10',
     );
-    expect(guides.where((g) => g.matches('рэ с. 51–52')).single.id, 'sokrat');
+    expect(guides.where((g) => g.matches('рэ с. 58')).single.id, 'sokrat');
   });
 
   test('Search covers model scopes, codes and empty results', () {

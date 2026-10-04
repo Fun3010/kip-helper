@@ -80,10 +80,10 @@ const guides = <InstrumentGuide>[
           2: [
             GuideEvidence(
               sourceKey: 'sipart-full',
-              locator: '§ 11.1 · RUN1/RUN2/RUN3',
-              state: GuideEvidenceState.locatorPending,
+              locator: '§ 11.1.2 · РЭ с. 210 · RUN1/RUN2/RUN3',
+              state: GuideEvidenceState.verified,
               note:
-                  'Смысл этапов подтверждён полным РЭ; номер PDF-страницы ещё не зафиксирован.',
+                  'Таблица системных сообщений подтверждает назначение этапов RUN1, RUN2 и RUN3.',
             ),
           ],
           3: [

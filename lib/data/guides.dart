@@ -18,6 +18,35 @@ const guides = <InstrumentGuide>[
           'Инициализация перемещает привод по диапазону. Подготовьте арматуру и технологический процесс к этому движению.',
           'Допустимое давление питания PS2 — 1,4…7 бар; фактическое давление выбирают с учётом пределов привода. Проверьте качество воздуха и отсутствие утечек.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'sipart-compact',
+              locator: '§§ 5.6–5.7',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Тип привода и монтаж подтверждены разделами руководства; номер PDF-страницы ещё не зафиксирован.',
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'sipart-compact',
+              locator: '§§ 5.6–5.8 · автоматическая инициализация',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Полный ход при инициализации подтверждён; номер PDF-страницы ещё не зафиксирован.',
+            ),
+          ],
+          2: [
+            GuideEvidence(
+              sourceKey: 'sipart-compact',
+              locator: '§ 7.1.2 · пневматические характеристики',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Диапазон 1,4–7 бар подтверждён; точная PDF-страница ещё не закреплена.',
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Автоматическая настройка · 4.INITA',
@@ -27,6 +56,45 @@ const guides = <InstrumentGuide>[
           'RUN1 — определение направления действия. RUN2 — определение хода и конечных положений. RUN3 — определение времени перемещения. Это этапы настройки, а не самостоятельные коды аварии.',
           'После успешного завершения проверьте соответствие задания фактическому положению на нескольких точках диапазона и только затем возвращайте автоматическое управление.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'sipart-compact',
+              locator: '§§ 5.6–5.7 · 1.YFCT',
+              state: GuideEvidenceState.locatorPending,
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'sipart-compact',
+              locator: '4.INITA; §§ 5.6–5.8',
+              state: GuideEvidenceState.locatorPending,
+            ),
+            GuideEvidence(
+              sourceKey: 'sipart-product',
+              locator: 'исполнения без переключателя передачи/фрикционной муфты',
+              state: GuideEvidenceState.verified,
+            ),
+          ],
+          2: [
+            GuideEvidence(
+              sourceKey: 'sipart-full',
+              locator: '§ 11.1 · RUN1/RUN2/RUN3',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Смысл этапов подтверждён полным РЭ; номер PDF-страницы ещё не зафиксирован.',
+            ),
+          ],
+          3: [
+            GuideEvidence(
+              sourceKey: 'sipart-compact',
+              locator: 'проверка результата после инициализации',
+              state: GuideEvidenceState.workingChecklist,
+              note:
+                  'Проверка нескольких точек диапазона сформулирована как эксплуатационный чек-лист, а не дословная процедура изготовителя.',
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Если настройка не завершается',
@@ -34,18 +102,43 @@ const guides = <InstrumentGuide>[
           'Запишите точный текст дисплея и этап RUN. Проверьте питание воздухом, подключение выходов, свободный ход и установку механики обратной связи.',
           'Не изменяйте муфту и ограничители без инструкции именно к установленной версии. Диагностические сообщения и дальнейшие действия приведены в полном руководстве.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'sipart-full',
+              locator: '§ 11.1 · этапы инициализации',
+              state: GuideEvidenceState.workingChecklist,
+              note:
+                  'Последовательность первичных проверок собрана как диагностический чек-лист.',
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'sipart-product',
+              locator: 'варианты механики семейства SIPART PS2',
+              state: GuideEvidenceState.verified,
+            ),
+          ],
+        },
       ),
     ],
     sources: [
       GuideSource(
+        key: 'sipart-compact',
         title: 'Siemens · компактное РЭ, 02/2024',
         url:
             'https://cache.industry.siemens.com/dl/files/665/109972665/att_1291485/v1/A5E03436620en_PS2_COI_en-US.pdf',
       ),
       GuideSource(
+        key: 'sipart-full',
         title: 'Siemens · PS2 HART, полное РЭ',
         url:
             'https://cache.industry.siemens.com/dl/files/419/109782419/att_1034214/v1/A5E00074631-AFen_PS2HART_OI_en-US.pdf',
+      ),
+      GuideSource(
+        key: 'sipart-product',
+        title: 'Siemens · SIPART PS2, страница изделия',
+        url: 'https://www.siemens.com/en-us/products/sitrans/sipart-ps2/',
       ),
     ],
   ),
@@ -94,6 +187,17 @@ const guides = <InstrumentGuide>[
         paragraphs: [
           'Разрешите полный ход арматуры. Сверьте направление вращения и соответствующий параметр. Уплотнение по моменту дополнительно настраивается по разделу 3.11.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'sokrat-re',
+              locator: '§ 3.10 · PDF с. 51–52; § 3.11',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Страницы полного хода закреплены; для § 3.11 точная PDF-страница ещё не внесена в карточку.',
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Запись закрытого положения',
@@ -102,6 +206,26 @@ const guides = <InstrumentGuide>[
           '2. Рукоятку №2 поверните к КЛБ/ПРОГ на 0,2…2 с и отпустите. Затем №1 — к ЗАКР.',
           '3. Удерживайте №3 на ВВОД/СТОП до показания 0% и индикации закрытия.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'sokrat-re',
+              locator: '§ 3.10 · PDF с. 51–52',
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'sokrat-re',
+              locator: '§ 3.10 · PDF с. 51–52',
+            ),
+          ],
+          2: [
+            GuideEvidence(
+              sourceKey: 'sokrat-re',
+              locator: '§ 3.10 · PDF с. 51–52',
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Запись открытого положения',
@@ -109,22 +233,59 @@ const guides = <InstrumentGuide>[
           '4. Ручным дублером выставьте открытое положение.',
           '5. Кратко поверните №2 к КЛБ/ПРОГ, затем №1 к ОТКР. Удерживайте №3 на ВВОД/СТОП до 100% и индикации открытия.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'sokrat-re',
+              locator: '§ 3.10 · PDF с. 51–52',
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'sokrat-re',
+              locator: '§ 3.10 · PDF с. 51–52',
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Аварии · таблицы 36, 38',
         paragraphs: [
           'А01/A01 — момент; А02/A02 — заклинивание; А03/A03 — нет движения; А04/A04 — перегрев; А27/A27 — аналоговый вход; А28/A28 — датчик положения (ремонт); А31/A31 — выход за пределы.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'sokrat-re',
+              locator: 'табл. 36 и 38',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Коды сверены с таблицами РЭ; точные PDF-страницы таблиц ещё не закреплены.',
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Единицы защиты',
         paragraphs: [
           '213: 60…80%; 217: 125…140% номинального напряжения. 214: значение 10…60 означает 1…6 с. Это не рекомендуемые уставки.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'sokrat-re',
+              locator: 'табл. 13–14',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Единицы и масштаб проверены по РЭ; точные PDF-страницы таблиц ещё не закреплены.',
+            ),
+          ],
+        },
       ),
     ],
     sources: [
       GuideSource(
+        key: 'sokrat-re',
         title: 'Сибмаш · Р3/Н3, ПО 03.01, РЭ',
         url:
             'https://www.sibmash.com/docs/Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf',
@@ -191,6 +352,33 @@ const guides = <InstrumentGuide>[
           '6 — +24 В; 7 — минус питания; 8 и 9 — внутреннее заземление; 10 и 11 — обогрев. Питание обогрева сверяйте отдельно по схеме исполнения.',
           'Это номера контактов, не их геометрическое расположение. Расположение — приложение Л; внешние соединения — приложение А РЭ.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'su1s-re',
+              locator: 'пп. 1.4.5 и 2.5.2',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Карта контактов подтверждена; номер PDF-страницы ещё не закреплён.',
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'su1s-re',
+              locator: 'пп. 1.4.5 и 2.5.2; схема исполнения',
+              state: GuideEvidenceState.locatorPending,
+            ),
+          ],
+          2: [
+            GuideEvidence(
+              sourceKey: 'su1s-re',
+              locator: 'приложение Л; приложение А',
+              state: GuideEvidenceState.locatorPending,
+              note:
+                  'Приложения установлены точно; PDF-страницы ещё не закреплены.',
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Уровень и исправность',
@@ -198,6 +386,22 @@ const guides = <InstrumentGuide>[
           'Без жидкости на контролируемом уровне: 1–3 замкнуты, 1–2 разомкнуты. При достижении уровня: 1–2 замкнуты, 1–3 разомкнуты (п. 1.2.2).',
           'Исправность подтверждается замкнутыми контактами 4–5 (п. 1.2.7). Разрыв этой цепи не подтверждает исправное состояние.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'su1s-re',
+              locator: 'п. 1.2.2',
+              state: GuideEvidenceState.locatorPending,
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'su1s-re',
+              locator: 'п. 1.2.7',
+              state: GuideEvidenceState.locatorPending,
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Проверка мультиметром',
@@ -205,10 +409,29 @@ const guides = <InstrumentGuide>[
           'Прозванивайте сухие контакты только при отсутствии внешнего напряжения в измеряемой цепи. Отсоедините её от внешней автоматики по принятой процедуре обслуживания.',
           'Состояние реле проверяют при предусмотренном РЭ питании электронной части. Напряжение измеряют в режиме вольтметра; омметр для этого не подходит.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'su1s-re',
+              locator: 'релейные выходы РЭ + безопасная методика измерения',
+              state: GuideEvidenceState.workingChecklist,
+              note:
+                  'Формулировка безопасной проверки является рабочим чек-листом, а не дословной процедурой изготовителя.',
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'su1s-re',
+              locator: 'питание электронной части и релейные выходы',
+              state: GuideEvidenceState.workingChecklist,
+            ),
+          ],
+        },
       ),
     ],
     sources: [
       GuideSource(
+        key: 'su1s-re',
         title: 'РГАУ.407834.006 РЭ · зеркало поставщика, 2014',
         url: 'https://kip-device.ru/f/re_su-1s_201411_a.pdf',
       ),
@@ -264,6 +487,26 @@ const guides = <InstrumentGuide>[
           'Термохимический сигнализатор непрерывно контролирует довзрывоопасные концентрации горючих газов и паров и сигнализирует о превышении заданных порогов.',
           'Для диагностики различайте превышение порога концентрации и неисправность измерительного канала. Запишите номер канала, индикацию, модификацию блока и маркировку выносного датчика.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'stm10-re',
+              locator: 'пп. 1.1.1–1.1.3',
+              state: GuideEvidenceState.needsVisualCheck,
+              note:
+                  'Назначение подтверждено индексированным фрагментом официального PDF. Полное текстовое извлечение скана не удалось; страницу нужно визуально закрепить.',
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'stm10-re',
+              locator: 'идентификация исполнения и канала перед диагностикой',
+              state: GuideEvidenceState.workingChecklist,
+              note:
+                  'Это рабочий чек-лист идентификации, а не дословная сервисная процедура изготовителя.',
+            ),
+          ],
+        },
       ),
       GuideSection(
         title: 'Перед проверкой',
@@ -271,10 +514,31 @@ const guides = <InstrumentGuide>[
           'Запишите полное обозначение измерительного блока и датчика. Сверьте единицы шкалы, газ, пороги сигнализации и межповерочный интервал с паспортом.',
           'Проверку нуля и чувствительности выполняют с предусмотренными изготовителем средствами и газовыми смесями. Калькулятор 4–20 мА проверяет масштабирование сигнала, но не заменяет газовую проверку.',
         ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'stm10-re',
+              locator: 'паспорт исполнения + АПИ2.840.069 РЭ',
+              state: GuideEvidenceState.workingChecklist,
+              note:
+                  'Пункты собраны для безопасной идентификации прибора до вмешательства.',
+            ),
+          ],
+          1: [
+            GuideEvidence(
+              sourceKey: 'stm10-re',
+              locator: 'методика проверки нуля/чувствительности нужного исполнения',
+              state: GuideEvidenceState.needsVisualCheck,
+              note:
+                  'Точные страницы и процедура будут добавлены только после OCR и визуальной сверки сканированного РЭ.',
+            ),
+          ],
+        },
       ),
     ],
     sources: [
       GuideSource(
+        key: 'stm10-re',
         title: 'Аналитприбор · СТМ-10, АПИ2.840.069 РЭ',
         url:
             'https://www.analitpribor-smolensk.ru/files/rukovodstva/2015/ctm-10/stm-10_api2_840_069_re.pdf',

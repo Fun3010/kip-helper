@@ -1,4 +1,4 @@
-package com.example.kip_helper
+package ru.kiphelper.app
 
 import io.flutter.embedding.android.FlutterActivity
 

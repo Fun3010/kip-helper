@@ -1,0 +1,86 @@
+[
+  {
+    "asset": "assets/illustrations/iva8-thumbnail.png",
+    "document": "2020-13560-11 ОТ ИВА-8.pdf",
+    "pdf_page": 2,
+    "crop_points": [
+      100,
+      190,
+      235,
+      300
+    ],
+    "source_sha256": "8785ca493b569b0f64647a19921552695f87832326557d977600c77dc8905e8d",
+    "method": "PDF region rendered at 216 dpi; no redrawing",
+    "document_path": "docs/Оборудование/ИВА-8/ТД/2020-13560-11 ОТ ИВА-8.pdf"
+  },
+  {
+    "asset": "assets/illustrations/sokrat-thumbnail.png",
+    "document": "Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf",
+    "pdf_page": 3,
+    "crop_points": [
+      435,
+      58,
+      634,
+      276
+    ],
+    "source_sha256": "dc33ec57e01bd06a9628a7b2a0ba247e3c34aca00a3e391f33b2034c831d578a",
+    "method": "PDF region rendered at 216 dpi; no redrawing",
+    "document_path": "docs/Оборудование/СОКРАТ/ТД/Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf"
+  },
+  {
+    "asset": "assets/illustrations/iva8-overview.png",
+    "document": "2020-13560-11 ОТ ИВА-8.pdf",
+    "pdf_page": 2,
+    "crop_points": [
+      65,
+      185,
+      554,
+      391
+    ],
+    "source_sha256": "8785ca493b569b0f64647a19921552695f87832326557d977600c77dc8905e8d",
+    "method": "PDF region rendered at 216 dpi; no redrawing",
+    "document_path": "docs/Оборудование/ИВА-8/ТД/2020-13560-11 ОТ ИВА-8.pdf"
+  },
+  {
+    "asset": "assets/illustrations/sokrat-overview.png",
+    "document": "Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf",
+    "pdf_page": 3,
+    "crop_points": [
+      431,
+      53,
+      791,
+      546
+    ],
+    "source_sha256": "dc33ec57e01bd06a9628a7b2a0ba247e3c34aca00a3e391f33b2034c831d578a",
+    "method": "PDF region rendered at 216 dpi; no redrawing",
+    "document_path": "docs/Оборудование/СОКРАТ/ТД/Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf"
+  },
+  {
+    "asset": "assets/illustrations/sokrat-controls.png",
+    "document": "Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf",
+    "pdf_page": 31,
+    "crop_points": [
+      431,
+      128,
+      791,
+      544
+    ],
+    "source_sha256": "dc33ec57e01bd06a9628a7b2a0ba247e3c34aca00a3e391f33b2034c831d578a",
+    "method": "PDF region rendered at 216 dpi; no redrawing",
+    "document_path": "docs/Оборудование/СОКРАТ/ТД/Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf"
+  },
+  {
+    "asset": "assets/illustrations/sokrat-current-loop.png",
+    "document": "Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf",
+    "pdf_page": 22,
+    "crop_points": [
+      54,
+      52,
+      413,
+      356
+    ],
+    "source_sha256": "dc33ec57e01bd06a9628a7b2a0ba247e3c34aca00a3e391f33b2034c831d578a",
+    "method": "PDF region rendered at 216 dpi; no redrawing",
+    "document_path": "docs/Оборудование/СОКРАТ/ТД/Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf"
+  }
+]

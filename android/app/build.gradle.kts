@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("kotlin-android")
@@ -5,8 +7,21 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+val signingFile = rootProject.file("key.properties")
+val releaseKeys = Properties().apply {
+    if (signingFile.exists()) signingFile.inputStream().use { load(it) }
+}
+val hasReleaseKeys = listOf("storeFile", "storePassword", "keyAlias", "keyPassword")
+    .all { !releaseKeys.getProperty(it).isNullOrBlank() }
+// Never silently publish an APK signed by the Android debug key.
+gradle.taskGraph.whenReady {
+    if (allTasks.any { it.project == project && it.name.contains("Release") } && !hasReleaseKeys) {
+        throw GradleException("Release signing is not configured. See docs/private-distribution.md")
+    }
+}
+
 android {
-    namespace = "com.example.kip_helper"
+    namespace = "ru.kiphelper.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -20,8 +35,7 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "com.example.kip_helper"
+        applicationId = "ru.kiphelper.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -30,11 +44,24 @@ android {
         versionName = flutter.versionName
     }
 
+    signingConfigs {
+        if (hasReleaseKeys) {
+            create("privateRelease") {
+                storeFile = rootProject.file(releaseKeys.getProperty("storeFile"))
+                storePassword = releaseKeys.getProperty("storePassword")
+                keyAlias = releaseKeys.getProperty("keyAlias")
+                keyPassword = releaseKeys.getProperty("keyPassword")
+            }
+        }
+    }
+
     buildTypes {
+        debug {
+            applicationIdSuffix = ".dev"
+            versionNameSuffix = "-dev"
+        }
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            if (hasReleaseKeys) signingConfig = signingConfigs.getByName("privateRelease")
         }
     }
 }

@@ -65,6 +65,8 @@ jobs:
                       event = json.loads(raw)
                   except json.JSONDecodeError:
                       continue
+                  if not isinstance(event, dict):
+                      continue
                   if event.get('type') != 'testDone' or event.get('hidden'):
                       continue
                   total += 1
@@ -75,6 +77,8 @@ jobs:
                       skipped += 1
                   else:
                       failed += 1
+          if total == 0:
+              raise SystemExit('No visible tests were counted from flutter test --machine output')
           summary = f"Flutter tests: total={total}, passed={passed}, skipped={skipped}, failed={failed}"
           print(summary)
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a', encoding='utf-8') as out:

@@ -8,6 +8,7 @@ import 'features/guides/guide_page.dart';
 import 'services/open_source.dart';
 import 'services/quick_access.dart';
 import 'widgets/favorite_button.dart';
+import 'widgets/quick_access_notice.dart';
 
 class KipHelperApp extends StatelessWidget {
   const KipHelperApp({super.key});
@@ -236,12 +237,7 @@ class _HomePageState extends State<HomePage> {
                   ),
           ),
         ),
-        if (_quickAccess.saveFailed) ...[
-          const SizedBox(height: 12),
-          const Text(
-            'Не удалось сохранить быстрый доступ. Изменения могут потеряться после закрытия приложения.',
-          ),
-        ],
+        QuickAccessNotice(controller: _quickAccess),
         const SizedBox(height: 12),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,

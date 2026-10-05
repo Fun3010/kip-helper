@@ -3,6 +3,7 @@ import '../../models/guide.dart';
 import '../../services/open_source.dart';
 import '../../services/quick_access.dart';
 import '../../widgets/favorite_button.dart';
+import '../../widgets/quick_access_notice.dart';
 import '../../widgets/su1s_contacts.dart';
 import '../../widgets/guide_illustration.dart';
 
@@ -150,6 +151,8 @@ class _GuidePageState extends State<GuidePage> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
               children: [
+                if (widget.quickAccess != null)
+                  QuickAccessNotice(controller: widget.quickAccess!),
                 Text(
                   guide.subtitle,
                   style: Theme.of(context).textTheme.titleMedium,

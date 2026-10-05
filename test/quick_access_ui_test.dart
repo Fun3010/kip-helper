@@ -100,6 +100,17 @@ void main() {
       await selectView(tester, 'Недавние');
       expect(visibleGuideTitles(tester), ['SIPART PS2', 'СОКРАТ']);
       expect(find.text('ИВА-8'), findsNothing);
+      await tester.pumpWidget(const SizedBox.shrink());
+      await tester.pumpAndSettle();
+      await (await SharedPreferences.getInstance()).reload();
+      await start(tester);
+      expect(visibleGuideTitles(tester), ['SIPART PS2', 'СОКРАТ']);
+      expect(
+        tester
+            .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Недавние'))
+            .selected,
+        isTrue,
+      );
     },
   );
 
@@ -151,6 +162,23 @@ void main() {
     await selectView(tester, 'Избранное');
     expect(find.text('SIPART PS2'), findsOneWidget);
     expect(find.text('СУ-1С'), findsNothing);
+  });
+
+  testWidgets('Favorites compose with search and category', (tester) async {
+    SharedPreferences.setMockInitialValues({
+      'kip.quickAccess.v1': jsonEncode({
+        'favorites': ['sipart', 'su1s'],
+        'view': 'favorites',
+      }),
+    });
+    await start(tester);
+    await selectView(tester, 'Позиционеры');
+    await search(tester, 'СУ-1С');
+    expect(find.widgetWithText(Card, 'СУ-1С'), findsNothing);
+    expect(find.widgetWithText(Card, 'SIPART PS2'), findsNothing);
+    await selectView(tester, 'Все');
+    expect(find.widgetWithText(Card, 'СУ-1С'), findsOneWidget);
+    expect(find.widgetWithText(Card, 'SIPART PS2'), findsNothing);
   });
 
   for (final stored in [
@@ -210,6 +238,43 @@ void main() {
   });
 
   for (final brightness in Brightness.values) {
+    testWidgets('Populated quick access and detail fit 320px in $brightness', (
+      tester,
+    ) async {
+      tester.view.physicalSize = const Size(320, 844);
+      tester.view.devicePixelRatio = 1;
+      tester.platformDispatcher.platformBrightnessTestValue = brightness;
+      tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      SharedPreferences.setMockInitialValues({
+        'kip.quickAccess.v1': jsonEncode({
+          'favorites': ['sipart'],
+          'recent': ['sipart'],
+          'view': 'favorites',
+        }),
+      });
+      await start(tester);
+      expect(
+        find.byTooltip('Удалить SIPART PS2 из избранного'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+      await selectView(tester, 'Недавние');
+      final card = find.widgetWithText(Card, 'SIPART PS2');
+      await tester.ensureVisible(card);
+      await tester.tap(card);
+      await tester.pumpAndSettle();
+      expect(find.byType(GuidePage), findsOneWidget);
+      expect(
+        find.byTooltip('Удалить SIPART PS2 из избранного'),
+        findsOneWidget,
+      );
+      expect(tester.takeException(), isNull);
+    });
+
     testWidgets('Quick access fits 320px at 150 percent text in $brightness', (
       tester,
     ) async {

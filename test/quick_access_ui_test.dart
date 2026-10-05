@@ -37,7 +37,7 @@ Future<void> visit(WidgetTester tester, String title) async {
   await tester.tap(find.widgetWithText(Card, title));
   await tester.pumpAndSettle();
   expect(find.byType(GuidePage), findsOneWidget);
-  await tester.pageBack();
+  await tester.tap(find.byType(BackButton));
   await tester.pumpAndSettle();
 }
 
@@ -82,7 +82,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.tap(find.byTooltip('Добавить SIPART PS2 в избранное'));
     await tester.pumpAndSettle();
-    await tester.pageBack();
+    await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
     await selectView(tester, 'Избранное');
     expect(find.text('SIPART PS2'), findsOneWidget);
@@ -186,6 +186,25 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('SIPART PS2'), findsOneWidget);
+    expect(find.byTooltip('Удалить SIPART PS2 из избранного'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('Detail shows failed favorite persistence without leaving page', (
+    tester,
+  ) async {
+    SharedPreferencesStorePlatform.instance = RejectingWritesStore();
+    await start(tester);
+    await search(tester, 'SIPART');
+    await tester.tap(find.widgetWithText(Card, 'SIPART PS2'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Добавить SIPART PS2 в избранное'));
+    await tester.pumpAndSettle();
+    expect(find.byType(GuidePage), findsOneWidget);
+    expect(
+      find.textContaining('Не удалось сохранить быстрый доступ'),
+      findsOneWidget,
+    );
     expect(find.byTooltip('Удалить SIPART PS2 из избранного'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });

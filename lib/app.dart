@@ -287,7 +287,7 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Text(
                 query.isEmpty && _category == null
-                    ? '${_quickAccess.view.label} приборов'
+                    ? _quickAccess.view.title
                     : 'Найдено: ${filtered.length}',
                 style: Theme.of(
                   context,

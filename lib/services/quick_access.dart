@@ -6,12 +6,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/guide.dart';
 
 enum CatalogueView {
-  catalog('Каталог'),
-  favorites('Избранное'),
-  recent('Недавние');
+  catalog('Каталог', 'Каталог приборов'),
+  favorites('Избранное', 'Избранные приборы'),
+  recent('Недавние', 'Недавние приборы');
 
-  const CatalogueView(this.label);
+  const CatalogueView(this.label, this.title);
   final String label;
+  final String title;
 }
 
 /// One local snapshot and ordered writes keep rapid taps from saving stale state.

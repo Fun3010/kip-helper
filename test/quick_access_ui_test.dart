@@ -5,6 +5,15 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:kip_helper/app.dart';
 import 'package:kip_helper/features/guides/guide_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
+
+class RejectingWritesStore extends InMemorySharedPreferencesStore {
+  RejectingWritesStore() : super.empty();
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async =>
+      false;
+}
 
 Future<void> start(WidgetTester tester) async {
   await tester.pumpWidget(const KipHelperApp());
@@ -163,6 +172,23 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   }
+
+  testWidgets('Failed persistence is visible while catalogue stays usable', (
+    tester,
+  ) async {
+    SharedPreferencesStorePlatform.instance = RejectingWritesStore();
+    await start(tester);
+    await search(tester, 'SIPART');
+    await tester.tap(find.byTooltip('Добавить SIPART PS2 в избранное'));
+    await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Не удалось сохранить быстрый доступ'),
+      findsOneWidget,
+    );
+    expect(find.text('SIPART PS2'), findsOneWidget);
+    expect(find.byTooltip('Удалить SIPART PS2 из избранного'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
 
   for (final brightness in Brightness.values) {
     testWidgets('Quick access fits 320px at 150 percent text in $brightness', (

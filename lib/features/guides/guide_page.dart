@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../models/guide.dart';
 import '../../services/open_source.dart';
+import '../../services/quick_access.dart';
+import '../../widgets/favorite_button.dart';
+import '../../widgets/quick_access_notice.dart';
 import '../../widgets/su1s_contacts.dart';
 import '../../widgets/guide_illustration.dart';
 
 class GuidePage extends StatefulWidget {
-  const GuidePage({super.key, required this.guide});
+  const GuidePage({super.key, required this.guide, this.quickAccess});
   final InstrumentGuide guide;
+  final QuickAccessController? quickAccess;
   @override
   State<GuidePage> createState() => _GuidePageState();
 }
@@ -130,6 +134,8 @@ class _GuidePageState extends State<GuidePage> {
       appBar: AppBar(
         title: Text(guide.title),
         actions: [
+          if (widget.quickAccess != null)
+            FavoriteButton(guide: guide, controller: widget.quickAccess!),
           IconButton(
             tooltip: _expandAll ? 'Свернуть всё' : 'Развернуть всё',
             onPressed: () => setState(() => _expandAll = !_expandAll),
@@ -145,6 +151,8 @@ class _GuidePageState extends State<GuidePage> {
             child: ListView(
               padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
               children: [
+                if (widget.quickAccess != null)
+                  QuickAccessNotice(controller: widget.quickAccess!),
                 Text(
                   guide.subtitle,
                   style: Theme.of(context).textTheme.titleMedium,

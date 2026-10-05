@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kip_helper/app.dart';
 import 'package:kip_helper/data/guides.dart';
 import 'package:kip_helper/domain/calculations.dart';
@@ -39,6 +40,7 @@ Widget screen(Widget child, {bool dark = false, double scale = 1}) =>
     );
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
   for (final brightness in Brightness.values) {
     testWidgets('Catalogue fits 320px at large text in $brightness', (
       tester,
@@ -96,6 +98,7 @@ void main() {
   ) async {
     phone(tester);
     await tester.pumpWidget(const KipHelperApp());
+    await tester.pumpAndSettle();
     await tester.tap(find.widgetWithText(ChoiceChip, 'Влажность'));
     await tester.pumpAndSettle();
     expect(find.text('ИВА-8'), findsOneWidget);
@@ -164,6 +167,7 @@ void main() {
   ) async {
     phone(tester);
     await tester.pumpWidget(const KipHelperApp());
+    await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'A01');
     await tester.pumpAndSettle();
     expect(find.text('СОКРАТ'), findsOneWidget);

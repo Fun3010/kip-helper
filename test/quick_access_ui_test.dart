@@ -8,11 +8,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 class RejectingWritesStore extends InMemorySharedPreferencesStore {
-  RejectingWritesStore() : super.empty();
+  RejectingWritesStore({this.rejectWrites = true}) : super.empty();
+
+  bool rejectWrites;
 
   @override
   Future<bool> setValue(String valueType, String key, Object value) async =>
-      false;
+      rejectWrites ? false : super.setValue(valueType, key, value);
 }
 
 Future<void> start(WidgetTester tester) async {
@@ -221,11 +223,17 @@ void main() {
   testWidgets('Detail shows failed favorite persistence without leaving page', (
     tester,
   ) async {
-    SharedPreferencesStorePlatform.instance = RejectingWritesStore();
+    final store = RejectingWritesStore(rejectWrites: false);
+    SharedPreferencesStorePlatform.instance = store;
     await start(tester);
     await search(tester, 'SIPART');
     await tester.tap(find.widgetWithText(Card, 'SIPART PS2'));
     await tester.pumpAndSettle();
+    expect(
+      find.textContaining('Не удалось сохранить быстрый доступ'),
+      findsNothing,
+    );
+    store.rejectWrites = true;
     await tester.tap(find.byTooltip('Добавить SIPART PS2 в избранное'));
     await tester.pumpAndSettle();
     expect(find.byType(GuidePage), findsOneWidget);

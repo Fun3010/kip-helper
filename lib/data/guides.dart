@@ -60,8 +60,8 @@ const guides = <InstrumentGuide>[
           0: [
             GuideEvidence(
               sourceKey: 'sipart-compact',
-              locator: '§§ 5.6–5.7 · 1.YFCT',
-              state: GuideEvidenceState.locatorPending,
+              locator: '§ 5.4 · РЭ с. 56 · 1.YFCT; §§ 5.6–5.7 · с. 59–65',
+              state: GuideEvidenceState.verified,
             ),
           ],
           1: [
@@ -126,13 +126,13 @@ const guides = <InstrumentGuide>[
     sources: [
       GuideSource(
         key: 'sipart-compact',
-        title: 'Siemens · компактное РЭ, 02/2024',
+        title: 'Siemens · A5E03436620-AH, 02/2024 · компактное РЭ',
         url:
             'https://cache.industry.siemens.com/dl/files/665/109972665/att_1291485/v1/A5E03436620en_PS2_COI_en-US.pdf',
       ),
       GuideSource(
         key: 'sipart-full',
-        title: 'Siemens · PS2 HART, полное РЭ',
+        title: 'Siemens · A5E00074631-AF · PS2 HART, полное РЭ',
         url:
             'https://cache.industry.siemens.com/dl/files/419/109782419/att_1034214/v1/A5E00074631-AFen_PS2HART_OI_en-US.pdf',
       ),
@@ -286,7 +286,7 @@ const guides = <InstrumentGuide>[
     sources: [
       GuideSource(
         key: 'sokrat-re',
-        title: 'Сибмаш · Р3/Н3, ПО 03.01, РЭ',
+        title: 'Сибмаш · СМ.090.00.00.000 РЭ · Р3/Н3, ПО 03.01',
         url:
             'https://www.sibmash.com/docs/Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf',
       ),
@@ -511,7 +511,8 @@ const guides = <InstrumentGuide>[
         title: 'Перед проверкой',
         paragraphs: [
           'Запишите полное обозначение измерительного блока и датчика. Сверьте единицы шкалы, газ, пороги сигнализации и межповерочный интервал с паспортом.',
-          'Проверку нуля и чувствительности выполняют с предусмотренными изготовителем средствами и газовыми смесями. Калькулятор 4–20 мА проверяет масштабирование сигнала, но не заменяет газовую проверку.',
+          'Проверку нуля и чувствительности выполняют с предусмотренными изготовителем средствами и газовыми смесями.',
+          'Калькулятор 4–20 мА проверяет масштабирование сигнала, но не заменяет газовую проверку.',
         ],
         evidenceByParagraph: {
           0: [
@@ -526,11 +527,19 @@ const guides = <InstrumentGuide>[
           1: [
             GuideEvidence(
               sourceKey: 'stm10-re',
-              locator:
-                  '§ 3.2 · РЭ с. 43 · проверка нуля и чувствительности по ГС',
-              state: GuideEvidenceState.needsVisualCheck,
+              locator: '§§ 3.2.1–3.2.3, табл. 3.1 · РЭ с. 43–44 · PDF с. 44–45',
+              state: GuideEvidenceState.verified,
               note:
-                  'Раздел и страница установлены по текстовому слою РЭ; официальный скан этой страницы ещё нужно визуально сверить.',
+                  'Скан сверён визуально после OCR: проверка нуля, чувствительности и применение ГС. Дата редакции не установлена.',
+            ),
+          ],
+          2: [
+            GuideEvidence(
+              sourceKey: 'stm10-re',
+              locator: 'границы применения калькулятора приложения',
+              state: GuideEvidenceState.workingChecklist,
+              note:
+                  'Пояснение приложения; не является утверждением или процедурой изготовителя.',
             ),
           ],
         },
@@ -539,7 +548,8 @@ const guides = <InstrumentGuide>[
     sources: [
       GuideSource(
         key: 'stm10-re',
-        title: 'Аналитприбор · СТМ-10, АПИ2.840.069 РЭ',
+        title:
+            'Аналитприбор · СТМ-10, АПИ2.840.069 РЭ · скан без даты редакции',
         url:
             'https://www.analitpribor-smolensk.ru/files/rukovodstva/2015/ctm-10/stm-10_api2_840_069_re.pdf',
       ),

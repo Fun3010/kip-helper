@@ -1,0 +1,149 @@
+[
+  {
+    "file": "2020-13560-11 ОТ ИВА-8.pdf",
+    "pages": 6,
+    "sha256": "8785ca493b569b0f64647a19921552695f87832326557d977600c77dc8905e8d",
+    "text_characters": 13448,
+    "path": "docs/Оборудование/ИВА-8/ТД/2020-13560-11 ОТ ИВА-8.pdf"
+  },
+  {
+    "file": "281286288.pdf",
+    "pages": 11,
+    "sha256": "499ebcab01dc8138aeaea0de7e48d2ca3c17a5be7fd9340b374f03775b4b1753",
+    "text_characters": 21840,
+    "path": "docs/Оборудование/Метран-281-286-288/ТД/281286288.pdf"
+  },
+  {
+    "file": "4293727578.pdf",
+    "pages": 20,
+    "sha256": "8568faf668300037b7d3661f42f4ddda4ad370059edc23292be6de6d99f156b1",
+    "text_characters": 44579,
+    "path": "docs/Оборудование/_Общие материалы/ТД/4293727578.pdf"
+  },
+  {
+    "file": "71450_metran150.pdf",
+    "pages": 127,
+    "sha256": "4964a928894ddcef35ef72c975eec6e04502ab980547db60c04ffdc9278bc873",
+    "text_characters": 157813,
+    "path": "docs/Оборудование/Метран-150/ТД/71450_metran150.pdf"
+  },
+  {
+    "file": "bktm.pdf",
+    "pages": 64,
+    "sha256": "cfe6130554959938931fff9e0545a37cd8cceefe7817f7d7695b08ea3a23a539",
+    "text_characters": 95157,
+    "path": "docs/Оборудование/БКТ.М/ТД/bktm.pdf"
+  },
+  {
+    "file": "bukw13qb3iktooqxd9da16tpx8soqzv6.pdf",
+    "pages": 34,
+    "sha256": "30f1883e47b41e072adcb13a2bf9cb6e960f544f25634e813f77728873894175",
+    "text_characters": 59648,
+    "path": "docs/Оборудование/Тяжпромарматура — пневмоприводы/ТД/bukw13qb3iktooqxd9da16tpx8soqzv6.pdf"
+  },
+  {
+    "file": "Catalog_8600D_2019.pdf",
+    "pages": 8,
+    "sha256": "bac104cc58771ae37eae5384f04cdfd81c0eead8afe1f8c1a6411b615038dea4",
+    "text_characters": 26567,
+    "path": "docs/Оборудование/Rosemount 8600D/ТД/Catalog_8600D_2019.pdf"
+  },
+  {
+    "file": "dr6.pdf",
+    "pages": 106,
+    "sha256": "4bb94dacbe999dd3462b153d17527203a005c48c394a7f9d9e62335801f4562f",
+    "text_characters": 156835,
+    "path": "docs/Оборудование/SIPART PS2/ТД/dr6.pdf"
+  },
+  {
+    "file": "Metran-100-RE-Rukovodstvo-po-ekspluatatsii.pdf",
+    "pages": 132,
+    "sha256": "6e95bc02be72e6fd45bf192039a1223dcc1d872970889c7a2919a0bee28bcfc5",
+    "text_characters": 151689,
+    "path": "docs/Оборудование/Метран-100/ТД/Metran-100-RE-Rukovodstvo-po-ekspluatatsii.pdf"
+  },
+  {
+    "file": "Metran_300PR.pdf",
+    "pages": 13,
+    "sha256": "c6892e6c326d34e8a34068f0f3ce06bdd6beabd99d3d0dd3ad816f6b70d169e8",
+    "text_characters": 35586,
+    "path": "docs/Оборудование/Метран-300ПР/ТД/Metran_300PR.pdf"
+  },
+  {
+    "file": "MMI_ 1000_2000_Man_PN20001715_ReV_B_rus.pdf",
+    "pages": 279,
+    "sha256": "472f1f8f81caaed5192453c91cd88d013324db83334f74d724ba614fa5fce0fa",
+    "text_characters": 451419,
+    "path": "docs/Оборудование/Micro Motion/ТД/MMI_ 1000_2000_Man_PN20001715_ReV_B_rus.pdf"
+  },
+  {
+    "file": "mp_66959-17.pdf",
+    "pages": 14,
+    "sha256": "d2a9db128e19487f1bf6dd631b0e99b520ecbb4c283f8c53edabf5a1e988f435",
+    "text_characters": 32333,
+    "path": "docs/Оборудование/Yokogawa EJA-E/ТД/mp_66959-17.pdf"
+  },
+  {
+    "file": "optiflex-1300-c-rpe.pdf",
+    "pages": 97,
+    "sha256": "c50821cdf7d9a868bc3543ce02b10857731e90f4948299afc68d490ecb407463",
+    "text_characters": 191865,
+    "path": "docs/Оборудование/OPTIFLEX 1300 C/ТД/optiflex-1300-c-rpe.pdf"
+  },
+  {
+    "file": "RE-ZRK_01.00.00-po-TR-TS-012.pdf",
+    "pages": 52,
+    "sha256": "d4e523c0c62c6ddef2c13502479e12c442fbb3177bd436a3a419e1fdaa1a89dc",
+    "text_characters": 67378,
+    "path": "docs/Оборудование/РУСТ — клапаны 300-400-500/ТД/RE-ZRK_01.00.00-po-TR-TS-012.pdf"
+  },
+  {
+    "file": "re_su-1s_201411_a.pdf",
+    "pages": 46,
+    "sha256": "4c8db5f3c569dbab554c256b4905197c503fa0b8202bd9eca5b0d3537d3402db",
+    "text_characters": 52259,
+    "path": "docs/Оборудование/СУ-1С/ТД/re_su-1s_201411_a.pdf"
+  },
+  {
+    "file": "sapfir_22_du.pdf",
+    "pages": 22,
+    "sha256": "ea9eba64fa73dc7d50cf6e98d90320255fa65c425d27cb5293d088d5137c6683",
+    "text_characters": 25730,
+    "path": "docs/Оборудование/Сапфир-22-ДУ/ТД/sapfir_22_du.pdf"
+  },
+  {
+    "file": "sgg-20mikro-rpe.pdf",
+    "pages": 74,
+    "sha256": "96fd51ed934c70361d2746d47bca770931acf92da5cbaf7045d905aafb986573",
+    "text_characters": 138486,
+    "path": "docs/Оборудование/СГГ-20микро/ТД/sgg-20mikro-rpe.pdf"
+  },
+  {
+    "file": "sgg-20mikro_ibyal_413531_012_re.pdf",
+    "pages": 55,
+    "sha256": "7f2247341844a02108ef7a75536f0997f0355dbad00658acf4365fab5d8e9d1c",
+    "text_characters": 69875,
+    "path": "docs/Оборудование/СГГ-20микро/ТД/sgg-20mikro_ibyal_413531_012_re.pdf"
+  },
+  {
+    "file": "Siemens sipart ps2.pdf",
+    "pages": 106,
+    "sha256": "4bb94dacbe999dd3462b153d17527203a005c48c394a7f9d9e62335801f4562f",
+    "text_characters": 156835,
+    "path": "docs/Оборудование/SIPART PS2/ТД/Siemens sipart ps2.pdf"
+  },
+  {
+    "file": "Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf",
+    "pages": 76,
+    "sha256": "dc33ec57e01bd06a9628a7b2a0ba247e3c34aca00a3e391f33b2034c831d578a",
+    "text_characters": 195866,
+    "path": "docs/Оборудование/СОКРАТ/ТД/Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf"
+  },
+  {
+    "file": "stm-10_api2_840_069_re.pdf",
+    "pages": 54,
+    "sha256": "a4b5f9e0cd898dc59fa7ae40980ce6352df0924cf0585fdc40f4a97fc655bf85",
+    "text_characters": 0,
+    "path": "docs/Оборудование/СТМ-10/ТД/stm-10_api2_840_069_re.pdf"
+  }
+]

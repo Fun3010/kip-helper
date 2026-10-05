@@ -83,8 +83,10 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'чувствительности');
     await tester.pumpAndSettle();
-    expect(find.text('Скан · нужна визуальная сверка'), findsWidgets);
-    expect(find.textContaining('РЭ с. 43'), findsWidgets);
+    expect(find.text('Проверено по источнику'), findsWidgets);
+    expect(find.text('Скан · нужна визуальная сверка'), findsNothing);
+    expect(find.textContaining('РЭ с. 43–44'), findsWidgets);
+    expect(find.textContaining('PDF с. 44–45'), findsWidgets);
     expect(find.textContaining('АПИ2.840.069 РЭ'), findsWidgets);
     expect(tester.takeException(), isNull);
   });

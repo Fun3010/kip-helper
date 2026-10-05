@@ -40,6 +40,33 @@ Widget screen(Widget child, {bool dark = false, double scale = 1}) =>
     );
 
 void main() {
+  for (final dark in [false, true]) {
+    testWidgets(
+      'SIPART housing search opens the matching offline diagram: $dark',
+      (tester) async {
+        phone(tester, width: 320);
+        final sipart = guides.firstWhere((guide) => guide.id == 'sipart');
+        await tester.pumpWidget(
+          screen(GuidePage(guide: sipart), dark: dark, scale: 1.5),
+        );
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), '6DR5..5');
+        await tester.pumpAndSettle();
+        expect(find.byType(GuideIllustrationCard), findsOneWidget);
+        expect(find.textContaining('рис. 4-13'), findsOneWidget);
+        final enlarge = find.text('Пневматика · 6DR5..5/6 · увеличить');
+        await tester.ensureVisible(enlarge);
+        await tester.tap(enlarge);
+        await tester.pumpAndSettle();
+        expect(find.byType(InteractiveViewer), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(GuideIllustrationCard), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      },
+    );
+  }
   setUp(() => SharedPreferences.setMockInitialValues({}));
   for (final brightness in Brightness.values) {
     testWidgets('Catalogue fits 320px at large text in $brightness', (

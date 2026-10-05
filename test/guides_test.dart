@@ -140,6 +140,14 @@ void main() {
       isTrue,
     );
 
+    final yfct = sipart.sections
+        .firstWhere((s) => s.title.contains('4.INITA'))
+        .evidenceFor(0)
+        .single;
+    expect(yfct.state, GuideEvidenceState.verified);
+    expect(yfct.locator, contains('§ 5.4 · РЭ с. 56'));
+    expect(yfct.locator, contains('1.YFCT'));
+
     final stm10 = guides.firstWhere((g) => g.id == 'stm10');
     final stm10States = stm10.sections
         .expand((section) => section.evidenceByParagraph.values)
@@ -147,7 +155,7 @@ void main() {
         .map((item) => item.state)
         .toSet();
     expect(stm10States, contains(GuideEvidenceState.verified));
-    expect(stm10States, contains(GuideEvidenceState.needsVisualCheck));
+    expect(stm10States, isNot(contains(GuideEvidenceState.needsVisualCheck)));
     expect(stm10States, contains(GuideEvidenceState.workingChecklist));
     expect(
       stm10.sections
@@ -155,8 +163,9 @@ void main() {
           .expand((items) => items)
           .any(
             (item) =>
-                item.state == GuideEvidenceState.needsVisualCheck &&
-                item.locator.contains('РЭ с. 43'),
+                item.state == GuideEvidenceState.verified &&
+                item.locator.contains('РЭ с. 43–44') &&
+                item.locator.contains('PDF с. 44–45'),
           ),
       isTrue,
     );
@@ -174,10 +183,7 @@ void main() {
   });
 
   test('Evidence participates in catalogue search', () {
-    expect(
-      guides.where((g) => g.matches('визуально сверить')).single.id,
-      'stm10',
-    );
+    expect(guides.where((g) => g.matches('pdf с. 44–45')).single.id, 'stm10');
     expect(guides.where((g) => g.matches('рэ с. 58')).single.id, 'sokrat');
   });
 

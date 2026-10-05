@@ -4,6 +4,26 @@ import 'package:kip_helper/models/guide.dart';
 import 'dart:io';
 
 void main() {
+  test('SIPART diagrams identify housing variants and source figures', () {
+    final sipart = guides.firstWhere((guide) => guide.id == 'sipart');
+    expect(sipart.illustrations, hasLength(3));
+    final controls = sipart.illustrations.firstWhere(
+      (item) => item.asset.endsWith('sipart-controls.png'),
+    );
+    expect(controls.caption, contains('⑦'));
+    expect(controls.caption, contains('муфт'));
+    expect(controls.source, contains('рис. 3-6'));
+    expect(controls.source, contains('PDF с. 28'));
+    final pneumatic = sipart.illustrations.where(
+      (item) => item.title.contains('Пневматика'),
+    );
+    expect(pneumatic, hasLength(2));
+    expect(pneumatic.first.caption, contains('① — Y2'));
+    expect(pneumatic.last.caption, contains('③ — Y2'));
+    expect(pneumatic.first.source, contains('PDF с. 47'));
+    expect(pneumatic.last.source, contains('PDF с. 48'));
+    expect(sipart.matches('6DR5..5'), isTrue);
+  });
   test('Illustrations have actual assets and traceable source pages', () {
     final illustrations = guides.expand((g) => g.illustrations).toList();
     expect(illustrations.length, greaterThanOrEqualTo(4));

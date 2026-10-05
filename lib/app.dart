@@ -6,6 +6,8 @@ import 'features/calculators/signal_calculator.dart';
 import 'features/calculators/unit_converter.dart';
 import 'features/guides/guide_page.dart';
 import 'services/open_source.dart';
+import 'services/quick_access.dart';
+import 'widgets/favorite_button.dart';
 
 class KipHelperApp extends StatelessWidget {
   const KipHelperApp({super.key});
@@ -103,10 +105,25 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   int _selected = 0;
-  String? _category;
+  late final QuickAccessController _quickAccess;
+  String? get _category => _quickAccess.category;
+
+  @override
+  void initState() {
+    super.initState();
+    _quickAccess = QuickAccessController(guides)..addListener(_refresh);
+    _quickAccess.load();
+  }
+
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
+
   final _search = TextEditingController();
   @override
   void dispose() {
+    _quickAccess.removeListener(_refresh);
+    _quickAccess.dispose();
     _search.dispose();
     super.dispose();
   }
@@ -166,7 +183,18 @@ class _HomePageState extends State<HomePage> {
 
   Widget _library(BuildContext context) {
     final query = _search.text.trim().toLowerCase();
-    final filtered = guides
+    if (!_quickAccess.ready) {
+      return const Center(child: CircularProgressIndicator());
+    }
+    final byId = {for (final guide in guides) guide.id: guide};
+    final source = switch (_quickAccess.view) {
+      CatalogueView.catalog => guides,
+      CatalogueView.favorites => guides.where(
+        (guide) => _quickAccess.isFavorite(guide.id),
+      ),
+      CatalogueView.recent => _quickAccess.recent.map((id) => byId[id]!),
+    };
+    final filtered = source
         .where(
           (guide) =>
               guide.matches(query) &&
@@ -208,7 +236,30 @@ class _HomePageState extends State<HomePage> {
                   ),
           ),
         ),
+        if (_quickAccess.saveFailed) ...[
+          const SizedBox(height: 12),
+          const Text(
+            'Не удалось сохранить быстрый доступ. Изменения могут потеряться после закрытия приложения.',
+          ),
+        ],
         const SizedBox(height: 12),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final view in CatalogueView.values)
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    label: Text(view.label),
+                    selected: _quickAccess.view == view,
+                    onSelected: (_) => _quickAccess.selectView(view),
+                  ),
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -218,7 +269,7 @@ class _HomePageState extends State<HomePage> {
                 child: ChoiceChip(
                   label: const Text('Все'),
                   selected: _category == null,
-                  onSelected: (_) => setState(() => _category = null),
+                  onSelected: (_) => _quickAccess.selectCategory(null),
                 ),
               ),
               for (final category in categories)
@@ -228,7 +279,7 @@ class _HomePageState extends State<HomePage> {
                     label: Text(category),
                     selected: _category == category,
                     onSelected: (selected) =>
-                        setState(() => _category = selected ? category : null),
+                        _quickAccess.selectCategory(selected ? category : null),
                   ),
                 ),
             ],
@@ -240,7 +291,7 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: Text(
                 query.isEmpty && _category == null
-                    ? 'Каталог приборов'
+                    ? '${_quickAccess.view.label} приборов'
                     : 'Найдено: ${filtered.length}',
                 style: Theme.of(
                   context,
@@ -257,10 +308,14 @@ class _HomePageState extends State<HomePage> {
         ),
         const SizedBox(height: 12),
         if (filtered.isEmpty)
-          const Padding(
-            padding: EdgeInsets.all(24),
+          Padding(
+            padding: const EdgeInsets.all(24),
             child: Text(
-              'Ничего не найдено. Попробуйте «СОКРАТ», «А01» или «уровень».',
+              source.isEmpty && _quickAccess.view == CatalogueView.favorites
+                  ? 'Пока нет избранных приборов. Нажмите звёздочку рядом с прибором в каталоге.'
+                  : source.isEmpty && _quickAccess.view == CatalogueView.recent
+                  ? 'Пока нет недавних приборов. Откройте карточку в каталоге — она появится здесь.'
+                  : 'Ничего не найдено. Попробуйте «СОКРАТ», «А01» или «уровень», выберите «Все».',
             ),
           ),
         for (final guide in filtered)
@@ -281,7 +336,11 @@ class _HomePageState extends State<HomePage> {
               'Влажность' => Icons.grain,
               _ => Icons.settings_input_component,
             },
-            onTap: () => _open(GuidePage(guide: guide)),
+            trailing: FavoriteButton(guide: guide, controller: _quickAccess),
+            onTap: () {
+              _quickAccess.recordVisit(guide.id);
+              _open(GuidePage(guide: guide, quickAccess: _quickAccess));
+            },
           ),
       ],
     );
@@ -419,6 +478,7 @@ class _HomePageState extends State<HomePage> {
     required VoidCallback onTap,
     String? imageAsset,
     String? eyebrow,
+    Widget? trailing,
   }) => Card(
     margin: const EdgeInsets.only(bottom: 12),
     clipBehavior: Clip.antiAlias,
@@ -490,7 +550,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, size: 20),
+            trailing ?? const Icon(Icons.chevron_right, size: 20),
           ],
         ),
       ),

@@ -34,7 +34,7 @@ Future<void> selectView(WidgetTester tester, String view) async {
 
 Future<void> visit(WidgetTester tester, String title) async {
   await search(tester, title);
-  await tester.tap(find.text(title));
+  await tester.tap(find.widgetWithText(Card, title));
   await tester.pumpAndSettle();
   expect(find.byType(GuidePage), findsOneWidget);
   await tester.pageBack();

@@ -4,6 +4,16 @@ import 'package:kip_helper/models/guide.dart';
 import 'dart:io';
 
 void main() {
+  test('SU1S and STM10 include traceable offline diagrams', () {
+    for (final id in ['su1s', 'stm10']) {
+      final guide = guides.firstWhere((item) => item.id == id);
+      expect(guide.illustrations.length, greaterThanOrEqualTo(2));
+      for (final item in guide.illustrations) {
+        expect(item.source, contains('PDF с.'));
+        expect(File(item.asset).existsSync(), isTrue);
+      }
+    }
+  });
   test('SIPART diagrams identify housing variants and source figures', () {
     final sipart = guides.firstWhere((guide) => guide.id == 'sipart');
     expect(sipart.illustrations, hasLength(3));

@@ -40,6 +40,34 @@ Widget screen(Widget child, {bool dark = false, double scale = 1}) =>
     );
 
 void main() {
+  testWidgets('Text size settings apply immediately and survive restart', (
+    tester,
+  ) async {
+    phone(tester, width: 320);
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const KipHelperApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Настройки'));
+    await tester.pumpAndSettle();
+    expect(find.text('Размер текста'), findsOneWidget);
+    final slider = tester.widget<Slider>(find.byType(Slider));
+    slider.onChanged!(1.5);
+    await tester.pumpAndSettle();
+    expect(
+      MediaQuery.textScalerOf(
+        tester.element(find.text('Размер текста')),
+      ).scale(10),
+      15,
+    );
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const KipHelperApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Настройки'));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Slider>(find.byType(Slider)).value, 1.5);
+    expect(tester.takeException(), isNull);
+  });
   for (final dark in [false, true]) {
     testWidgets(
       'SIPART housing search opens the matching offline diagram: $dark',

@@ -8,7 +8,7 @@ void main() {
   for (final stored in [null, 'large', 0.5, 2.0, double.nan]) {
     test('Invalid saved text size falls back: $stored', () async {
       SharedPreferences.setMockInitialValues({
-        if (stored != null) TextSettings.storageKey: stored,
+        TextSettings.storageKey: ?stored,
       });
       final settings = TextSettings();
       await settings.load();

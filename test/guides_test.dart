@@ -22,7 +22,7 @@ void main() {
     expect(pneumatic.last.caption, contains('③ — Y2'));
     expect(pneumatic.first.source, contains('PDF с. 47'));
     expect(pneumatic.last.source, contains('PDF с. 48'));
-    expect(sipart.matches('6DR5..5'), isTrue);
+    expect(sipart.matches('6dr5..5'), isTrue);
   });
   test('Illustrations have actual assets and traceable source pages', () {
     final illustrations = guides.expand((g) => g.illustrations).toList();

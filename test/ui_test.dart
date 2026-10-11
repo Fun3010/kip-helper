@@ -56,6 +56,8 @@ void main() {
         expect(find.textContaining('рис. 4-13'), findsOneWidget);
         final enlarge = find.text('Пневматика · 6DR5..5/6 · увеличить');
         await tester.ensureVisible(enlarge);
+        await tester.pumpAndSettle();
+        expect(enlarge.hitTestable(), findsOneWidget);
         await tester.tap(enlarge);
         await tester.pumpAndSettle();
         expect(find.byType(InteractiveViewer), findsOneWidget);

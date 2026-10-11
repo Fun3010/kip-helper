@@ -1,10 +1,12 @@
 import '../models/guide.dart';
 import 'iva8.dart';
 import 'metran150.dart';
+import 'metran100.dart';
 
 const guides = <InstrumentGuide>[
   iva8Guide,
   metran150Guide,
+  metran100Guide,
   InstrumentGuide(
     id: 'sipart',
     illustrations: [

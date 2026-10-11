@@ -4,6 +4,27 @@ import 'package:kip_helper/models/guide.dart';
 import 'dart:io';
 
 void main() {
+  test('Metran150 has distinct current wiring diagrams and scoped source', () {
+    final matches = guides.where((guide) => guide.id == 'metran150');
+    expect(matches, hasLength(1));
+    final guide = matches.single;
+    expect(guide.scope, contains('4.23'));
+    expect(guide.scope, contains('HR7'));
+    expect(guide.illustrations, hasLength(2));
+    expect(guide.illustrations.first.caption, contains('четырёхпроводная'));
+    expect(guide.illustrations.last.caption, contains('двухпроводная'));
+    expect(guide.illustrations.first.source, contains('Г.1'));
+    expect(guide.illustrations.last.source, contains('Г.2'));
+    for (final section in guide.sections) {
+      for (var i = 0; i < section.paragraphs.length; i++) {
+        expect(section.evidenceFor(i), isNotEmpty);
+        for (final evidence in section.evidenceFor(i)) {
+          expect(guide.sourceByKey(evidence.sourceKey), isNotNull);
+        }
+      }
+    }
+    expect(guide.matches('150tg'), isTrue);
+  });
   test('SU1S and STM10 include traceable offline diagrams', () {
     for (final id in ['su1s', 'stm10']) {
       final guide = guides.firstWhere((item) => item.id == id);

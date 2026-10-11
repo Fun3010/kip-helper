@@ -4,6 +4,25 @@ import 'package:kip_helper/models/guide.dart';
 import 'dart:io';
 
 void main() {
+  test('Rosemount8600D separates analog and pulse wiring', () {
+    final matches = guides.where((guide) => guide.id == 'rosemount8600d');
+    expect(matches, hasLength(1));
+    final guide = matches.single;
+    expect(guide.scope, contains('BD'));
+    expect(guide.scope, contains('2016'));
+    expect(guide.illustrations, hasLength(3));
+    expect(guide.illustrations[1].source, contains('3-14'));
+    expect(guide.illustrations[2].source, contains('3-15'));
+    for (final section in guide.sections) {
+      for (var i = 0; i < section.paragraphs.length; i++) {
+        expect(section.evidenceFor(i), isNotEmpty);
+        for (final evidence in section.evidenceFor(i)) {
+          expect(guide.sourceByKey(evidence.sourceKey), isNotNull);
+        }
+      }
+    }
+    expect(guide.matches('8600d'), isTrue);
+  });
   test('Metran100 wiring is selected by converter code', () {
     final matches = guides.where((guide) => guide.id == 'metran100');
     expect(matches, hasLength(1));

@@ -81,6 +81,12 @@ void main() {
         expect(tester.takeException(), isNull);
         await tester.tap(find.byTooltip('Развернуть всё'));
         await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.byType(GuideIllustrationCard).first,
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
         expect(find.byType(GuideIllustrationCard), findsNWidgets(2));
         expect(tester.takeException(), isNull);
       });

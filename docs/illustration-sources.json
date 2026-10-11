@@ -290,5 +290,56 @@
     "source_sha256": "6e95bc02be72e6fd45bf192039a1223dcc1d872970889c7a2919a0bee28bcfc5",
     "asset_sha256": "e2ef5a0e72e22d101eb6e9c57c1559530b3d898a49f5ad0674abd4182ffcd382",
     "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/rosemount8600d-placement.png",
+    "document": "Rosemount 8600D, 00809-0107-4860, BD, 10/2016",
+    "source_url": "https://mirkip.ru/wp-content/uploads/rukovodstvo-po-ekspluataczii-rashodomer-vihrevoj-8600d-ru-ru-5220322.pdf",
+    "pdf_page": 33,
+    "printed_page": 25,
+    "figure": "3-4",
+    "crop_points": [
+      150,
+      215,
+      543,
+      595
+    ],
+    "source_sha256": "1ec893f8b586b4ec4a25a5f14b0b44e1f13ad36e11d46f80609e666fc5b80fd7",
+    "asset_sha256": "1634b2ded9a2d7cffa67cd8c9e4028a625cf0a6034c86c841cf9f00e980e19bf",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/rosemount8600d-analog.png",
+    "document": "Rosemount 8600D, 00809-0107-4860, BD, 10/2016",
+    "source_url": "https://mirkip.ru/wp-content/uploads/rukovodstvo-po-ekspluataczii-rashodomer-vihrevoj-8600d-ru-ru-5220322.pdf",
+    "pdf_page": 46,
+    "printed_page": 38,
+    "figure": "3-14",
+    "crop_points": [
+      69,
+      185,
+      543,
+      405
+    ],
+    "source_sha256": "1ec893f8b586b4ec4a25a5f14b0b44e1f13ad36e11d46f80609e666fc5b80fd7",
+    "asset_sha256": "0afbefe581c9faeab244e76305d3e2fcb46ddf2f81183953140f3a6e61a4a880",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/rosemount8600d-pulse.png",
+    "document": "Rosemount 8600D, 00809-0107-4860, BD, 10/2016",
+    "source_url": "https://mirkip.ru/wp-content/uploads/rukovodstvo-po-ekspluataczii-rashodomer-vihrevoj-8600d-ru-ru-5220322.pdf",
+    "pdf_page": 46,
+    "printed_page": 38,
+    "figure": "3-15",
+    "crop_points": [
+      69,
+      437,
+      543,
+      663
+    ],
+    "source_sha256": "1ec893f8b586b4ec4a25a5f14b0b44e1f13ad36e11d46f80609e666fc5b80fd7",
+    "asset_sha256": "c2fe9e2e534cd201085a165d7439813a17c1741557b48b4a4ca69b9eb1cfbadc",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
   }
 ]

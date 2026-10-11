@@ -52,6 +52,12 @@ void main() {
           screen(GuidePage(guide: guide), dark: dark, scale: 2.25),
         );
         await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.byType(TextField),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextField), query);
         await tester.pumpAndSettle();
         final title = query == 'четырёхпроводная'

@@ -239,5 +239,56 @@
     "source_sha256": "8fdaa068e0441171c30ea1fe8671e0c9c06c0589ddc1d36fd4e3dee6c949e721",
     "asset_sha256": "e38740743b4b26184b979703ed01ea72aacae916e01a1ad9fb996799c1c3ceac",
     "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/metran100-current-0-5-0-20.png",
+    "document": "Метран-100, СПГК.5070.000.00-01 РЭ, версия 2.4, 2007",
+    "source_url": "https://xn--90ahjlpcccjdm.xn--p1ai/wp-content/uploads/2021/05/Metran-100-RE-Rukovodstvo-po-ekspluatatsii.pdf",
+    "pdf_page": 87,
+    "printed_page": 88,
+    "figure": "В.1",
+    "crop_points": [
+      48,
+      109,
+      370,
+      259
+    ],
+    "source_sha256": "6e95bc02be72e6fd45bf192039a1223dcc1d872970889c7a2919a0bee28bcfc5",
+    "asset_sha256": "1104f75434bb64d5ff75f18f48393c8894f2bfa4fa9ae2e19ae279290894e73b",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/metran100-current-4-20.png",
+    "document": "Метран-100, СПГК.5070.000.00-01 РЭ, версия 2.4, 2007",
+    "source_url": "https://xn--90ahjlpcccjdm.xn--p1ai/wp-content/uploads/2021/05/Metran-100-RE-Rukovodstvo-po-ekspluatatsii.pdf",
+    "pdf_page": 87,
+    "printed_page": 88,
+    "figure": "В.2",
+    "crop_points": [
+      48,
+      275,
+      370,
+      396
+    ],
+    "source_sha256": "6e95bc02be72e6fd45bf192039a1223dcc1d872970889c7a2919a0bee28bcfc5",
+    "asset_sha256": "825dee81ebf06ece4d0df3c9a8b5f741c76190f843dd1f977535fee6df3d024c",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/metran100-hart-mp2-mp3.png",
+    "document": "Метран-100, СПГК.5070.000.00-01 РЭ, версия 2.4, 2007",
+    "source_url": "https://xn--90ahjlpcccjdm.xn--p1ai/wp-content/uploads/2021/05/Metran-100-RE-Rukovodstvo-po-ekspluatatsii.pdf",
+    "pdf_page": 88,
+    "printed_page": 89,
+    "figure": "В.4",
+    "crop_points": [
+      35,
+      68,
+      385,
+      235
+    ],
+    "source_sha256": "6e95bc02be72e6fd45bf192039a1223dcc1d872970889c7a2919a0bee28bcfc5",
+    "asset_sha256": "e2ef5a0e72e22d101eb6e9c57c1559530b3d898a49f5ad0674abd4182ffcd382",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
   }
 ]

@@ -133,5 +133,77 @@
     "source_sha256": "6c44ebfbdb021d1d12e87cd1dfbb70638a61e40adf9b7868cd93ac1efe4b712b",
     "asset_sha256": "02b5ba5e3547c7fce37d5cb112cdb019d1c34fc6cb0eb26888b0fcc5ced186d2",
     "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/su1s-connections.png",
+    "document": "РГАУ.407834.006 РЭ, 2014",
+    "source_url": "https://kip-device.ru/f/re_su-1s_201411_a.pdf",
+    "pdf_page": 27,
+    "printed_page": 27,
+    "figure": "Приложение А",
+    "crop_points": [
+      120,
+      140,
+      565,
+      745
+    ],
+    "rotation_degrees": 0,
+    "source_sha256": "4c8db5f3c569dbab554c256b4905197c503fa0b8202bd9eca5b0d3537d3402db",
+    "asset_sha256": "5e16388874352a960b1ea9c4f64d7cac0781b632e276d5257af4acb2a7fd94e3",
+    "method": "PDF region rendered at 144 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/su1s-contacts.png",
+    "document": "РГАУ.407834.006 РЭ, 2014",
+    "source_url": "https://kip-device.ru/f/re_su-1s_201411_a.pdf",
+    "pdf_page": 38,
+    "printed_page": 38,
+    "figure": "Приложение Л",
+    "crop_points": [
+      80,
+      40,
+      560,
+      745
+    ],
+    "rotation_degrees": 270,
+    "source_sha256": "4c8db5f3c569dbab554c256b4905197c503fa0b8202bd9eca5b0d3537d3402db",
+    "asset_sha256": "3f80dead0eb13b5581698d0cfdcd83df82cf69cfbb5fe7850e9060b2f078b057",
+    "method": "PDF region rendered at 144 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/stm10-cable-fixed.png",
+    "document": "АПИ2.840.069 РЭ, скан без даты редакции",
+    "source_url": "https://www.analitpribor-smolensk.ru/files/rukovodstva/2015/ctm-10/stm-10_api2_840_069_re.pdf",
+    "pdf_page": 19,
+    "printed_page": 18,
+    "figure": "Рисунок 1.1",
+    "crop_points": [
+      80,
+      65,
+      550,
+      360
+    ],
+    "rotation_degrees": 0,
+    "source_sha256": "a4b5f9e0cd898dc59fa7ae40980ce6352df0924cf0585fdc40f4a97fc655bf85",
+    "asset_sha256": "c65a6927fe8941a700f0c1cff68c86c9960c5f9b043099e8c7109131ff568ae1",
+    "method": "PDF region rendered at 144 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/stm10-cable-plug.png",
+    "document": "АПИ2.840.069 РЭ, скан без даты редакции",
+    "source_url": "https://www.analitpribor-smolensk.ru/files/rukovodstva/2015/ctm-10/stm-10_api2_840_069_re.pdf",
+    "pdf_page": 19,
+    "printed_page": 18,
+    "figure": "Рисунок 1.2",
+    "crop_points": [
+      80,
+      380,
+      550,
+      685
+    ],
+    "rotation_degrees": 0,
+    "source_sha256": "a4b5f9e0cd898dc59fa7ae40980ce6352df0924cf0585fdc40f4a97fc655bf85",
+    "asset_sha256": "13e23f22c1c211e5f8693221d06ac942f429c801b43dd95d713d03e249d2bf0c",
+    "method": "PDF region rendered at 144 dpi; no redrawing"
   }
 ]

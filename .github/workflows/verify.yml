@@ -6,6 +6,12 @@ on:
       - main
       - chore/canonical-sync-1.2.1
   pull_request:
+  workflow_dispatch:
+    inputs:
+      build_apk:
+        description: Build APK explicitly
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -20,6 +26,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java
+        if: github.event_name == 'workflow_dispatch' && inputs.build_apk
         uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -95,9 +102,11 @@ jobs:
           PY
 
       - name: Build debug APK
+        if: github.event_name == 'workflow_dispatch' && inputs.build_apk
         run: flutter build apk --debug
 
       - name: Preserve debug APK
+        if: github.event_name == 'workflow_dispatch' && inputs.build_apk
         uses: actions/upload-artifact@v4
         with:
           name: kip-helper-debug
@@ -106,6 +115,7 @@ jobs:
           if-no-files-found: error
 
       - name: Verify release signing guard
+        if: github.event_name == 'workflow_dispatch' && inputs.build_apk
         shell: bash
         run: |
           set +e

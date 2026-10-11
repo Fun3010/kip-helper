@@ -9,9 +9,35 @@ import 'services/open_source.dart';
 import 'services/quick_access.dart';
 import 'widgets/favorite_button.dart';
 import 'widgets/quick_access_notice.dart';
+import 'services/text_settings.dart';
+import 'features/settings/settings_page.dart';
 
-class KipHelperApp extends StatelessWidget {
+class KipHelperApp extends StatefulWidget {
   const KipHelperApp({super.key});
+  @override
+  State<KipHelperApp> createState() => _KipHelperAppState();
+}
+
+class _KipHelperAppState extends State<KipHelperApp> {
+  final _settings = TextSettings();
+  @override
+  void initState() {
+    super.initState();
+    _settings.addListener(_refresh);
+    _settings.load();
+  }
+
+  void _refresh() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _settings.removeListener(_refresh);
+    _settings.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) => MaterialApp(
     title: 'КИП · Справочник',
@@ -21,6 +47,15 @@ class KipHelperApp extends StatelessWidget {
     debugShowCheckedModeBanner: false,
     theme: _theme(Brightness.light),
     darkTheme: _theme(Brightness.dark),
+    builder: (context, child) => TextSettingsScope(
+      settings: _settings,
+      child: MediaQuery(
+        data: MediaQuery.of(context).copyWith(
+          textScaler: _settings.apply(MediaQuery.textScalerOf(context)),
+        ),
+        child: child!,
+      ),
+    ),
     home: const HomePage(),
   );
 
@@ -136,8 +171,14 @@ class _HomePageState extends State<HomePage> {
         'КИП / помощник',
         style: TextStyle(fontWeight: FontWeight.w700),
       ),
-      actions: const [
-        Padding(
+      actions: [
+        IconButton(
+          tooltip: 'Настройки',
+          icon: const Icon(Icons.settings_outlined),
+          onPressed: () =>
+              _open(SettingsPage(settings: TextSettingsScope.of(context))),
+        ),
+        const Padding(
           padding: EdgeInsets.only(right: 20),
           child: Tooltip(
             message: 'Справочник и расчёты работают без интернета',

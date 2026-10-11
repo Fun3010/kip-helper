@@ -14,6 +14,7 @@ import 'package:kip_helper/features/calculators/signal_calculator.dart';
 import 'package:kip_helper/features/calculators/unit_converter.dart';
 import 'package:kip_helper/features/guides/guide_page.dart';
 import 'package:kip_helper/services/open_source.dart';
+import 'package:kip_helper/services/text_settings.dart';
 import 'package:kip_helper/widgets/su1s_contacts.dart';
 import 'package:kip_helper/widgets/guide_illustration.dart';
 
@@ -40,6 +41,89 @@ Widget screen(Widget child, {bool dark = false, double scale = 1}) =>
     );
 
 void main() {
+  for (final width in [320.0, 1024.0]) {
+    for (final brightness in Brightness.values) {
+      testWidgets('Combined text size fits $width in $brightness', (
+        tester,
+      ) async {
+        phone(tester, width: width);
+        tester.platformDispatcher.platformBrightnessTestValue = brightness;
+        tester.platformDispatcher.textScaleFactorTestValue = 1.5;
+        addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
+        addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+        SharedPreferences.setMockInitialValues({TextSettings.storageKey: 1.5});
+        await tester.pumpWidget(const KipHelperApp());
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.byTooltip('Настройки'));
+        await tester.pumpAndSettle();
+        expect(
+          MediaQuery.textScalerOf(
+            tester.element(find.text('Размер текста')),
+          ).scale(10),
+          22.5,
+        );
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), 'СУ-1С');
+        await tester.pumpAndSettle();
+        final card = find.widgetWithText(Card, 'СУ-1С');
+        await tester.scrollUntilVisible(
+          card,
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        expect(card.hitTestable(), findsOneWidget);
+        await tester.tap(card);
+        await tester.pumpAndSettle();
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.byTooltip('Развернуть всё'));
+        await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is GuideIllustrationCard &&
+                widget.illustration.asset.endsWith('su1s-connections.png'),
+          ),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(GuideIllustrationCard), findsNWidgets(2));
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+  testWidgets('Text size settings apply immediately and survive restart', (
+    tester,
+  ) async {
+    phone(tester, width: 320);
+    SharedPreferences.setMockInitialValues({});
+    await tester.pumpWidget(const KipHelperApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Настройки'));
+    await tester.pumpAndSettle();
+    expect(find.text('Размер текста'), findsOneWidget);
+    final slider = tester.widget<Slider>(find.byType(Slider));
+    slider.onChanged!(1.5);
+    await tester.pumpAndSettle();
+    expect(
+      MediaQuery.textScalerOf(
+        tester.element(find.text('Размер текста')),
+      ).scale(10),
+      15,
+    );
+    await tester.pumpWidget(const SizedBox());
+    await tester.pumpAndSettle();
+    await tester.pumpWidget(const KipHelperApp());
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Настройки'));
+    await tester.pumpAndSettle();
+    expect(tester.widget<Slider>(find.byType(Slider)).value, 1.5);
+    expect(tester.takeException(), isNull);
+  });
   for (final dark in [false, true]) {
     testWidgets(
       'SIPART housing search opens the matching offline diagram: $dark',

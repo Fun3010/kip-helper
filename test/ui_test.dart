@@ -82,7 +82,11 @@ void main() {
         await tester.tap(find.byTooltip('Развернуть всё'));
         await tester.pumpAndSettle();
         await tester.scrollUntilVisible(
-          find.byType(GuideIllustrationCard).first,
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is GuideIllustrationCard &&
+                widget.illustration.asset.endsWith('su1s-connections.png'),
+          ),
           200,
           scrollable: find.byType(Scrollable).first,
         );

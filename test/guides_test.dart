@@ -4,6 +4,27 @@ import 'package:kip_helper/models/guide.dart';
 import 'dart:io';
 
 void main() {
+  test('Metran100 wiring is selected by converter code', () {
+    final matches = guides.where((guide) => guide.id == 'metran100');
+    expect(matches, hasLength(1));
+    final guide = matches.single;
+    expect(guide.scope, contains('2.4'));
+    expect(guide.scope, contains('2007'));
+    expect(guide.illustrations, hasLength(3));
+    expect(guide.illustrations[0].caption, contains('МП/МП1'));
+    expect(guide.illustrations[1].caption, contains('МП/МП1'));
+    expect(guide.illustrations[2].caption, contains('МП2/МП3'));
+    expect(guide.illustrations[2].source, contains('В.4'));
+    for (final section in guide.sections) {
+      for (var i = 0; i < section.paragraphs.length; i++) {
+        expect(section.evidenceFor(i), isNotEmpty);
+        for (final evidence in section.evidenceFor(i)) {
+          expect(guide.sourceByKey(evidence.sourceKey), isNotNull);
+        }
+      }
+    }
+    expect(guide.matches('metran100'), isTrue);
+  });
   test('Metran150 has distinct current wiring diagrams and scoped source', () {
     final matches = guides.where((guide) => guide.id == 'metran150');
     expect(matches, hasLength(1));

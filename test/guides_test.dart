@@ -273,8 +273,11 @@ void main() {
     );
   });
 
-  test('Evidence participates in catalogue search', () {
-    expect(guides.where((g) => g.matches('pdf с. 44–45')).single.id, 'stm10');
+  test('Evidence search includes manuals with shared page numbers', () {
+    expect(
+      guides.where((g) => g.matches('pdf с. 44–45')).map((g) => g.id),
+      containsAll(['stm10', 'rosemount8600d']),
+    );
     expect(guides.where((g) => g.matches('рэ с. 58')).single.id, 'sokrat');
   });
 

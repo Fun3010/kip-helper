@@ -41,6 +41,43 @@ Widget screen(Widget child, {bool dark = false, double scale = 1}) =>
     );
 
 void main() {
+  for (final dark in [false, true]) {
+    for (final query in ['четырёхпроводная', 'двухпроводная']) {
+      testWidgets('Metran150 wiring search and zoom: $dark / $query', (
+        tester,
+      ) async {
+        phone(tester, width: 320);
+        final guide = guides.firstWhere((guide) => guide.id == 'metran150');
+        await tester.pumpWidget(
+          screen(GuidePage(guide: guide), dark: dark, scale: 2.25),
+        );
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), query);
+        await tester.pumpAndSettle();
+        final title = query == 'четырёхпроводная'
+            ? 'Метран-150 · выход 0–5 мА'
+            : 'Метран-150 · выход 4–20 мА';
+        final enlarge = find.text('$title · увеличить');
+        await tester.scrollUntilVisible(
+          enlarge,
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(GuideIllustrationCard), findsOneWidget);
+        expect(enlarge.hitTestable(), findsOneWidget);
+        await tester.tap(enlarge);
+        await tester.pumpAndSettle();
+        expect(find.byType(InteractiveViewer), findsOneWidget);
+        expect(find.text(title), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(GuideIllustrationCard), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
   for (final width in [320.0, 1024.0]) {
     for (final brightness in Brightness.values) {
       testWidgets('Combined text size fits $width in $brightness', (

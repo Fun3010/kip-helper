@@ -82,5 +82,56 @@
     "source_sha256": "dc33ec57e01bd06a9628a7b2a0ba247e3c34aca00a3e391f33b2034c831d578a",
     "method": "PDF region rendered at 216 dpi; no redrawing",
     "document_path": "docs/Оборудование/СОКРАТ/ТД/Sokrat-RZ-N3_E32-SM.090.00.00.000-RE.pdf"
+  },
+  {
+    "asset": "assets/illustrations/sipart-controls.png",
+    "document": "A5E00074631-AFen_PS2HART_OI_en-US.pdf",
+    "source_url": "https://cache.industry.siemens.com/dl/files/419/109782419/att_1034214/v1/A5E00074631-AFen_PS2HART_OI_en-US.pdf",
+    "pdf_page": 28,
+    "printed_page": 28,
+    "figure": "3-6",
+    "crop_points": [
+      125,
+      155,
+      480,
+      379
+    ],
+    "source_sha256": "8b864ad7f10416a93aa38d6f88ec3fc66838376b33b37af0ac07cc547b66c18f",
+    "asset_sha256": "f86bb02ab32f8acf870574c0cf0d07e7653612dab5a1b2e3312fed6494957aff",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/sipart-pneumatic-standard.png",
+    "document": "A5E03436620en_PS2_COI_en-US.pdf",
+    "source_url": "https://cache.industry.siemens.com/dl/files/665/109972665/att_1291485/v1/A5E03436620en_PS2_COI_en-US.pdf",
+    "pdf_page": 47,
+    "printed_page": 47,
+    "figure": "4-12",
+    "crop_points": [
+      138,
+      440,
+      282,
+      578
+    ],
+    "source_sha256": "6c44ebfbdb021d1d12e87cd1dfbb70638a61e40adf9b7868cd93ac1efe4b712b",
+    "asset_sha256": "d420ce9379f68471c9469138c95001261e6171d897df4115c9abd0d206b0be1f",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/sipart-pneumatic-flameproof.png",
+    "document": "A5E03436620en_PS2_COI_en-US.pdf",
+    "source_url": "https://cache.industry.siemens.com/dl/files/665/109972665/att_1291485/v1/A5E03436620en_PS2_COI_en-US.pdf",
+    "pdf_page": 48,
+    "printed_page": 48,
+    "figure": "4-13",
+    "crop_points": [
+      125,
+      160,
+      292,
+      323
+    ],
+    "source_sha256": "6c44ebfbdb021d1d12e87cd1dfbb70638a61e40adf9b7868cd93ac1efe4b712b",
+    "asset_sha256": "02b5ba5e3547c7fce37d5cb112cdb019d1c34fc6cb0eb26888b0fcc5ced186d2",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
   }
 ]

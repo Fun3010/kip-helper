@@ -205,5 +205,39 @@
     "source_sha256": "a4b5f9e0cd898dc59fa7ae40980ce6352df0924cf0585fdc40f4a97fc655bf85",
     "asset_sha256": "13e23f22c1c211e5f8693221d06ac942f429c801b43dd95d713d03e249d2bf0c",
     "method": "PDF region rendered at 144 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/metran150-current-0-5.png",
+    "document": "Метран-150, СПГК.5225.000.00 РЭ, версия 4.23",
+    "source_url": "https://metran.ru/upload/iblock/794/0iy0f9l4wu0yx9eykbyaxat1j9ddpqh0.pdf",
+    "pdf_page": 89,
+    "printed_page": 89,
+    "figure": "Г.1",
+    "crop_points": [
+      135,
+      155,
+      515,
+      365
+    ],
+    "source_sha256": "8fdaa068e0441171c30ea1fe8671e0c9c06c0589ddc1d36fd4e3dee6c949e721",
+    "asset_sha256": "939ff1dd6047bf10650542d11043411be2768c273f417ea048835c500f407e59",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/metran150-current-4-20.png",
+    "document": "Метран-150, СПГК.5225.000.00 РЭ, версия 4.23",
+    "source_url": "https://metran.ru/upload/iblock/794/0iy0f9l4wu0yx9eykbyaxat1j9ddpqh0.pdf",
+    "pdf_page": 89,
+    "printed_page": 89,
+    "figure": "Г.2",
+    "crop_points": [
+      135,
+      412,
+      515,
+      625
+    ],
+    "source_sha256": "8fdaa068e0441171c30ea1fe8671e0c9c06c0589ddc1d36fd4e3dee6c949e721",
+    "asset_sha256": "e38740743b4b26184b979703ed01ea72aacae916e01a1ad9fb996799c1c3ceac",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
   }
 ]

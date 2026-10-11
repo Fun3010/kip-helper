@@ -42,6 +42,53 @@ Widget screen(Widget child, {bool dark = false, double scale = 1}) =>
 
 void main() {
   for (final dark in [false, true]) {
+    for (final query in ['3-4', '3-14', '3-15']) {
+      testWidgets('Rosemount8600D wiring search and zoom: $dark / $query', (
+        tester,
+      ) async {
+        phone(tester, width: 320);
+        final guide = guides.firstWhere(
+          (guide) => guide.id == 'rosemount8600d',
+        );
+        await tester.pumpWidget(
+          screen(GuidePage(guide: guide), dark: dark, scale: 2.25),
+        );
+        await tester.pumpAndSettle();
+        await tester.scrollUntilVisible(
+          find.byType(TextField),
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byType(TextField), query);
+        await tester.pumpAndSettle();
+        final title = query == '3-4'
+            ? '8600D · давление и температура после расходомера'
+            : query == '3-14'
+            ? '8600D · аналоговый выход 4–20 мА'
+            : '8600D · аналоговый и импульсный выходы';
+        final enlarge = find.text('$title · увеличить');
+        await tester.scrollUntilVisible(
+          enlarge,
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        expect(find.byType(GuideIllustrationCard), findsOneWidget);
+        expect(enlarge.hitTestable(), findsOneWidget);
+        await tester.tap(enlarge);
+        await tester.pumpAndSettle();
+        expect(find.byType(InteractiveViewer), findsOneWidget);
+        expect(find.text(title), findsOneWidget);
+        expect(tester.takeException(), isNull);
+        await tester.tap(find.byType(BackButton));
+        await tester.pumpAndSettle();
+        expect(find.byType(GuideIllustrationCard), findsOneWidget);
+        expect(tester.takeException(), isNull);
+      });
+    }
+  }
+  for (final dark in [false, true]) {
     for (final query in ['четырёхпроводная', 'двухпроводная', 'В.4']) {
       testWidgets('Metran100 wiring search and zoom: $dark / $query', (
         tester,

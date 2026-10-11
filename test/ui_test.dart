@@ -68,7 +68,15 @@ void main() {
         await tester.pumpAndSettle();
         await tester.enterText(find.byType(TextField), 'СУ-1С');
         await tester.pumpAndSettle();
-        await tester.tap(find.widgetWithText(Card, 'СУ-1С'));
+        final card = find.widgetWithText(Card, 'СУ-1С');
+        await tester.scrollUntilVisible(
+          card,
+          200,
+          scrollable: find.byType(Scrollable).first,
+        );
+        await tester.pumpAndSettle();
+        expect(card.hitTestable(), findsOneWidget);
+        await tester.tap(card);
         await tester.pumpAndSettle();
         expect(tester.takeException(), isNull);
         await tester.tap(find.byTooltip('Развернуть всё'));

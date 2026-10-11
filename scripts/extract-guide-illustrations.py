@@ -35,5 +35,10 @@ for name, filename, page, region in items:
                          pdf_page=page, crop_points=region,
                          source_sha256=hashlib.sha256(source.read_bytes()).hexdigest(),
                          method='PDF region rendered at 216 dpi; no redrawing'))
+manifest_path = ROOT / 'docs/illustration-sources.json'
+if manifest_path.exists():
+    previous = json.loads(manifest_path.read_text(encoding='utf-8'))
+    generated = {entry['asset'] for entry in manifest}
+    manifest.extend(entry for entry in previous if entry['asset'] not in generated)
 (ROOT / 'docs/illustration-sources.json').write_text(
     json.dumps(manifest, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')

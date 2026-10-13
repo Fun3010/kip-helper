@@ -341,5 +341,73 @@
     "source_sha256": "1ec893f8b586b4ec4a25a5f14b0b44e1f13ad36e11d46f80609e666fc5b80fd7",
     "asset_sha256": "c2fe9e2e534cd201085a165d7439813a17c1741557b48b4a4ca69b9eb1cfbadc",
     "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/optiflex1300c-nozzle.png",
+    "document": "OPTIFLEX 1300C, KROHNE 7.02534.11.00 RU, 08/2005",
+    "document_path": "KROHNE_OPTIFLEX_1300C_руководство_по_монтажу_и_эксплуатации_2005.pdf",
+    "pdf_page": 14,
+    "printed_page": 14,
+    "figure": "2.2.1.4, unnumbered nozzle illustration",
+    "crop_points": [
+      130,
+      385,
+      425,
+      535
+    ],
+    "source_sha256": "c50821cdf7d9a868bc3543ce02b10857731e90f4948299afc68d490ecb407463",
+    "asset_sha256": "7f3929936433c44721b3a2735bcc09eb663cbba388b685d5ad0dd6d7c99fbf59",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/optiflex1300c-hart-ptp.png",
+    "document": "OPTIFLEX 1300C, KROHNE 7.02534.11.00 RU, 08/2005",
+    "document_path": "KROHNE_OPTIFLEX_1300C_руководство_по_монтажу_и_эксплуатации_2005.pdf",
+    "pdf_page": 35,
+    "printed_page": 35,
+    "figure": "3.3.2, unnumbered point-to-point diagram",
+    "crop_points": [
+      56,
+      575,
+      543,
+      783
+    ],
+    "source_sha256": "c50821cdf7d9a868bc3543ce02b10857731e90f4948299afc68d490ecb407463",
+    "asset_sha256": "fbf1a4da9b94a2b35162ecdca7724da88262d75539ffb4c2a261afa415edc425",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/micro-motion-model-code.png",
+    "document": "Micro Motion 1700/2700, installation MMI-20021325, Rev CA, 01/2012",
+    "document_path": "Micro_motion.pdf",
+    "pdf_page": 10,
+    "printed_page": 6,
+    "figure": "1-7 and tables 1-2/1-3",
+    "crop_points": [
+      141,
+      182,
+      534,
+      601
+    ],
+    "source_sha256": "786bf06f67ec4e2e6194926709ba59fc2b60b043071c155125f3cb2cc8603335",
+    "asset_sha256": "d74cacddde88ea0d964b4ff5c74a37b98106bc8a4b497fb9ea6d9b8af463fdcf",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
+  },
+  {
+    "asset": "assets/illustrations/micro-motion-sensor-4-wire.png",
+    "document": "Micro Motion 1700/2700, installation MMI-20021325, Rev CA, 01/2012",
+    "document_path": "Micro_motion.pdf",
+    "pdf_page": 25,
+    "printed_page": 21,
+    "figure": "3-7, aluminum housing, 4-wire remote installation",
+    "crop_points": [
+      167,
+      94,
+      535,
+      500
+    ],
+    "source_sha256": "786bf06f67ec4e2e6194926709ba59fc2b60b043071c155125f3cb2cc8603335",
+    "asset_sha256": "98bae74f780c2eaee6fa13497cde226fa9c0d2ed5bf7e743e7c4ce03710a1bc6",
+    "method": "PDF region rendered at 216 dpi; no redrawing"
   }
 ]

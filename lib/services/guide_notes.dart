@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart' show ChangeNotifier, Characters;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -9,15 +11,43 @@ abstract interface class GuideNotesStore {
 
 class SharedPreferencesGuideNotesStore implements GuideNotesStore {
   static String key(String guideId) =>
-      'kip.guideNotes.v1.${Uri.encodeComponent(guideId)}';
+      'kip.guideNotes.v2.${Uri.encodeComponent(guideId)}';
 
   @override
-  Future<Object?> read(String guideId) async =>
-      (await SharedPreferences.getInstance()).get(key(guideId));
+  Future<Object?> read(String guideId) async {
+    final preferences = await SharedPreferences.getInstance();
+    // Legacy setters update their cache even when a platform write fails.
+    // Never treat that cache as evidence that a personal note was saved.
+    await preferences.reload();
+    final stored = preferences.get(key(guideId));
+    if (stored == null) {
+      // A separate key prevents interpreting old user text as an envelope.
+      return preferences.get(
+        'kip.guideNotes.v1.${Uri.encodeComponent(guideId)}',
+      );
+    }
+    if (stored is! String) {
+      throw const FormatException('Invalid stored personal note envelope');
+    }
+    final envelope = jsonDecode(stored);
+    if (envelope is! Map<String, dynamic> ||
+        envelope['version'] != 1 ||
+        envelope['text'] is! String) {
+      throw const FormatException('Invalid stored personal note envelope');
+    }
+    return envelope['text'] as String;
+  }
 
   @override
-  Future<bool> write(String guideId, String text) async =>
-      (await SharedPreferences.getInstance()).setString(key(guideId), text);
+  Future<bool> write(String guideId, String text) async {
+    // JSON starts with `{`, avoiding Android's three reserved string prefixes.
+    // The controller validates the decoded note's graphemes, not this payload.
+    final encoded = jsonEncode({'version': 1, 'text': text});
+    return (await SharedPreferences.getInstance()).setString(
+      key(guideId),
+      encoded,
+    );
+  }
 }
 
 class GuideNotesController extends ChangeNotifier {

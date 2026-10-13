@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kip_helper/services/guide_notes.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:shared_preferences_platform_interface/shared_preferences_platform_interface.dart';
 
 class MemoryNotesStore implements GuideNotesStore {
   final values = <String, Object?>{};
@@ -24,6 +25,44 @@ class MemoryNotesStore implements GuideNotesStore {
     if (success) values[guideId] = text;
     return success;
   }
+}
+
+class PlatformNotesStore extends InMemorySharedPreferencesStore {
+  PlatformNotesStore() : super.empty();
+
+  static const reservedPrefixes = [
+    'VGhpcyBpcyB0aGUgcHJlZml4IGZvciBhIGxpc3Qu',
+    'VGhpcyBpcyB0aGUgcHJlZml4IGZvciBCaWdJbnRlZ2Vy',
+    'VGhpcyBpcyB0aGUgcHJlZml4IGZvciBEb3VibGUu',
+  ];
+  bool rejectWrites = false;
+  bool throwWrites = false;
+  bool failReads = false;
+
+  @override
+  Future<Map<String, Object>> getAll() async {
+    if (failReads) throw StateError('platform read failed');
+    return super.getAll();
+  }
+
+  @override
+  Future<bool> setValue(String valueType, String key, Object value) async {
+    if (throwWrites) throw StateError('platform write failed');
+    if (rejectWrites) return false;
+    if (valueType == 'String' &&
+        value is String &&
+        reservedPrefixes.any(value.startsWith)) {
+      throw ArgumentError('Reserved Android string prefix');
+    }
+    return super.setValue(valueType, key, value);
+  }
+}
+
+PlatformNotesStore installPlatformNotesStore() {
+  SharedPreferences.setMockInitialValues({});
+  final store = PlatformNotesStore();
+  SharedPreferencesStorePlatform.instance = store;
+  return store;
 }
 
 void main() {
@@ -168,6 +207,148 @@ void main() {
       controller.edit('$text!');
       expect(controller.text, text);
       controller.dispose();
+    },
+  );
+
+  for (final throws in [false, true]) {
+    test(
+      'Production adapter reopens durable note after failed write throws=$throws',
+      () async {
+        final platform = installPlatformNotesStore();
+        final first = GuideNotesController('sipart');
+        await first.load();
+        first.edit('saved A');
+        expect(await first.save(), isTrue);
+        platform.rejectWrites = !throws;
+        platform.throwWrites = throws;
+        first.edit('unsaved B');
+        expect(await first.save(), isFalse);
+        expect(first.text, 'unsaved B');
+        expect(first.dirty, isTrue);
+        first.dispose();
+        final reopened = GuideNotesController('sipart');
+        await reopened.load();
+        expect(reopened.text, 'saved A');
+        expect(reopened.dirty, isFalse);
+        reopened.edit('retry B');
+        expect(await reopened.save(), isFalse);
+        expect(reopened.text, 'retry B');
+        platform.rejectWrites = false;
+        platform.throwWrites = false;
+        expect(await reopened.save(), isTrue);
+        reopened.dispose();
+        final restored = GuideNotesController('sipart');
+        await restored.load();
+        expect(restored.text, 'retry B');
+        expect(restored.dirty, isFalse);
+        restored.dispose();
+      },
+    );
+  }
+
+  for (final prefix in PlatformNotesStore.reservedPrefixes) {
+    test(
+      'Production adapter round-trips reserved Android prefix $prefix',
+      () async {
+        installPlatformNotesStore();
+        final note = '$prefix  Личный текст\n👷🏽\t';
+        final first = GuideNotesController('sipart');
+        await first.load();
+        first.edit(note);
+        expect(await first.save(), isTrue);
+        first.dispose();
+        final restored = GuideNotesController('sipart');
+        await restored.load();
+        expect(restored.text, note);
+        restored.dispose();
+      },
+    );
+  }
+
+  test(
+    'Production adapter refresh failure blocks stale cached note and overwrite',
+    () async {
+      final platform = installPlatformNotesStore();
+      final initial = GuideNotesController('sipart');
+      await initial.load();
+      initial.edit('saved');
+      expect(await initial.save(), isTrue);
+      initial.dispose();
+      platform.failReads = true;
+      final blocked = GuideNotesController('sipart');
+      await blocked.load();
+      expect(blocked.loadFailed, isTrue);
+      blocked.edit('replacement');
+      expect(await blocked.save(), isFalse);
+      platform.failReads = false;
+      await blocked.load();
+      expect(blocked.text, 'saved');
+      expect(blocked.loadFailed, isFalse);
+      blocked.dispose();
+    },
+  );
+
+  test('Production adapter applies grapheme limit to decoded text', () async {
+    installPlatformNotesStore();
+    final adapter = SharedPreferencesGuideNotesStore();
+    final note = '👷🏽' * 20000;
+    expect(await adapter.write('sipart', note), isTrue);
+    final accepted = GuideNotesController('sipart');
+    await accepted.load();
+    expect(accepted.loadFailed, isFalse);
+    expect(accepted.text, note);
+    accepted.dispose();
+    expect(await adapter.write('sipart', '$note!'), isTrue);
+    final blocked = GuideNotesController('sipart');
+    await blocked.load();
+    expect(blocked.loadFailed, isTrue);
+    expect(await blocked.save(), isFalse);
+    blocked.dispose();
+  });
+
+  test(
+    'Production adapter preserves legacy raw text during safe-format migration',
+    () async {
+      final platform = installPlatformNotesStore();
+      const original = '{"version":1,"text":"literal raw personal text"}';
+      await platform.setValue(
+        'String',
+        'flutter.kip.guideNotes.v1.sipart',
+        original,
+      );
+      final first = GuideNotesController('sipart');
+      await first.load();
+      expect(first.text, original);
+      first.edit('$original\nEdited');
+      expect(await first.save(), isTrue);
+      first.dispose();
+      final restored = GuideNotesController('sipart');
+      await restored.load();
+      expect(restored.text, '$original\nEdited');
+      restored.dispose();
+    },
+  );
+
+  test(
+    'Production adapter does not expose malformed encoded state as a note',
+    () async {
+      final platform = installPlatformNotesStore();
+      await platform.setValue(
+        'String',
+        'flutter.${SharedPreferencesGuideNotesStore.key('sipart')}',
+        '{}',
+      );
+      final blocked = GuideNotesController('sipart');
+      await blocked.load();
+      expect(blocked.loadFailed, isTrue);
+      blocked.edit('replacement');
+      expect(await blocked.save(), isFalse);
+      expect(
+        (await platform
+            .getAll())['flutter.${SharedPreferencesGuideNotesStore.key('sipart')}'],
+        '{}',
+      );
+      blocked.dispose();
     },
   );
 }

@@ -7,7 +7,7 @@ import 'package:kip_helper/services/guide_notes.dart';
 import 'package:kip_helper/services/quick_access.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'guide_notes_test.dart' show MemoryNotesStore;
+import 'guide_notes_test.dart' show MemoryNotesStore, installPlatformNotesStore;
 
 Future<GlobalKey<NavigatorState>> openNotes(
   WidgetTester tester,
@@ -249,4 +249,50 @@ void main() {
       },
     );
   }
+
+  testWidgets(
+    'Failed adapter write discarded on exit reopens only durable text',
+    (tester) async {
+      final platform = installPlatformNotesStore();
+      final initial = GuideNotesController('sipart');
+      await initial.load();
+      initial.edit('saved A');
+      expect(await initial.save(), isTrue);
+      initial.dispose();
+      final first = GuideNotesController('sipart');
+      await openNotes(tester, first);
+      platform.rejectWrites = true;
+      await tester.enterText(find.byType(TextField), 'unsaved B');
+      await tester.pump();
+      await tester.tap(find.text('Сохранить'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Выйти без сохранения'));
+      await tester.pumpAndSettle();
+      expect(find.byType(GuideNotesPage), findsNothing);
+      first.dispose();
+      final reopened = GuideNotesController('sipart');
+      addTearDown(reopened.dispose);
+      await openNotes(tester, reopened);
+      expect(
+        tester.widget<TextField>(find.byType(TextField)).controller!.text,
+        'saved A',
+      );
+      expect(find.text('Сохранено'), findsOneWidget);
+      platform.rejectWrites = false;
+      await tester.enterText(find.byType(TextField), 'retry B');
+      await tester.pump();
+      await tester.tap(find.byType(BackButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Сохранить и выйти'));
+      await tester.pumpAndSettle();
+      expect(find.byType(GuideNotesPage), findsNothing);
+      final restored = GuideNotesController('sipart');
+      await restored.load();
+      expect(restored.text, 'retry B');
+      restored.dispose();
+      expect(tester.takeException(), isNull);
+    },
+  );
 }

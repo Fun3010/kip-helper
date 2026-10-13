@@ -50,59 +50,74 @@ void main() {
     }
   });
 
-  test('Remaining cards resolve evidence and exact illustration provenance', () {
-    final manifest = (jsonDecode(
-      File('docs/illustration-sources.json').readAsStringSync(),
-    ) as List).cast<Map<String, dynamic>>();
-    const hashes = {
-      'optiflex1300c':
-          'c50821cdf7d9a868bc3543ce02b10857731e90f4948299afc68d490ecb407463',
-      'micro_motion':
-          '786bf06f67ec4e2e6194926709ba59fc2b60b043071c155125f3cb2cc8603335',
-    };
-    for (final id in hashes.keys) {
-      final guide = guides.firstWhere((guide) => guide.id == id);
-      expect(guide.sources.single.key, isNotNull);
-      expect(guide.sources.single.document, isNotEmpty);
-      expect(guide.sources.single.url, isNull);
-      for (final section in guide.sections) {
-        for (var index = 0; index < section.paragraphs.length; index++) {
-          expect(section.evidenceFor(index), isNotEmpty);
-          for (final evidence in section.evidenceFor(index)) {
-            expect(guide.sourceByKey(evidence.sourceKey), isNotNull);
-            expect(evidence.locator, contains('PDF с.'));
-            expect(evidence.locator, contains('РЭ с.'));
-            expect(evidence.state, anyOf(
-              GuideEvidenceState.verified,
-              GuideEvidenceState.workingChecklist,
-            ));
+  test(
+    'Remaining cards resolve evidence and exact illustration provenance',
+    () {
+      final manifest =
+          (jsonDecode(File('docs/illustration-sources.json').readAsStringSync())
+                  as List)
+              .cast<Map<String, dynamic>>();
+      const hashes = {
+        'optiflex1300c':
+            'c50821cdf7d9a868bc3543ce02b10857731e90f4948299afc68d490ecb407463',
+        'micro_motion':
+            '786bf06f67ec4e2e6194926709ba59fc2b60b043071c155125f3cb2cc8603335',
+      };
+      for (final id in hashes.keys) {
+        final guide = guides.firstWhere((guide) => guide.id == id);
+        expect(guide.sources.single.key, isNotNull);
+        expect(guide.sources.single.document, isNotEmpty);
+        expect(guide.sources.single.url, isNull);
+        for (final section in guide.sections) {
+          for (var index = 0; index < section.paragraphs.length; index++) {
+            expect(section.evidenceFor(index), isNotEmpty);
+            for (final evidence in section.evidenceFor(index)) {
+              expect(guide.sourceByKey(evidence.sourceKey), isNotNull);
+              expect(evidence.locator, contains('PDF с.'));
+              expect(evidence.locator, contains('РЭ с.'));
+              expect(
+                evidence.state,
+                anyOf(
+                  GuideEvidenceState.verified,
+                  GuideEvidenceState.workingChecklist,
+                ),
+              );
+            }
           }
         }
+        for (final illustration in guide.illustrations) {
+          expect(File(illustration.asset).existsSync(), isTrue);
+          final entries = manifest.where(
+            (entry) => entry['asset'] == illustration.asset,
+          );
+          expect(entries, hasLength(1));
+          final entry = entries.single;
+          expect(entry['source_sha256'], hashes[id]);
+          expect(entry['document_path'], guide.sources.single.document);
+          expect(entry['source_url'], isNull);
+          expect(entry['asset_sha256'], matches(RegExp(r'^[a-f0-9]{64}$')));
+          expect(entry['pdf_page'], greaterThan(0));
+          expect(entry['printed_page'], greaterThan(0));
+          expect(entry['crop_points'], hasLength(4));
+          expect(entry['method'], contains('no redrawing'));
+        }
       }
-      for (final illustration in guide.illustrations) {
-        expect(File(illustration.asset).existsSync(), isTrue);
-        final entries = manifest.where(
-          (entry) => entry['asset'] == illustration.asset,
-        );
-        expect(entries, hasLength(1));
-        final entry = entries.single;
-        expect(entry['source_sha256'], hashes[id]);
-        expect(entry['document_path'], guide.sources.single.document);
-        expect(entry['source_url'], isNull);
-        expect(entry['asset_sha256'], matches(RegExp(r'^[a-f0-9]{64}$')));
-        expect(entry['pdf_page'], greaterThan(0));
-        expect(entry['printed_page'], greaterThan(0));
-        expect(entry['crop_points'], hasLength(4));
-        expect(entry['method'], contains('no redrawing'));
-      }
-    }
-  });
+    },
+  );
 
   const figures = [
-    ('optiflex1300c', 'патрубок', 'OPTIFLEX 1300C · присоединительный патрубок'),
+    (
+      'optiflex1300c',
+      'патрубок',
+      'OPTIFLEX 1300C · присоединительный патрубок',
+    ),
     ('optiflex1300c', 'точка к точке', 'OPTIFLEX 1300C · HART точка к точке'),
     ('micro_motion', 'рис. 1-7', 'Micro Motion · код модели и исполнения'),
-    ('micro_motion', 'рис. 3-7', 'Micro Motion · 4-проводное подключение сенсора'),
+    (
+      'micro_motion',
+      'рис. 3-7',
+      'Micro Motion · 4-проводное подключение сенсора',
+    ),
   ];
   for (final dark in [false, true]) {
     for (final (id, query, title) in figures) {
@@ -114,19 +129,21 @@ void main() {
         addTearDown(tester.view.resetPhysicalSize);
         addTearDown(tester.view.resetDevicePixelRatio);
         final guide = guides.firstWhere((guide) => guide.id == id);
-        await tester.pumpWidget(MaterialApp(
-          theme: ThemeData(
-            useMaterial3: true,
-            brightness: dark ? Brightness.dark : Brightness.light,
-          ),
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context).copyWith(
-              textScaler: const TextScaler.linear(2.25),
+        await tester.pumpWidget(
+          MaterialApp(
+            theme: ThemeData(
+              useMaterial3: true,
+              brightness: dark ? Brightness.dark : Brightness.light,
             ),
-            child: child!,
+            builder: (context, child) => MediaQuery(
+              data: MediaQuery.of(
+                context,
+              ).copyWith(textScaler: const TextScaler.linear(2.25)),
+              child: child!,
+            ),
+            home: GuidePage(guide: guide),
           ),
-          home: GuidePage(guide: guide),
-        ));
+        );
         await tester.pumpAndSettle();
         await tester.scrollUntilVisible(
           find.byType(TextField),

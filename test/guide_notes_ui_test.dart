@@ -133,7 +133,7 @@ void main() {
         if (exit == 'app bar') {
           await tester.tap(find.byType(BackButton));
         } else if (exit == 'programmatic') {
-          navigator.currentState!.pop();
+          await navigator.currentState!.maybePop();
         } else {
           await tester.binding.handlePopRoute();
         }

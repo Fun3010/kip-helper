@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../models/guide.dart';
+import '../notes/guide_notes_page.dart';
 import '../../services/open_source.dart';
 import '../../services/quick_access.dart';
 import '../../widgets/favorite_button.dart';
@@ -132,7 +133,7 @@ class _GuidePageState extends State<GuidePage> {
         .toList();
     return Scaffold(
       appBar: AppBar(
-        title: Text(guide.title),
+        title: Text(guide.title, maxLines: 1, overflow: TextOverflow.ellipsis),
         actions: [
           if (widget.quickAccess != null)
             FavoriteButton(guide: guide, controller: widget.quickAccess!),
@@ -140,6 +141,18 @@ class _GuidePageState extends State<GuidePage> {
             tooltip: _expandAll ? 'Свернуть всё' : 'Развернуть всё',
             onPressed: () => setState(() => _expandAll = !_expandAll),
             icon: Icon(_expandAll ? Icons.unfold_less : Icons.unfold_more),
+          ),
+          PopupMenuButton<String>(
+            tooltip: 'Дополнительные действия',
+            onSelected: (_) => Navigator.of(context).push(
+              MaterialPageRoute<void>(
+                builder: (_) =>
+                    GuideNotesPage(guideId: guide.id, guideTitle: guide.title),
+              ),
+            ),
+            itemBuilder: (_) => const [
+              PopupMenuItem(value: 'notes', child: Text('Личные заметки')),
+            ],
           ),
         ],
       ),

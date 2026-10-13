@@ -61,7 +61,7 @@ void main() {
     'x' * 20001,
   ]) {
     test(
-      'Corrupt note blocks overwrite and can retry loading: $corrupt',
+      'Corrupt note blocks overwrite and can retry loading: ${corrupt.runtimeType}',
       () async {
         final store = MemoryNotesStore()..values['sipart'] = corrupt;
         final controller = GuideNotesController('sipart', store: store);
@@ -148,6 +148,25 @@ void main() {
       controller.edit('$limit!');
       expect(controller.text, limit);
       expect(await controller.save(), isTrue);
+      controller.dispose();
+    },
+  );
+
+  test(
+    'Length limit counts Unicode graphemes without changing exact text',
+    () async {
+      final controller = GuideNotesController(
+        'sipart',
+        store: MemoryNotesStore(),
+      );
+      await controller.load();
+      final text = '👷🏽' * 20000;
+      controller.edit(text);
+      expect(controller.text, text);
+      expect(GuideNotesController.characterCount(text), 20000);
+      expect(await controller.save(), isTrue);
+      controller.edit('$text!');
+      expect(controller.text, text);
       controller.dispose();
     },
   );

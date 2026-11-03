@@ -102,18 +102,33 @@ class _PdfManualPageState extends State<PdfManualPage> {
                     children: [
                       SizedBox(
                         width: 130,
-                        child: TextField(
-                          key: const ValueKey('manual-search'),
-                          controller: query,
-                          decoration: const InputDecoration(labelText: 'Поиск'),
-                          onSubmitted: (_) {
-                            if (searcher == null) return;
-                            setState(() => searched = true);
-                            searcher!.startTextSearch(
-                              query.text,
-                              searchImmediately: true,
-                            );
-                          },
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Поиск'),
+                            const SizedBox(height: 4),
+                            Semantics(
+                              label: 'Поиск в PDF',
+                              child: TextField(
+                                key: const ValueKey('manual-search'),
+                                controller: query,
+                                decoration: const InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                onSubmitted: (_) {
+                                  if (searcher == null) return;
+                                  setState(() => searched = true);
+                                  searcher!.startTextSearch(
+                                    query.text,
+                                    searchImmediately: true,
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       IconButton(
@@ -145,12 +160,27 @@ class _PdfManualPageState extends State<PdfManualPage> {
                       ),
                       SizedBox(
                         width: 85,
-                        child: TextField(
-                          key: const ValueKey('manual-page'),
-                          controller: pageInput,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Стр.'),
-                          onSubmitted: (_) => _jump(),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text('Стр.'),
+                            const SizedBox(height: 4),
+                            Semantics(
+                              label: 'Страница PDF',
+                              child: TextField(
+                                key: const ValueKey('manual-page'),
+                                controller: pageInput,
+                                keyboardType: TextInputType.number,
+                                decoration: const InputDecoration(
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                onSubmitted: (_) => _jump(),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       IconButton(

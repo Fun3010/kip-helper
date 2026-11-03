@@ -271,6 +271,7 @@ class _ManualTitleDialogState extends State<_ManualTitleDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
+    scrollable: true,
     title: const Text('Название документа'),
     content: TextField(
       controller: input,

@@ -8,6 +8,7 @@ class DesktopCloseGuard with WindowListener {
   static final instance = DesktopCloseGuard._();
   Future<bool> Function()? confirmClose;
   bool _handling = false;
+  bool _allowClose = false;
 
   Future<void> initialize() async {
     if (!Platform.isWindows) return;
@@ -18,11 +19,25 @@ class DesktopCloseGuard with WindowListener {
 
   @override
   void onWindowClose() async {
-    if (_handling) return;
+    if (_handling || _allowClose) return;
     _handling = true;
     try {
       if (await (confirmClose?.call() ?? Future.value(true))) {
-        await windowManager.destroy();
+        // Let the runner handle WM_CLOSE/WM_DESTROY in its normal order.
+        // window_manager.destroy() posts WM_QUIT while the window is alive.
+        _allowClose = true;
+        try {
+          await windowManager.setPreventClose(false);
+          await windowManager.close();
+        } catch (error, stack) {
+          try {
+            await windowManager.setPreventClose(true);
+          } catch (_) {
+            // Preserve the original close failure if restoring the veto fails.
+          }
+          _allowClose = false;
+          Error.throwWithStackTrace(error, stack);
+        }
       }
     } finally {
       _handling = false;

@@ -27,7 +27,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE instance, _In_opt_ HINSTANCE prev,
   FlutterWindow window(project);
   Win32Window::Point origin(10, 10);
   Win32Window::Size size(1280, 720);
-  if (!window.Create(L"КИП Помощник", origin, size)) {
+  if (!window.Create(L"\u041A\u0418\u041F \u041F\u043E\u043C\u043E\u0449\u043D\u0438\u043A", origin, size)) {
     return EXIT_FAILURE;
   }
   window.SetQuitOnClose(true);

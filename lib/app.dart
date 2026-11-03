@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'data/guides.dart';
 import 'features/calculators/rtd_calculator.dart';
+import 'features/calculators/rtd_table.dart';
 import 'features/calculators/signal_calculator.dart';
 import 'features/calculators/unit_converter.dart';
 import 'features/guides/guide_page.dart';
+import 'features/manuals/manual_library_page.dart';
 import 'services/open_source.dart';
 import 'services/quick_access.dart';
 import 'widgets/favorite_button.dart';
@@ -169,9 +171,16 @@ class _HomePageState extends State<HomePage> {
     appBar: AppBar(
       title: const Text(
         'КИП / помощник',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(fontWeight: FontWeight.w700),
       ),
       actions: [
+        IconButton(
+          tooltip: 'Мои PDF',
+          icon: const Icon(Icons.picture_as_pdf_outlined),
+          onPressed: () => _open(const ManualLibraryPage()),
+        ),
         IconButton(
           tooltip: 'Настройки',
           icon: const Icon(Icons.settings_outlined),
@@ -409,6 +418,13 @@ class _HomePageState extends State<HomePage> {
       ),
       _featureCard(
         context,
+        title: 'Таблица НСХ',
+        subtitle: 'Температура и сопротивление · до 501 строки',
+        icon: Icons.table_chart_outlined,
+        onTap: () => _open(const RtdTable()),
+      ),
+      _featureCard(
+        context,
         title: 'Температура',
         subtitle: '°C · °F · K',
         icon: Icons.thermostat_outlined,
@@ -430,7 +446,7 @@ class _HomePageState extends State<HomePage> {
       _hero(
         context,
         'КИП / помощник',
-        'Версия 1.2.1\nОфлайн-справочник для работы с приборами',
+        'Версия 1.3.0\nОфлайн-справочник для работы с приборами',
       ),
       const SizedBox(height: 24),
       Text(
@@ -439,7 +455,7 @@ class _HomePageState extends State<HomePage> {
       ),
       const SizedBox(height: 12),
       const Text(
-        'Все карточки, поиск и калькуляторы хранятся в приложении. Ссылки на полные руководства открываются отдельно в браузере.',
+        'Карточки, схемы, пошаговые сценарии, расчёты и личные заметки доступны без сети. Добавьте свои PDF в «Мои PDF»: приложение сохранит копию для просмотра и поиска. Веб-источники открываются отдельно в браузере.',
         style: TextStyle(height: 1.6),
       ),
       const SizedBox(height: 24),

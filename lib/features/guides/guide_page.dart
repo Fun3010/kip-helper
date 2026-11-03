@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../models/guide.dart';
+import '../../data/guide_procedures.dart';
+import '../manuals/manual_library_page.dart';
+import 'procedure_list_page.dart';
 import '../notes/guide_notes_page.dart';
 import '../../services/open_source.dart';
 import '../../services/quick_access.dart';
@@ -144,14 +147,22 @@ class _GuidePageState extends State<GuidePage> {
           ),
           PopupMenuButton<String>(
             tooltip: 'Дополнительные действия',
-            onSelected: (_) => Navigator.of(context).push(
+            onSelected: (action) => Navigator.of(context).push(
               MaterialPageRoute<void>(
-                builder: (_) =>
-                    GuideNotesPage(guideId: guide.id, guideTitle: guide.title),
+                builder: (_) => action == 'manuals'
+                    ? ManualLibraryPage(
+                        guideId: guide.id,
+                        guideTitle: guide.title,
+                      )
+                    : GuideNotesPage(
+                        guideId: guide.id,
+                        guideTitle: guide.title,
+                      ),
               ),
             ),
             itemBuilder: (_) => const [
               PopupMenuItem(value: 'notes', child: Text('Личные заметки')),
+              PopupMenuItem(value: 'manuals', child: Text('PDF этого прибора')),
             ],
           ),
         ],
@@ -186,6 +197,18 @@ class _GuidePageState extends State<GuidePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
+                if (proceduresForGuide(guide.id).isNotEmpty) ...[
+                  FilledButton.tonalIcon(
+                    icon: const Icon(Icons.checklist_outlined),
+                    label: const Text('Настройка по шагам'),
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ProcedureListPage(guide: guide),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
                 TextField(
                   controller: _search,
                   onChanged: (_) => setState(() {}),
@@ -286,7 +309,7 @@ class _GuidePageState extends State<GuidePage> {
                 Text(
                   guide.sources.isEmpty
                       ? 'Для точной инструкции требуется руководство установленного исполнения.'
-                      : 'Текст и иллюстрации доступны без сети. Для локальных документов указаны файл и страницы. Веб-ссылки открываются в браузере; полные PDF в приложение не включены.',
+                      : 'Текст и иллюстрации доступны без сети. Для документов указаны файл и страницы. Веб-ссылки открываются в браузере. Свои PDF можно добавить через меню «PDF этого прибора»; выбранная вами связь не подтверждает модель и редакцию документа.',
                   style: TextStyle(color: colors.onSurfaceVariant),
                 ),
                 for (final source in guide.sources)

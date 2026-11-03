@@ -2,15 +2,15 @@
 
 > **For agentic workers:** Use superpowers:subagent-driven-development task-by-task.
 
-**Goal:** Complete the remaining five-stage roadmap without building an APK.
+**Goal:** Complete the remaining five-stage roadmap and deliver the final Android APK, as authorized on 2026-11-03.
 **Architecture:** Preserve the existing catalogue and calculation domain. Add independent notes, procedures, and imported-document modules; integrate through GuidePage and HomePage.
 **Tech Stack:** Flutter/Dart, shared_preferences; PDF dependencies verified against primary documentation.
 **Spec:** docs/superpowers/specs/2026-10-13-project-completion-design.md
 
 ## Global Constraints
 
-- No APK builds, local Flutter commands, flutter pub get, or release-signing guard.
-- Flutter analyze/test and dependency resolution run only in GitHub Actions.
+- The 2026-11-03 user request authorizes local dependency resolution, Flutter analysis/tests, Android builds and emulator validation.
+- Preserve the original release identity and certificate. Never generate a replacement release key or bypass the release-signing guard. A release update requires the owner's original key.
 - Preserve Russian UI, 320 px support, both themes, and composed text scaling.
 - Never invent instrument instructions, terminals, source locators or technical illustrations.
 - Original PDFs stay outside public git; extracted figures retain exact provenance.
@@ -37,7 +37,7 @@
 
 **Files:** Create lib/services/guide_notes.dart, lib/features/notes/guide_notes_page.dart, test/guide_notes_test.dart, test/guide_notes_ui_test.dart; modify lib/features/guides/guide_page.dart.
 **Interfaces:** GuideNotesPage(guideId, guideTitle); internal injectable persistence/controller for tests.
-- [ ] Test save/reload, per-guide isolation, corruption, failed write/retry and dirty exit.
+- [x] Test save/reload, per-guide isolation, corruption, failed write/retry and dirty exit (existing implementation at bf28e2b; current baseline verification pending).
 - [ ] Add editor opened by an accessible app-bar action, explicit Save, state/error labels, clear confirmation and exit protection. Limit text to 20000 characters and persist exact text.
 - [ ] Verify UI at 320 px with 2.25 scale, keyboard and both themes. Controller runs CI; commit task files.
 
@@ -67,3 +67,12 @@
 - [ ] Add table tool with type/start/end/step controls, clear units and readable rows at large scale.
 - [ ] Reconcile all entry points, update documentation with exact completed features and remaining device/APK checks.
 - [ ] Run full CI (format/analyze/tests), independent whole-branch review, fix findings, merge authorized work, verify main CI and skipped APK steps.
+
+### Task 6: Final Android delivery (2026-11-03)
+
+**Files:** pubspec.yaml, android local build configuration, docs/final-release-2026-11-03.md, README.md, PROJECT_JOURNAL.md; APK and checksums in ignored dist/.
+- [ ] Verify the entire agreed feature set with analysis, domain/widget tests and independent review; fix material findings.
+- [ ] Increase version to 1.3.0+5; preserve ru.kiphelper.app and the original certificate SHA-256 10bb36a1b9b994a859b45517623666d6323e997e2e1c73cb273e9a1939b8cd7c.
+- [ ] Build and inspect an APK, install and exercise native PDF import/render/search and persistence in an available emulator.
+- [ ] Build release only when original signing files are restored. Verify APK package/version/ABIs/certificate and produce a SHA-256 checksum.
+- [ ] Document actual checks and remaining physical-device/store acceptance. Deliver the local APK; public store publication requires separate authorization.

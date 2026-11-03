@@ -62,34 +62,15 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
           await (widget.pickFile?.call() ??
               openFile(acceptedTypeGroups: [type]));
       if (picked == null || !mounted) return;
-      final input = TextEditingController(
-        text: picked.name.replaceFirst(
-          RegExp(r'\.pdf$', caseSensitive: false),
-          '',
-        ),
-      );
       final title = await showDialog<String>(
         context: context,
-        builder: (ctx) => AlertDialog(
-          title: const Text('Название документа'),
-          content: TextField(
-            controller: input,
-            autofocus: true,
-            decoration: const InputDecoration(labelText: 'Название'),
+        builder: (_) => _ManualTitleDialog(
+          initialTitle: picked.name.replaceFirst(
+            RegExp(r'\.pdf$', caseSensitive: false),
+            '',
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx),
-              child: const Text('Отмена'),
-            ),
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, input.text),
-              child: const Text('Добавить'),
-            ),
-          ],
         ),
       );
-      input.dispose();
       if (title == null) return;
       await library.importFile(
         File(picked.path),
@@ -266,5 +247,45 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
       icon: const Icon(Icons.add),
       label: const Text('Добавить PDF'),
     ),
+  );
+}
+
+class _ManualTitleDialog extends StatefulWidget {
+  const _ManualTitleDialog({required this.initialTitle});
+  final String initialTitle;
+
+  @override
+  State<_ManualTitleDialog> createState() => _ManualTitleDialogState();
+}
+
+class _ManualTitleDialogState extends State<_ManualTitleDialog> {
+  late final TextEditingController input = TextEditingController(
+    text: widget.initialTitle,
+  );
+
+  @override
+  void dispose() {
+    input.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+    title: const Text('Название документа'),
+    content: TextField(
+      controller: input,
+      autofocus: true,
+      decoration: const InputDecoration(labelText: 'Название'),
+    ),
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.pop(context),
+        child: const Text('Отмена'),
+      ),
+      TextButton(
+        onPressed: () => Navigator.pop(context, input.text),
+        child: const Text('Добавить'),
+      ),
+    ],
   );
 }

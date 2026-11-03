@@ -136,8 +136,9 @@ void main() {
         final pixels = image.pixels;
         var darkPixels = 0;
         for (var i = 0; i + 3 < pixels.length; i += 4) {
-          if (pixels[i] < 180 && pixels[i + 1] < 180 && pixels[i + 2] < 180)
+          if (pixels[i] < 180 && pixels[i + 1] < 180 && pixels[i + 2] < 180) {
             darkPixels++;
+          }
         }
         expect(
           darkPixels,
@@ -148,11 +149,7 @@ void main() {
         image?.dispose();
       }
 
-      final pageInput = find.byWidgetPredicate(
-        (w) =>
-            w is TextField &&
-            (w.decoration?.labelText?.startsWith('Стр. /') ?? false),
-      );
+      final pageInput = find.byKey(const ValueKey('manual-page'));
       await tester.enterText(pageInput, '2');
       await tester.tap(find.byTooltip('Перейти к странице'));
       await _waitFor(
@@ -166,9 +163,7 @@ void main() {
         'page 2 label',
       );
 
-      final searchInput = find.byWidgetPredicate(
-        (w) => w is TextField && w.decoration?.labelText == 'Поиск в PDF',
-      );
+      final searchInput = find.byKey(const ValueKey('manual-search'));
       await tester.enterText(searchInput, 'Acceptance needle');
       await tester.tap(find.byTooltip('Найти'));
       await _waitFor(

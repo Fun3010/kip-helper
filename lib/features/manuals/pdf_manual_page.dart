@@ -103,10 +103,9 @@ class _PdfManualPageState extends State<PdfManualPage> {
                       SizedBox(
                         width: 130,
                         child: TextField(
+                          key: const ValueKey('manual-search'),
                           controller: query,
-                          decoration: const InputDecoration(
-                            labelText: 'Поиск в PDF',
-                          ),
+                          decoration: const InputDecoration(labelText: 'Поиск'),
                           onSubmitted: (_) {
                             if (searcher == null) return;
                             setState(() => searched = true);
@@ -147,11 +146,10 @@ class _PdfManualPageState extends State<PdfManualPage> {
                       SizedBox(
                         width: 85,
                         child: TextField(
+                          key: const ValueKey('manual-page'),
                           controller: pageInput,
                           keyboardType: TextInputType.number,
-                          decoration: InputDecoration(
-                            labelText: 'Стр. / $count',
-                          ),
+                          decoration: const InputDecoration(labelText: 'Стр.'),
                           onSubmitted: (_) => _jump(),
                         ),
                       ),
@@ -192,7 +190,7 @@ class _PdfManualPageState extends State<PdfManualPage> {
             initialPageNumber: 1,
             params: PdfViewerParams(
               errorBannerBuilder: (context, error, stack, ref) => Center(
-                child: Padding(
+                child: SingleChildScrollView(
                   padding: const EdgeInsets.all(16),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,

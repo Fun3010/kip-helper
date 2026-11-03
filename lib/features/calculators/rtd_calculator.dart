@@ -37,15 +37,27 @@ class _RtdCalculatorState extends State<RtdCalculator> {
       DropdownButtonFormField<RtdSensor>(
         initialValue: _sensor,
         isExpanded: true,
+        itemHeight: null,
+        selectedItemBuilder: (context) => [
+          for (final sensor in RtdSensor.values)
+            Text(sensor.label.split(' ·').first),
+        ],
         decoration: const InputDecoration(labelText: 'НСХ датчика'),
         items: [
           for (final sensor in RtdSensor.values)
-            DropdownMenuItem(value: sensor, child: Text(sensor.label)),
+            DropdownMenuItem(
+              value: sensor,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                child: Text(sensor.label),
+              ),
+            ),
         ],
         onChanged: (sensor) {
           if (sensor != null) setState(() => _sensor = sensor);
         },
       ),
+      HelpNote(_sensor.label),
       SwitchListTile.adaptive(
         contentPadding: EdgeInsets.zero,
         title: Text(

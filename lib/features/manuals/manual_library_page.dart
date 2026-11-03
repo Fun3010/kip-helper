@@ -34,17 +34,18 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
   Future<void> _load() async {
     try {
       final all = await library.list();
-      if (mounted)
+      if (mounted) {
         setState(() {
-          items = all
-              .where(
-                (e) => widget.guideId == null || e.guideId == widget.guideId,
-              )
-              .toList();
+          items = all;
           error = null;
         });
-    } catch (e) {
-      if (mounted) setState(() => error = '$e');
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => error = 'Не удалось загрузить библиотеку. Повторите попытку.',
+        );
+      }
     }
   }
 
@@ -98,42 +99,102 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
       );
       await _load();
     } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('$e')));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              e is ManualLibraryException
+                  ? e.message
+                  : 'Не удалось добавить PDF. Повторите попытку.',
+            ),
+          ),
+        );
+      }
     } finally {
       if (mounted) setState(() => busy = false);
     }
   }
 
   Future<void> _remove(LocalManual item) async {
-    final yes = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Удалить документ?'),
-        content: Text('Копия «${item.title}» будет удалена из библиотеки.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Отмена'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Удалить'),
-          ),
-        ],
-      ),
-    );
-    if (yes != true) return;
+    if (busy) return;
+    setState(() => busy = true);
     try {
-      await library.remove(item);
-      await _load();
-    } catch (e) {
-      if (mounted)
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('$e')));
+      final yes = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Удалить документ?'),
+          content: Text('Копия «${item.title}» будет удалена из библиотеки.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Удалить'),
+            ),
+          ],
+        ),
+      );
+      if (yes != true) return;
+      try {
+        await library.remove(item);
+        await _load();
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Не удалось удалить документ. Повторите попытку.'),
+            ),
+          );
+        }
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> _associate(LocalManual item) async {
+    if (busy) return;
+    setState(() => busy = true);
+    try {
+      final yes = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Связать документ с прибором?'),
+          content: Text(
+            '«${item.title}» будет связан с «${widget.guideTitle}»${item.guideTitle == null ? '' : ' вместо «${item.guideTitle}»'}. PDF-файл останется в библиотеке.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Отмена'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Связать'),
+            ),
+          ],
+        ),
+      );
+      if (yes == true) {
+        await library.associate(
+          item,
+          widget.guideId!,
+          widget.guideTitle ?? widget.guideId!,
+        );
+        await _load();
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Не удалось связать документ. Повторите попытку.'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
     }
   }
 
@@ -144,7 +205,13 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
         ? Center(
             child: Padding(
               padding: const EdgeInsets.all(16),
-              child: Text(error!),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(error!),
+                  TextButton(onPressed: _load, child: const Text('Повторить')),
+                ],
+              ),
             ),
           )
         : items.isEmpty
@@ -157,6 +224,7 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
             ),
           )
         : ListView.builder(
+            padding: const EdgeInsets.only(bottom: 100),
             itemCount: items.length,
             itemBuilder: (context, i) {
               final item = items[i];
@@ -174,10 +242,21 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
                           builder: (_) => PdfManualPage(manual: item),
                         ),
                       ),
-                trailing: IconButton(
-                  tooltip: 'Удалить',
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: () => _remove(item),
+                trailing: Wrap(
+                  children: [
+                    if (widget.guideId != null &&
+                        item.guideId != widget.guideId)
+                      IconButton(
+                        tooltip: 'Связать с этим прибором',
+                        onPressed: busy ? null : () => _associate(item),
+                        icon: const Icon(Icons.link),
+                      ),
+                    IconButton(
+                      tooltip: 'Удалить',
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: busy ? null : () => _remove(item),
+                    ),
+                  ],
                 ),
               );
             },

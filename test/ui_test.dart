@@ -379,7 +379,18 @@ void main() {
     await tester.tap(find.text('${item.title} · увеличить'));
     await tester.pumpAndSettle();
     expect(find.byType(InteractiveViewer), findsOneWidget);
-    expect(find.textContaining('Разведите пальцы'), findsOneWidget);
+    final viewer = tester.widget<InteractiveViewer>(
+      find.byType(InteractiveViewer),
+    );
+    await tester.tap(find.byTooltip('Увеличить'));
+    await tester.pump();
+    expect(
+      viewer.transformationController!.value.getMaxScaleOnAxis(),
+      greaterThan(1),
+    );
+    await tester.tap(find.byTooltip('Вернуть исходный масштаб'));
+    await tester.pump();
+    expect(viewer.transformationController!.value.getMaxScaleOnAxis(), 1);
     expect(tester.takeException(), isNull);
     await tester.tap(find.byType(BackButton));
     await tester.pumpAndSettle();
@@ -546,6 +557,25 @@ void main() {
     expect(find.text('139,1059 Ом'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
+
+  for (final dark in [false, true]) {
+    testWidgets('Sensor menu selects 100М at 320px and 225%, dark=$dark', (
+      tester,
+    ) async {
+      phone(tester, width: 320);
+      await tester.pumpWidget(
+        screen(const RtdCalculator(), dark: dark, scale: 2.25),
+      );
+      await tester.tap(find.byType(DropdownButtonFormField<RtdSensor>));
+      await tester.pumpAndSettle();
+      await tester.dragFrom(const Offset(160, 650), const Offset(0, -500));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('100М · α = 0,00428').hitTestable());
+      await tester.pumpAndSettle();
+      expect(find.text('100М'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets(
     'Contact diagram changes state and retains healthy relay meaning',

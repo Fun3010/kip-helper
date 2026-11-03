@@ -24,8 +24,9 @@ class LocalManual {
   };
   static LocalManual fromJson(Map<String, dynamic> json, Directory directory) {
     final id = json['id'] as String;
-    if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(id))
+    if (!RegExp(r'^[a-f0-9]{64}$').hasMatch(id)) {
       throw const FormatException('Invalid manual id');
+    }
     return LocalManual(
       id: id,
       title: json['title'] as String,

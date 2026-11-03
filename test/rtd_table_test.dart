@@ -16,6 +16,20 @@ Future<void> reveal(WidgetTester tester, Finder target, double delta) =>
     );
 
 void main() {
+  test('fine temperature grid keeps distinct displayed values', () {
+    final table = generateRtdTable(
+      sensor: RtdSensor.pt100,
+      start: 1,
+      end: 1.0001,
+      step: 0.00001,
+    );
+    expect(
+      formatRtdColumn(
+        table.rows.map((r) => r.temperature).toList(),
+      ).toSet().length,
+      table.rows.length,
+    );
+  });
   final invalid = throwsA(isA<CalculationException>());
 
   group('RTD table generation', () {
@@ -266,13 +280,11 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.byType(DropdownButtonFormField<RtdSensor>));
       await tester.pumpAndSettle();
-      await tester.scrollUntilVisible(
-        find.text('100М · α = 0,00428'),
-        150,
-        scrollable: find.byType(Scrollable).last,
-      );
-      await tester.tap(find.text('100М · α = 0,00428'));
+      await tester.dragFrom(const Offset(160, 650), const Offset(0, -500));
       await tester.pumpAndSettle();
+      await tester.tap(find.text('100М · α = 0,00428').hitTestable());
+      await tester.pumpAndSettle();
+      expect(find.text('100М'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await reveal(tester, input('Конечная температура'), 150);
       await tester.enterText(input('Конечная температура'), '3');
@@ -282,7 +294,9 @@ void main() {
       addTearDown(tester.view.resetViewInsets);
       await tester.pumpAndSettle();
       await reveal(tester, find.text('Построить таблицу'), 150);
-      await tester.tap(find.text('Построить таблицу'));
+      await tester.drag(find.byType(Scrollable).first, const Offset(0, -180));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Построить таблицу').hitTestable());
       await tester.pumpAndSettle();
       await reveal(tester, find.text('3 °C'), 150);
       await tester.pumpAndSettle();

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kip_helper/data/guides.dart';
 import 'package:kip_helper/features/guides/guide_page.dart';
 import 'package:kip_helper/features/notes/guide_notes_page.dart';
 import 'package:kip_helper/services/guide_notes.dart';
+import 'package:kip_helper/services/desktop_close_guard.dart';
 import 'package:kip_helper/services/quick_access.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -44,6 +46,46 @@ Future<GlobalKey<NavigatorState>> openNotes(
 
 void main() {
   setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets(
+    'desktop close asks about a dirty note and respects stay and discard',
+    (tester) async {
+      final controller = GuideNotesController(
+        'sipart',
+        store: MemoryNotesStore(),
+      );
+      addTearDown(controller.dispose);
+      await openNotes(tester, controller);
+      await tester.enterText(find.byType(TextField), 'draft');
+      final first = DesktopCloseGuard.instance.confirmClose!();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Продолжить редактирование'));
+      await tester.pumpAndSettle();
+      expect(await first, isFalse);
+      final second = DesktopCloseGuard.instance.confirmClose!();
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Выйти без сохранения'));
+      await tester.pumpAndSettle();
+      expect(await second, isTrue);
+    },
+  );
+
+  testWidgets('desktop close is blocked while a write is pending', (
+    tester,
+  ) async {
+    final store = MemoryNotesStore()..pendingWrite = Completer<bool>();
+    final controller = GuideNotesController('sipart', store: store);
+    addTearDown(controller.dispose);
+    await openNotes(tester, controller);
+    await tester.enterText(find.byType(TextField), 'draft');
+    final write = controller.save();
+    await tester.pump();
+    expect(await DesktopCloseGuard.instance.confirmClose!(), isFalse);
+    store.pendingWrite!.complete(false);
+    await write;
+    await tester.pump();
+    expect(controller.dirty, isTrue);
+  });
 
   testWidgets(
     'Guide overflow opens personal notes preserving existing actions',

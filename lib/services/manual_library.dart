@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:async';
 import 'package:crypto/crypto.dart';
 import 'package:path_provider/path_provider.dart';
 import '../models/local_manual.dart';
@@ -15,10 +16,30 @@ class ManualLibrary {
   ManualLibrary({Directory? directory}) : _directory = directory;
   Directory? _directory;
   static const maxBytes = 100 * 1024 * 1024;
+  static final Map<String, Future<void>> _queues = {};
   Future<Directory> get directory async => _directory ??= Directory(
     '${(await getApplicationSupportDirectory()).path}/manuals',
   );
-  Future<List<LocalManual>> list() async {
+  Future<T> _locked<T>(Future<T> Function() action) async {
+    final dir = await directory;
+    await dir.create(recursive: true);
+    final resolved = await dir.resolveSymbolicLinks();
+    final key = Platform.isWindows ? resolved.toLowerCase() : resolved;
+    final previous = _queues[key] ?? Future<void>.value();
+    final done = Completer<void>();
+    _queues[key] = done.future;
+    await previous;
+    try {
+      return await action();
+    } finally {
+      if (identical(_queues[key], done.future)) _queues.remove(key);
+      done.complete();
+    }
+  }
+
+  Future<List<LocalManual>> list() => _locked(_list);
+
+  Future<List<LocalManual>> _list() async {
     final dir = await directory;
     await dir.create(recursive: true);
     final index = File('${dir.path}/index.json');
@@ -56,7 +77,13 @@ class ManualLibrary {
       if (await backup.exists()) await backup.rename(index.path);
       rethrow;
     }
-    if (await backup.exists()) await backup.delete();
+    if (await backup.exists()) {
+      try {
+        await backup.delete();
+      } on FileSystemException {
+        /* committed */
+      }
+    }
   }
 
   Future<LocalManual> importFile(
@@ -64,9 +91,9 @@ class ManualLibrary {
     required String title,
     String? guideId,
     String? guideTitle,
-  }) async {
+  }) => _locked(() async {
     final dir = await directory;
-    final items = await list();
+    final items = await _list();
     if (title.trim().isEmpty) {
       throw const ManualLibraryException('Укажите название документа.');
     }
@@ -111,7 +138,7 @@ class ManualLibrary {
       try {
         await _save([...items, item]);
       } catch (_) {
-        if (!existed) await target.delete();
+        // Keep the copy if commit status is uncertain; it can be recovered.
         rethrow;
       }
       return item;
@@ -119,13 +146,32 @@ class ManualLibrary {
       await sink.close();
       if (await temp.exists()) await temp.delete();
     }
-  }
+  });
 
-  Future<void> remove(LocalManual item) async {
-    final items = await list();
+  Future<void> remove(LocalManual item) => _locked(() async {
+    final items = await _list();
     await _save(items.where((e) => e.id != item.id).toList());
     final dir = await directory;
     final file = File('${dir.path}/${item.id}.pdf');
     if (await file.exists()) await file.delete();
-  }
+  });
+
+  Future<void> associate(LocalManual item, String guideId, String guideTitle) =>
+      _locked(() async {
+        final items = await _list();
+        final index = items.indexWhere((e) => e.id == item.id);
+        if (index < 0) {
+          throw const ManualLibraryException('Документ больше не найден.');
+        }
+        final old = items[index];
+        items[index] = LocalManual(
+          id: old.id,
+          title: old.title,
+          size: old.size,
+          path: old.path,
+          guideId: guideId,
+          guideTitle: guideTitle,
+        );
+        await _save(items);
+      });
 }

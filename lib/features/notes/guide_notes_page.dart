@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../services/guide_notes.dart';
+import '../../services/desktop_close_guard.dart';
 
 enum _ExitChoice { stay, discard, save }
 
@@ -31,6 +32,7 @@ class _GuideNotesPageState extends State<GuideNotesPage> {
   void initState() {
     super.initState();
     _notes = widget.controller ?? GuideNotesController(widget.guideId);
+    DesktopCloseGuard.instance.confirmClose = _confirmClose;
     _notes.addListener(_changed);
     _editor.text = _notes.text;
     if (!_notes.ready) _notes.load();
@@ -44,6 +46,9 @@ class _GuideNotesPageState extends State<GuideNotesPage> {
 
   @override
   void dispose() {
+    if (DesktopCloseGuard.instance.confirmClose == _confirmClose) {
+      DesktopCloseGuard.instance.confirmClose = null;
+    }
     _notes.removeListener(_changed);
     if (widget.controller == null) _notes.dispose();
     _editor.dispose();
@@ -51,11 +56,15 @@ class _GuideNotesPageState extends State<GuideNotesPage> {
   }
 
   Future<void> _requestExit() async {
-    if (_confirmingExit || _notes.saving) return;
-    if (!_notes.dirty) {
-      Navigator.of(context).pop();
-      return;
-    }
+    if (!await _confirmClose() || !mounted) return;
+    setState(() => _allowExit = true);
+    await WidgetsBinding.instance.endOfFrame;
+    if (mounted) Navigator.of(context).maybePop();
+  }
+
+  Future<bool> _confirmClose() async {
+    if (_confirmingExit || _notes.saving) return false;
+    if (!_notes.dirty) return true;
     _confirmingExit = true;
     FocusScope.of(context).unfocus();
     final choice = await showDialog<_ExitChoice>(
@@ -87,18 +96,15 @@ class _GuideNotesPageState extends State<GuideNotesPage> {
         ),
       ),
     );
-    if (!mounted) return;
+    if (!mounted) return false;
     _confirmingExit = false;
     if (choice == _ExitChoice.save) {
       final saved = await _notes.save();
-      if (!mounted || !saved || _notes.dirty) return;
+      if (!mounted || !saved || _notes.dirty) return false;
     } else if (choice != _ExitChoice.discard) {
-      return;
+      return false;
     }
-    setState(() => _allowExit = true);
-    // Rebuild PopScope before requesting the guarded navigation operation.
-    await WidgetsBinding.instance.endOfFrame;
-    if (mounted) Navigator.of(context).maybePop();
+    return true;
   }
 
   Future<void> _clear() async {

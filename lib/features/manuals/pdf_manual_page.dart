@@ -7,6 +7,24 @@ int? validManualPage(String input, int pageCount) {
   return page != null && page >= 1 && page <= pageCount ? page : null;
 }
 
+enum PdfTextLayer { present, absent, error }
+
+Future<PdfTextLayer> inspectPdfTextLayer(
+  int pageCount,
+  Future<String?> Function(int) load,
+) async {
+  try {
+    for (var i = 1; i <= pageCount; i++) {
+      final text = await load(i);
+      if (text == null) return PdfTextLayer.error;
+      if (text.trim().isNotEmpty) return PdfTextLayer.present;
+    }
+    return PdfTextLayer.absent;
+  } catch (_) {
+    return PdfTextLayer.error;
+  }
+}
+
 class PdfManualPage extends StatefulWidget {
   const PdfManualPage({super.key, required this.manual, this.initialPage = 1});
   final LocalManual manual;
@@ -22,6 +40,25 @@ class _PdfManualPageState extends State<PdfManualPage> {
   final pageInput = TextEditingController();
   int page = 1, count = 0;
   bool searched = false;
+  String textStatus = 'Проверка текстового слоя…';
+  int viewerVersion = 0;
+  Future<void> _checkText(int total) async {
+    final version = viewerVersion;
+    final status = await inspectPdfTextLayer(
+      total,
+      (i) async => (await searcher.loadText(pageNumber: i))?.fullText,
+    );
+    if (!mounted || version != viewerVersion) return;
+    setState(
+      () => textStatus = switch (status) {
+        PdfTextLayer.present => '',
+        PdfTextLayer.absent =>
+          'Текстовый слой не найден: возможно, это скан. Поиск недоступен.',
+        PdfTextLayer.error => 'Не удалось проверить текстовый слой.',
+      },
+    );
+  }
+
   void _changed() {
     if (mounted) setState(() {});
   }
@@ -50,84 +87,134 @@ class _PdfManualPageState extends State<PdfManualPage> {
     appBar: AppBar(title: Text(widget.manual.title)),
     body: Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Wrap(
-            crossAxisAlignment: WrapCrossAlignment.center,
-            spacing: 4,
-            children: [
-              SizedBox(
-                width: 130,
-                child: TextField(
-                  controller: query,
-                  decoration: const InputDecoration(labelText: 'Поиск в PDF'),
-                  onSubmitted: (_) {
-                    setState(() => searched = true);
-                    searcher.startTextSearch(
-                      query.text,
-                      searchImmediately: true,
-                    );
-                  },
-                ),
-              ),
-              IconButton(
-                tooltip: 'Найти',
-                onPressed: count == 0
-                    ? null
-                    : () {
-                        setState(() => searched = true);
-                        searcher.startTextSearch(
-                          query.text,
-                          searchImmediately: true,
-                        );
-                      },
-                icon: const Icon(Icons.search),
-              ),
-              IconButton(
-                tooltip: 'Предыдущее совпадение',
-                onPressed: searcher.hasMatches ? searcher.goToPrevMatch : null,
-                icon: const Icon(Icons.keyboard_arrow_up),
-              ),
-              IconButton(
-                tooltip: 'Следующее совпадение',
-                onPressed: searcher.hasMatches ? searcher.goToNextMatch : null,
-                icon: const Icon(Icons.keyboard_arrow_down),
-              ),
-              SizedBox(
-                width: 85,
-                child: TextField(
-                  controller: pageInput,
-                  keyboardType: TextInputType.number,
-                  decoration: InputDecoration(labelText: 'Стр. / $count'),
-                  onSubmitted: (_) => _jump(),
-                ),
-              ),
-              IconButton(
-                tooltip: 'Перейти к странице',
-                onPressed: count == 0 ? null : _jump,
-                icon: const Icon(Icons.arrow_forward),
-              ),
-              Text('$page / $count'),
-            ],
+        ConstrainedBox(
+          constraints: BoxConstraints(
+            maxHeight: MediaQuery.sizeOf(context).height * 0.4,
           ),
-        ),
-        if (searched && query.text.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            child: Text(
-              searcher.isSearching
-                  ? 'Поиск…'
-                  : searcher.matches.isEmpty
-                  ? 'Совпадений нет. В сканах без текстового слоя поиск недоступен.'
-                  : 'Найдено: ${searcher.matches.length}',
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Wrap(
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    spacing: 4,
+                    children: [
+                      SizedBox(
+                        width: 130,
+                        child: TextField(
+                          controller: query,
+                          decoration: const InputDecoration(
+                            labelText: 'Поиск в PDF',
+                          ),
+                          onSubmitted: (_) {
+                            setState(() => searched = true);
+                            searcher.startTextSearch(
+                              query.text,
+                              searchImmediately: true,
+                            );
+                          },
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Найти',
+                        onPressed: count == 0
+                            ? null
+                            : () {
+                                setState(() => searched = true);
+                                searcher.startTextSearch(
+                                  query.text,
+                                  searchImmediately: true,
+                                );
+                              },
+                        icon: const Icon(Icons.search),
+                      ),
+                      IconButton(
+                        tooltip: 'Предыдущее совпадение',
+                        onPressed: searcher.hasMatches
+                            ? searcher.goToPrevMatch
+                            : null,
+                        icon: const Icon(Icons.keyboard_arrow_up),
+                      ),
+                      IconButton(
+                        tooltip: 'Следующее совпадение',
+                        onPressed: searcher.hasMatches
+                            ? searcher.goToNextMatch
+                            : null,
+                        icon: const Icon(Icons.keyboard_arrow_down),
+                      ),
+                      SizedBox(
+                        width: 85,
+                        child: TextField(
+                          controller: pageInput,
+                          keyboardType: TextInputType.number,
+                          decoration: InputDecoration(
+                            labelText: 'Стр. / $count',
+                          ),
+                          onSubmitted: (_) => _jump(),
+                        ),
+                      ),
+                      IconButton(
+                        tooltip: 'Перейти к странице',
+                        onPressed: count == 0 ? null : _jump,
+                        icon: const Icon(Icons.arrow_forward),
+                      ),
+                      Text('$page / $count'),
+                    ],
+                  ),
+                ),
+                if (textStatus.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: Text(textStatus),
+                  ),
+                if (searched && query.text.isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 12),
+                    child: Text(
+                      searcher.isSearching
+                          ? 'Поиск…'
+                          : searcher.matches.isEmpty
+                          ? 'Совпадений нет.'
+                          : 'Найдено: ${searcher.matches.length}',
+                    ),
+                  ),
+              ],
             ),
           ),
+        ),
         Expanded(
           child: PdfViewer.file(
             widget.manual.path,
+            key: ValueKey(viewerVersion),
             controller: controller,
             initialPageNumber: 1,
             params: PdfViewerParams(
+              errorBannerBuilder: (context, error, stack, ref) => Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Text(
+                        'Не удалось открыть PDF. Файл может быть повреждён или защищён паролем.',
+                      ),
+                      TextButton(
+                        onPressed: () => setState(() {
+                          viewerVersion++;
+                          count = 0;
+                          textStatus = 'Проверка текстового слоя…';
+                        }),
+                        child: const Text('Повторить'),
+                      ),
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: const Text('Назад'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
               pagePaintCallbacks: [searcher.pageTextMatchPaintCallback],
               onViewerReady: (document, pdfController) {
                 final total = document.pages.length;
@@ -137,6 +224,7 @@ class _PdfManualPageState extends State<PdfManualPage> {
                   page = widget.initialPage.clamp(1, total);
                 });
                 pdfController.goToPage(pageNumber: page);
+                _checkText(total);
               },
               onPageChanged: (value) {
                 if (value != null && mounted) setState(() => page = value);

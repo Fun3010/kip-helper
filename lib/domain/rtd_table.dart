@@ -1,5 +1,27 @@
 import 'calculations.dart';
 
+/// Preserve distinct adjacent values while keeping ordinary tables concise.
+List<String> formatRtdColumn(List<double> values) {
+  var labels = values.map(formatNumber).toList();
+  bool distinct(List<String> text) => List.generate(
+    text.length - 1,
+    (i) => i,
+  ).every((i) => values[i] == values[i + 1] || text[i] != text[i + 1]);
+  if (values.length < 2 || distinct(labels)) return labels;
+  for (var precision = 5; precision <= 15; precision++) {
+    labels = values
+        .map(
+          (v) => v
+              .toStringAsFixed(precision)
+              .replaceFirst(RegExp(r'\.?0+$'), '')
+              .replaceAll('.', ','),
+        )
+        .toList();
+    if (distinct(labels)) return labels;
+  }
+  return values.map((v) => v.toString().replaceAll('.', ',')).toList();
+}
+
 /// One nominal RTD point: temperature in °C and resistance in ohms.
 class RtdTablePoint {
   const RtdTablePoint(this.temperature, this.resistance);

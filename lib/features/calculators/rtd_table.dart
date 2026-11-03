@@ -54,6 +54,12 @@ class _RtdTableState extends State<RtdTable> {
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
     final table = _table;
+    final temperatures = table == null
+        ? <String>[]
+        : formatRtdColumn(table.rows.map((r) => r.temperature).toList());
+    final resistances = table == null
+        ? <String>[]
+        : formatRtdColumn(table.rows.map((r) => r.resistance).toList());
     return CalculatorScaffold(
       title: 'Таблица НСХ',
       children: [
@@ -155,7 +161,7 @@ class _RtdTableState extends State<RtdTable> {
                 padding: EdgeInsets.symmetric(vertical: 12),
                 child: Text('Температура, °C · Сопротивление, Ом'),
               ),
-              for (final row in table.rows)
+              for (var i = 0; i < table.rows.length; i++)
                 Container(
                   padding: const EdgeInsets.symmetric(vertical: 12),
                   decoration: BoxDecoration(
@@ -168,8 +174,8 @@ class _RtdTableState extends State<RtdTable> {
                     spacing: 20,
                     runSpacing: 8,
                     children: [
-                      SelectableText('${formatNumber(row.temperature)} °C'),
-                      SelectableText('${formatNumber(row.resistance)} Ом'),
+                      SelectableText('${temperatures[i]} °C'),
+                      SelectableText('${resistances[i]} Ом'),
                     ],
                   ),
                 ),

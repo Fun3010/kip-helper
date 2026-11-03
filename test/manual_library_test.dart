@@ -70,4 +70,84 @@ void main() {
     expect(validManualPage('5', 4), isNull);
     expect(validManualPage('abc', 4), isNull);
   });
+  test(
+    'text layer detection distinguishes text, empty pages and failure',
+    () async {
+      expect(
+        await inspectPdfTextLayer(2, (i) async => i == 1 ? '' : 'текст'),
+        PdfTextLayer.present,
+      );
+      expect(
+        await inspectPdfTextLayer(2, (_) async => ' \n'),
+        PdfTextLayer.absent,
+      );
+      expect(
+        await inspectPdfTextLayer(1, (_) async => throw StateError('failed')),
+        PdfTextLayer.error,
+      );
+      expect(
+        await inspectPdfTextLayer(1, (_) async => null),
+        PdfTextLayer.error,
+      );
+    },
+  );
+  test('concurrent imports across instances retain both entries', () async {
+    final other = File('${root.path}/other.pdf');
+    await other.writeAsString('%PDF-1.4 other content');
+    final second = ManualLibrary(directory: Directory('${root.path}/store'));
+    await Future.wait([
+      store.importFile(source, title: 'Первый'),
+      second.importFile(other, title: 'Второй'),
+    ]);
+    expect((await store.list()).map((e) => e.title).toSet(), {
+      'Первый',
+      'Второй',
+    });
+  });
+  test(
+    'concurrent delete and import retain the new entry and its copy',
+    () async {
+      final old = await store.importFile(source, title: 'Старый');
+      final other = File('${root.path}/new.pdf');
+      await other.writeAsString('%PDF-1.4 new');
+      final second = ManualLibrary(directory: Directory('${root.path}/store'));
+      final imported = second.importFile(other, title: 'Новый');
+      await Future.wait([imported, store.remove(old)]);
+      final item = (await store.list()).single;
+      expect(item.title, 'Новый');
+      expect(await File(item.path).exists(), isTrue);
+    },
+  );
+  test(
+    'failed metadata write preserves existing and newly copied PDFs',
+    () async {
+      final old = await store.importFile(source, title: 'Старый');
+      final other = File('${root.path}/new.pdf');
+      await other.writeAsString('%PDF-1.4 new content');
+      await Directory('${root.path}/store/index.json.tmp').create();
+      await expectLater(
+        store.importFile(other, title: 'Новый'),
+        throwsA(isA<FileSystemException>()),
+      );
+      expect((await store.list()).single.id, old.id);
+      expect(await File(old.path).exists(), isTrue);
+      final copies = await Directory(
+        '${root.path}/store',
+      ).list().where((e) => e.path.endsWith('.pdf')).toList();
+      expect(copies.length, 2);
+    },
+  );
+  test('reassociation updates metadata and retains the saved copy', () async {
+    final item = await store.importFile(
+      source,
+      title: 'Паспорт',
+      guideId: 'a',
+      guideTitle: 'А',
+    );
+    await store.associate(item, 'b', 'Б');
+    final updated = (await store.list()).single;
+    expect(updated.guideId, 'b');
+    expect(updated.guideTitle, 'Б');
+    expect(await File(updated.path).exists(), isTrue);
+  });
 }

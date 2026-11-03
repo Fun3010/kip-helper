@@ -35,18 +35,18 @@ class PdfManualPage extends StatefulWidget {
 
 class _PdfManualPageState extends State<PdfManualPage> {
   final controller = PdfViewerController();
-  late final searcher = PdfTextSearcher(controller)..addListener(_changed);
+  PdfTextSearcher? searcher;
   final query = TextEditingController();
   final pageInput = TextEditingController();
   int page = 1, count = 0;
   bool searched = false;
   String textStatus = 'Проверка текстового слоя…';
   int viewerVersion = 0;
-  Future<void> _checkText(int total) async {
+  Future<void> _checkText(int total, PdfTextSearcher activeSearcher) async {
     final version = viewerVersion;
     final status = await inspectPdfTextLayer(
       total,
-      (i) async => (await searcher.loadText(pageNumber: i))?.fullText,
+      (i) async => (await activeSearcher.loadText(pageNumber: i))?.fullText,
     );
     if (!mounted || version != viewerVersion) return;
     setState(
@@ -65,7 +65,7 @@ class _PdfManualPageState extends State<PdfManualPage> {
 
   @override
   void dispose() {
-    searcher.dispose();
+    searcher?.dispose();
     query.dispose();
     pageInput.dispose();
     super.dispose();
@@ -108,8 +108,9 @@ class _PdfManualPageState extends State<PdfManualPage> {
                             labelText: 'Поиск в PDF',
                           ),
                           onSubmitted: (_) {
+                            if (searcher == null) return;
                             setState(() => searched = true);
-                            searcher.startTextSearch(
+                            searcher!.startTextSearch(
                               query.text,
                               searchImmediately: true,
                             );
@@ -118,11 +119,11 @@ class _PdfManualPageState extends State<PdfManualPage> {
                       ),
                       IconButton(
                         tooltip: 'Найти',
-                        onPressed: count == 0
+                        onPressed: searcher == null
                             ? null
                             : () {
                                 setState(() => searched = true);
-                                searcher.startTextSearch(
+                                searcher!.startTextSearch(
                                   query.text,
                                   searchImmediately: true,
                                 );
@@ -131,15 +132,15 @@ class _PdfManualPageState extends State<PdfManualPage> {
                       ),
                       IconButton(
                         tooltip: 'Предыдущее совпадение',
-                        onPressed: searcher.hasMatches
-                            ? searcher.goToPrevMatch
+                        onPressed: searcher?.hasMatches == true
+                            ? searcher!.goToPrevMatch
                             : null,
                         icon: const Icon(Icons.keyboard_arrow_up),
                       ),
                       IconButton(
                         tooltip: 'Следующее совпадение',
-                        onPressed: searcher.hasMatches
-                            ? searcher.goToNextMatch
+                        onPressed: searcher?.hasMatches == true
+                            ? searcher!.goToNextMatch
                             : null,
                         icon: const Icon(Icons.keyboard_arrow_down),
                       ),
@@ -168,15 +169,15 @@ class _PdfManualPageState extends State<PdfManualPage> {
                     padding: const EdgeInsets.all(8),
                     child: Text(textStatus),
                   ),
-                if (searched && query.text.isNotEmpty)
+                if (searched && query.text.isNotEmpty && searcher != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
                     child: Text(
-                      searcher.isSearching
+                      searcher!.isSearching
                           ? 'Поиск…'
-                          : searcher.matches.isEmpty
+                          : searcher!.matches.isEmpty
                           ? 'Совпадений нет.'
-                          : 'Найдено: ${searcher.matches.length}',
+                          : 'Найдено: ${searcher!.matches.length}',
                     ),
                   ),
               ],
@@ -201,8 +202,11 @@ class _PdfManualPageState extends State<PdfManualPage> {
                       ),
                       TextButton(
                         onPressed: () => setState(() {
+                          searcher?.dispose();
+                          searcher = null;
                           viewerVersion++;
                           count = 0;
+                          searched = false;
                           textStatus = 'Проверка текстового слоя…';
                         }),
                         child: const Text('Повторить'),
@@ -215,16 +219,22 @@ class _PdfManualPageState extends State<PdfManualPage> {
                   ),
                 ),
               ),
-              pagePaintCallbacks: [searcher.pageTextMatchPaintCallback],
+              pagePaintCallbacks: [
+                if (searcher != null) searcher!.pageTextMatchPaintCallback,
+              ],
               onViewerReady: (document, pdfController) {
                 final total = document.pages.length;
                 if (total == 0 || !mounted) return;
+                searcher?.dispose();
+                final activeSearcher = PdfTextSearcher(pdfController)
+                  ..addListener(_changed);
                 setState(() {
+                  searcher = activeSearcher;
                   count = total;
                   page = widget.initialPage.clamp(1, total);
                 });
                 pdfController.goToPage(pageNumber: page);
-                _checkText(total);
+                _checkText(total, activeSearcher);
               },
               onPageChanged: (value) {
                 if (value != null && mounted) setState(() => page = value);

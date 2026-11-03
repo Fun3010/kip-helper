@@ -8,10 +8,17 @@
 ## Контрольная копия текущей разработки
 
 Ветка [release/final-apk-2026-11-03](https://github.com/Fun3010/kip-helper/tree/release/final-apk-2026-11-03)
-отправлена и прочитана через GitHub: commit `8a5f745b63eca064dcb56142d637b486f55941c6`.
-Это промежуточное состояние до исправления замечаний, не финальный релиз.
+отправлена в GitHub. Исправления приложения: commit
+`adc1d1d34cdc2b67843b8ee4326f1a57394755e7`; последующие документы могут иметь
+более новый commit. Перед переносом сверяйте вершину ветки и HANDOFF.md.
 
-[ZIP этого снимка](https://drive.google.com/file/d/10AEaSL9aOMwZfa2Z9ee0g5fhhY-1NXoU/view?usp=drivesdk)
+Снимок всей текущей отслеживаемой ветки и отдельный архив результатов проверки
+сохранены в [частной папке Drive](https://drive.google.com/drive/folders/18Joq-BTJSQUY_sZwKeh6bupGG-nVt8v4).
+Их точные имена, commit и SHA-256 — в актуальной записи Notion ниже.
+Архив Git содержит все отслеживаемые файлы, а не прежний ограниченный список;
+локальные пути SDK, секреты, кеши и отсутствующие материалы в него не входят.
+
+[Исторический промежуточный ZIP 8a5f745](https://drive.google.com/file/d/10AEaSL9aOMwZfa2Z9ee0g5fhhY-1NXoU/view?usp=drivesdk)
 создан из commit через git archive. Размер 4 779 282 байта, SHA-256
 `12e188ed0361bb4250e35645c5410faba9fd8ca175fb5d7df749cc634d63596f`.
 Размер и расположение подтверждены чтением метаданных Drive; общий доступ выключен.
@@ -19,6 +26,13 @@
 [Актуальное продолжение в Notion](https://app.notion.com/p/40d2c52ebe2181d39809fdab1500bb83)
 содержит статус, ссылки и ограничения. При переходе на ноутбук начинайте с
 `HANDOFF.md` ветки, а не с исторического архива октября.
+
+## Подготовленные приложения
+
+[Windows x64 1.3.0](https://drive.google.com/file/d/1ZOV34DVu8JfvIv1VN4u9jpqVniPSneFp/view?usp=drivesdk)
+можно распаковать целиком и запустить. Отдельный Android `.dev` APK предназначен
+для проверки; совместимого подписанного обновления пока нет. Версии, контрольные
+суммы и результаты запуска: [release-delivery-2026-11-03.md](release-delivery-2026-11-03.md).
 
 ## Где что хранится
 
@@ -62,6 +76,14 @@
 
 ## Что перенесено и чего ещё нет
 
+После первоначальной проверки восстановлены 4 из 21 исторических PDF с точным
+совпадением SHA-256 и ещё 3 проверенных документа Siemens/Rosemount.
+[Частная папка PDF](https://drive.google.com/drive/folders/1UNiRDvaxCRqbpYsO2KepdryBBewAoPvy)
+и [манифест восстановления](https://drive.google.com/file/d/1gWHyTE1r0Pd8nBww3DWYd9segyMn-mbn/view?usp=drivesdk)
+доступны с другого устройства. Подробности и границы проверки —
+[manual-recovery-2026-11-03.md](manual-recovery-2026-11-03.md).
+Остаются отсутствующими 17 исторических PDF и 13 JPG.
+
 [Архив исходников в Notion от 02.10.2026](https://app.notion.com/p/3ed2c52ebe2181b09b75dfad3c9d0aed)
 содержит ручной снимок версии 1.2.1+4: 190 файлов, 2 180 721 байт.
 Записанный SHA-256 — `6b9d84ecfc74270f0e358215b7b843fb09541583b36b6374e6f6eb8c0c3a05e1`.
@@ -95,9 +117,8 @@ PDF с имеющимся реестром, а для полного набор�
    Используйте короткие ASCII-пути для проекта и инструментов, например
    `C:\dev\kip-helper`, `C:\tools\flutter`, `C:\Android\Sdk`. Не помещайте рабочую
    копию внутрь папки автоматической синхронизации Drive/OneDrive.
-3. Продолжать ветку `release/final-apk-2026-11-03`. На момент подготовки этой
-   инструкции её отправка на GitHub ещё не подтверждена. После подтверждения
-   отправки выполните в PowerShell:
+3. Продолжать опубликованную ветку `release/final-apk-2026-11-03`.
+   Выполните в PowerShell:
 
    ```powershell
    New-Item -ItemType Directory -Path C:\dev -Force | Out-Null

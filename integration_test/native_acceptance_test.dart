@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -54,6 +55,20 @@ List<int> _pdfFixture({bool scan = false}) {
 String _stream(String data) =>
     '<< /Length ${ascii.encode(data).length} >>\nstream\n$data\nendstream';
 
+Future<void> _removeNoteFixture(String guideId) async {
+  if (!guideId.startsWith('native-')) throw StateError('Not a QA note');
+  await (await SharedPreferences.getInstance()).remove(
+    SharedPreferencesGuideNotesStore.key(guideId),
+  );
+  if (!Platform.isWindows) return;
+  final support = await getApplicationSupportDirectory();
+  final name = sha256.convert(utf8.encode(guideId));
+  for (final suffix in ['', '.bak', '.tmp']) {
+    final file = File('${support.path}/notes/$name.json$suffix');
+    if (await file.exists()) await file.delete();
+  }
+}
+
 Future<void> _waitFor(
   WidgetTester tester,
   bool Function() predicate,
@@ -78,7 +93,6 @@ void main() {
       '${(await getApplicationSupportDirectory()).path}/acceptance-$runId',
     );
     final guideId = 'native-acceptance-$runId';
-    final notesKey = SharedPreferencesGuideNotesStore.key(guideId);
     try {
       await root.create(recursive: true);
       final source = File('${root.path}/source.pdf');
@@ -279,7 +293,7 @@ void main() {
       );
       await tester.pumpWidget(const SizedBox.shrink());
     } finally {
-      await (await SharedPreferences.getInstance()).remove(notesKey);
+      await _removeNoteFixture(guideId);
       if (await root.exists()) await root.delete(recursive: true);
     }
   });
@@ -290,7 +304,6 @@ void main() {
       if (!Platform.isWindows) return;
       await DesktopCloseGuard.instance.initialize();
       final guideId = 'native-close-${DateTime.now().microsecondsSinceEpoch}';
-      final notesKey = SharedPreferencesGuideNotesStore.key(guideId);
       try {
         await tester.pumpWidget(
           MaterialApp(
@@ -340,7 +353,7 @@ void main() {
         );
         await tester.pumpWidget(const SizedBox.shrink());
       } finally {
-        await (await SharedPreferences.getInstance()).remove(notesKey);
+        await _removeNoteFixture(guideId);
       }
     },
   );

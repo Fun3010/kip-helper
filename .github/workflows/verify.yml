@@ -40,6 +40,9 @@ jobs:
         run: |
           flutter test integration_test/native_acceptance_test.dart -d windows --reporter expanded 2>&1 | Tee-Object build/qa/windows-native.log
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $nativeEvidence = Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'KIP Helper/КИП Помощник/kip-acceptance-artifacts'
+          if (!(Test-Path -LiteralPath $nativeEvidence)) { throw 'Native PDF evidence was not captured' }
+          Copy-Item -LiteralPath $nativeEvidence -Destination build/qa/native -Recurse
       - name: Build ordinary Windows application
         shell: pwsh
         run: |

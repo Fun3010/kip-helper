@@ -23,7 +23,9 @@ try {
     if ($LASTEXITCODE -ne 0) { throw 'Static analysis failed.' }
     & $flutterCommand test --no-pub
     if ($LASTEXITCODE -ne 0) { throw 'Tests failed.' }
-    & $flutterCommand build apk --release --no-pub
+    # Regenerate release plugin registration after tests; --no-pub can leave
+    # integration_test registered even though Gradle excludes it from release.
+    & $flutterCommand build apk --release
     if ($LASTEXITCODE -ne 0) { throw 'APK build failed.' }
     Get-Item 'build/app/outputs/flutter-apk/app-release.apk'
 } finally {

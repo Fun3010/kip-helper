@@ -3,12 +3,16 @@ import 'iva8.dart';
 import 'metran150.dart';
 import 'metran100.dart';
 import 'rosemount8600d.dart';
+import 'optiflex1300c.dart';
+import 'micro_motion.dart';
 
 const guides = <InstrumentGuide>[
   iva8Guide,
   metran150Guide,
   metran100Guide,
   rosemount8600dGuide,
+  optiflex1300cGuide,
+  microMotionGuide,
   InstrumentGuide(
     id: 'sipart',
     illustrations: [

@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "kip_helper" "\0"
+            VALUE "CompanyName", "KIP Helper" "\0"
+            VALUE "FileDescription", "КИП Помощник" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
             VALUE "InternalName", "kip_helper" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2026 com.example. All rights reserved." "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2026 KIP Helper. MIT License." "\0"
             VALUE "OriginalFilename", "kip_helper.exe" "\0"
-            VALUE "ProductName", "kip_helper" "\0"
+            VALUE "ProductName", "КИП Помощник" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

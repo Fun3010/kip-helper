@@ -17,6 +17,62 @@ permissions:
   contents: read
 
 jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.6"
+          channel: stable
+          cache: true
+      - name: Windows dependencies
+        run: flutter pub get
+      - name: Windows tests
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force build/qa | Out-Null
+          flutter test --no-pub --reporter expanded 2>&1 | Tee-Object build/qa/windows-tests.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Native Windows PDF and exit scenarios
+        shell: pwsh
+        run: |
+          flutter test integration_test/native_acceptance_test.dart -d windows --reporter expanded 2>&1 | Tee-Object build/qa/windows-native.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $nativeEvidence = Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'KIP Helper/КИП Помощник/kip-acceptance-artifacts'
+          if (!(Test-Path -LiteralPath $nativeEvidence)) { throw 'Native PDF evidence was not captured' }
+          Copy-Item -LiteralPath $nativeEvidence -Destination build/qa/native -Recurse
+      - name: Build ordinary Windows application
+        shell: pwsh
+        run: |
+          flutter build windows --release --target lib/main.dart 2>&1 | Tee-Object build/qa/windows-release.log
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      - name: Package and verify single instance
+        shell: pwsh
+        run: |
+          $vs = & "${env:ProgramFiles(x86)}/Microsoft Visual Studio/Installer/vswhere.exe" -latest -products '*' -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          $crt = Get-ChildItem "$vs/VC/Redist/MSVC/*/x64/Microsoft.VC*.CRT" -Directory | Sort-Object FullName -Descending | Select-Object -First 1
+          if (!$crt) { throw 'VC Runtime directory not found' }
+          $revision = git rev-parse HEAD
+          ./scripts/package-windows.ps1 -BuildDirectory build/windows/x64/runner/Release -CrtDirectory $crt.FullName -Version 1.3.0 -Revision $revision
+          ./scripts/test-windows-instance.ps1 -Executable "dist/kip-helper-1.3.0-windows-x64-$($revision.Substring(0,7))/kip_helper.exe" -Evidence build/qa/windows-instance.json
+      - name: Preserve Windows package
+        uses: actions/upload-artifact@v4
+        with:
+          name: kip-helper-windows-release
+          path: |
+            dist/*.zip
+            dist/*.sha256
+          if-no-files-found: error
+          retention-days: 14
+      - name: Preserve Windows evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kip-helper-windows-evidence
+          path: build/qa/
+          retention-days: 14
   verify:
     runs-on: ubuntu-latest
     timeout-minutes: 30

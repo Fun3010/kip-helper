@@ -1,0 +1,110 @@
+[
+  {
+    "asset": "sipart-field-keys.png",
+    "document": "sipart-full.pdf",
+    "page": 94,
+    "crop_points": [
+      142,
+      529,
+      267,
+      608
+    ],
+    "sha256": "f37a4dc05d248e2a596792622d79e723b8238205543d40ae71751e47d2e89b85"
+  },
+  {
+    "asset": "sipart-field-way.png",
+    "document": "sipart-compact.pdf",
+    "page": 61,
+    "crop_points": [
+      153,
+      111,
+      250,
+      168
+    ],
+    "sha256": "ffcef118b1f88a177e3f39ad425358b5b55c5e914597cb49d7db9dffb5dbeebe"
+  },
+  {
+    "asset": "sipart-field-yagl.png",
+    "document": "sipart-compact.pdf",
+    "page": 61,
+    "crop_points": [
+      154,
+      212,
+      552,
+      274
+    ],
+    "sha256": "2dfd098b92f65493c8481d8abf6e07fa8c568c172cb6e74f808cb2fac40a3d5b"
+  },
+  {
+    "asset": "sipart-field-yway.png",
+    "document": "sipart-compact.pdf",
+    "page": 61,
+    "crop_points": [
+      168,
+      408,
+      270,
+      465
+    ],
+    "sha256": "16b8fdce4df6b3618f66ec493f5ecbc3de89c9efc9b5dd29eac771dc7ad1c995"
+  },
+  {
+    "asset": "sipart-field-inita.png",
+    "document": "sipart-compact.pdf",
+    "page": 61,
+    "crop_points": [
+      151,
+      581,
+      248,
+      637
+    ],
+    "sha256": "a2443a6cca3bc57d449b256413b90d4e86ed243f70212a867b1b70243f1f516c"
+  },
+  {
+    "asset": "sipart-field-start.png",
+    "document": "sipart-compact.pdf",
+    "page": 65,
+    "crop_points": [
+      152,
+      201,
+      250,
+      263
+    ],
+    "sha256": "769c7ca6e758612a502f22fe0955e833262c838bca98245bdb28cb0c6fade75a"
+  },
+  {
+    "asset": "sipart-field-finish-linear.png",
+    "document": "sipart-compact.pdf",
+    "page": 62,
+    "crop_points": [
+      140,
+      239,
+      234,
+      294
+    ],
+    "sha256": "0dd177ce45c2b1062aa9412bf4df8464f67c47ef379a84998d0f894fed762877"
+  },
+  {
+    "asset": "sipart-field-turn.png",
+    "document": "sipart-compact.pdf",
+    "page": 64,
+    "crop_points": [
+      154,
+      538,
+      253,
+      595
+    ],
+    "sha256": "3471d92dd99db0f30477f1746ca0aa3b15363043fa89e2d727e311743de78e97"
+  },
+  {
+    "asset": "sipart-field-finish-rotary.png",
+    "document": "sipart-compact.pdf",
+    "page": 65,
+    "crop_points": [
+      152,
+      341,
+      250,
+      398
+    ],
+    "sha256": "6a48be8ff62d04dbe4de559982bfe4c1ea345a018236dca65776f6005319688a"
+  }
+]

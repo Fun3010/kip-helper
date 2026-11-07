@@ -1,6 +1,7 @@
 import '../models/guide.dart';
 import '../models/guide_procedure.dart';
 import 'guides.dart';
+import 'sipart_field.dart';
 
 /// Unsupported guide IDs deliberately have no manufacturer-backed workflow.
 List<GuideProcedure> proceduresForGuide(String guideId) =>
@@ -34,6 +35,10 @@ ProcedureStep _step(
     );
   }
   return ProcedureStep(
+    title: sectionTitle,
+    illustration: guide.id == 'sokrat' || guide.id == 'su1s'
+        ? guide.illustrations[1]
+        : null,
     action: section.paragraphs[paragraph],
     expectedResult: expectedResult,
     evidence: List.unmodifiable(evidence),
@@ -219,68 +224,4 @@ List<GuideProcedure> _su1s() {
   ]);
 }
 
-List<GuideProcedure> _sipart() {
-  final guide = _guide('sipart');
-  return List.unmodifiable([
-    GuideProcedure(
-      id: 'sipart-initialization',
-      guideId: guide.id,
-      title: 'Подготовка к автоматической инициализации',
-      scope:
-          'SIPART PS2 · A5E03436620-AH, 02/2024. '
-          'Маршрут по §§ 5.6–5.7; не полная последовательность кнопок. '
-          'Для исполнения без механической муфты нужна инструкция его версии.',
-      prerequisites: [
-        guide.sections.first.paragraphs[1],
-        guide.sections.first.paragraphs[2],
-        'До запуска откройте § 5.6.2 или § 5.7.2 для своего привода. '
-            'Не начинайте движение, если исполнение или условия запуска не установлены.',
-      ],
-      sources: guide.sources,
-      variants: [
-        for (final linear in [true, false])
-          ProcedureVariant(
-            id: linear ? 'linear' : 'rotary',
-            title: linear
-                ? 'Линейный привод · § 5.6'
-                : 'Поворотный привод · § 5.7',
-            scope: linear
-                ? 'Линейный привод · § 5.6 · РЭ с. 59–65 (общий диапазон §§ 5.6–5.7). '
-                      'Монтаж и механика обратной связи должны соответствовать исполнению.'
-                : 'Поворотный привод · § 5.7 · РЭ с. 59–65 (общий диапазон §§ 5.6–5.7). '
-                      'Монтаж и механика обратной связи должны соответствовать исполнению.',
-            prerequisites: const [
-              'Тип одинарного или двойного действия установлен; '
-                  'перемещение арматуры на весь диапазон разрешено.',
-            ],
-            steps: [
-              _step(
-                guide,
-                'Перед инициализацией',
-                0,
-                'Тип привода и схема обратной связи определены; '
-                    'для выбранного ${linear ? 'линейного' : 'поворотного'} '
-                    'привода используется § ${linear ? '5.6' : '5.7'}.',
-              ),
-              _step(
-                guide,
-                'Автоматическая настройка · 4.INITA',
-                0,
-                '1.YFCT выбран по типу привода и механике обратной связи '
-                    'согласно § ${linear ? '5.6' : '5.7'} выбранного исполнения.',
-              ),
-              _step(
-                guide,
-                'Автоматическая настройка · 4.INITA',
-                1,
-                'Параметр 4.INITA относится к автоматической инициализации. '
-                    'До запуска сверяйте условия и кнопки по § '
-                    '${linear ? '5.6.2 · РЭ с. 60' : '5.7.2 · РЭ с. 64'}. '
-                    'Переход в приложении не запускает и не подтверждает инициализацию.',
-              ),
-            ],
-          ),
-      ],
-    ),
-  ]);
-}
+List<GuideProcedure> _sipart() => [sipartFieldProcedure(_guide('sipart'))];

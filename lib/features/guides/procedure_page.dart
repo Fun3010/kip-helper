@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../models/guide_procedure.dart';
-import '../../services/open_source.dart';
+import '../../widgets/guide_evidence.dart';
+import '../../widgets/guide_illustration.dart';
+import '../../data/sipart_field.dart';
 
 class ProcedurePage extends StatefulWidget {
   const ProcedurePage({super.key, required this.procedure});
@@ -120,12 +122,81 @@ class _ProcedurePageState extends State<ProcedurePage> {
     ),
   ];
 
+  Future<void> _showSteps() async {
+    if (_index == null || _variant == null || !_confirmed) return;
+    final selected = await showModalBottomSheet<int>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .75,
+          child: ListView(
+            children: [
+              const ListTile(
+                title: Text('Все шаги · переход отмечает просмотр'),
+              ),
+              for (final (i, step) in _variant!.steps.indexed)
+                ListTile(
+                  leading: Text('${i + 1}'),
+                  title: Text(step.title ?? 'Шаг ${i + 1}'),
+                  selected: i == _index,
+                  onTap: () => Navigator.pop(context, i),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (!mounted || selected == null) return;
+    _change(() {
+      _index = selected;
+      _finished = false;
+    });
+  }
+
+  void _showCancellation() {
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      builder: (context) => SafeArea(
+        child: SizedBox(
+          height: MediaQuery.sizeOf(context).height * .75,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  sipartCancel.title!,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                Text(sipartCancel.action),
+                const SizedBox(height: 12),
+                Text(sipartCancel.expectedResult),
+                for (final evidence in sipartCancel.evidence)
+                  GuideEvidenceCard(
+                    evidence: evidence,
+                    source: widget.procedure.sourceByKey(evidence.sourceKey),
+                  ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Закрыть памятку'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   List<Widget> _stepView() {
     final variant = _variant!;
     final step = variant.steps[_index!];
     return [
-      _paragraph(variant.title),
-      _paragraph(variant.scope),
+      Text(variant.title, style: Theme.of(context).textTheme.labelLarge),
+      const SizedBox(height: 8),
       if (_finished) ...[
         _heading('Просмотр шагов завершён'),
         _paragraph(
@@ -136,87 +207,172 @@ class _ProcedurePageState extends State<ProcedurePage> {
         Text(
           'Шаг ${_index! + 1} из ${variant.steps.length}',
           key: const ValueKey('procedure-step'),
-          style: Theme.of(context).textTheme.headlineSmall,
+          style: Theme.of(context).textTheme.titleMedium,
         ),
-        _heading('Действие по источнику'),
+        const SizedBox(height: 8),
+        LinearProgressIndicator(value: (_index! + 1) / variant.steps.length),
+        _heading(step.title ?? 'Действие по источнику'),
         _paragraph(step.action),
+        if (step.control != null)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    step.control!,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  if (step.hold != null) ...[
+                    const SizedBox(height: 6),
+                    Text(step.hold!),
+                  ],
+                ],
+              ),
+            ),
+          ),
+        if (step.illustration != null)
+          GuideIllustrationCard(
+            illustration: step.illustration!,
+            compact: true,
+          ),
         _heading('Ожидаемый результат'),
+        if (step.display != null)
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              step.display!,
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        if (step.displayAsset != null)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10),
+            child: Container(
+              color: Colors.white,
+              padding: const EdgeInsets.all(8),
+              child: Image.asset(
+                step.displayAsset!,
+                height: 105,
+                width: double.infinity,
+                fit: BoxFit.contain,
+                semanticLabel: 'Дисплей из РЭ: ${step.display}',
+              ),
+            ),
+          ),
         _paragraph(step.expectedResult),
         _heading('Источник шага'),
-        for (final evidence in step.evidence) ...[
-          _paragraph('Проверено по источнику · ${evidence.locator}'),
-          if (evidence.note != null) _paragraph(evidence.note!),
-          if (widget.procedure.sourceByKey(evidence.sourceKey)
-              case final source?)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: source.url == null
-                  ? _paragraph('${source.title}\n${source.document ?? ''}')
-                  : OutlinedButton(
-                      onPressed: () => openSource(context, source.url!),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        child: Text('${source.title}\nОткрыть источник'),
-                      ),
-                    ),
-            ),
-        ],
-      ],
-      const SizedBox(height: 16),
-      OutlinedButton(
-        key: const ValueKey('procedure-back'),
-        onPressed: () => _change(() {
-          if (_finished) {
-            _finished = false;
-          } else if (_index! > 0) {
-            _index = _index! - 1;
-          } else {
-            _index = null;
-            _confirmed = false;
-          }
-        }),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12),
-          child: Text(
-            _index == 0 && !_finished ? 'К условиям начала' : 'Назад',
+        for (final evidence in step.evidence)
+          GuideEvidenceCard(
+            evidence: evidence,
+            source: widget.procedure.sourceByKey(evidence.sourceKey),
           ),
+      ],
+      if (widget.procedure.guideId == 'sipart')
+        OutlinedButton.icon(
+          onPressed: _showCancellation,
+          icon: const Icon(Icons.info_outline),
+          label: const Text('Как прервать на приборе'),
         ),
+      ExpansionTile(
+        title: const Text('Исполнение и условия'),
+        children: [
+          Text(variant.scope),
+          for (final p in widget.procedure.prerequisites) _paragraph(p),
+          for (final p in variant.prerequisites) _paragraph(p),
+        ],
       ),
       const SizedBox(height: 12),
-      if (!_finished)
-        FilledButton(
-          key: const ValueKey('procedure-next'),
-          onPressed: () => _change(() {
-            if (_index! < variant.steps.length - 1) {
-              _index = _index! + 1;
-            } else {
-              _finished = true;
-            }
-          }),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12),
-            child: Text(
-              _index == variant.steps.length - 1
-                  ? 'Завершить просмотр'
-                  : 'Следующий шаг',
-            ),
-          ),
-        ),
-      const SizedBox(height: 12),
+      Text(_progressNotice, style: Theme.of(context).textTheme.bodySmall),
       TextButton(
         key: const ValueKey('procedure-reset'),
         onPressed: () => _change(_reset),
-        child: const Padding(
-          padding: EdgeInsets.symmetric(vertical: 12),
-          child: Text('Сбросить просмотр и выбрать исполнение'),
-        ),
+        child: const Text('Сбросить просмотр и выбрать исполнение'),
       ),
     ];
   }
 
+  Widget _navigation() => SafeArea(
+    child: ConstrainedBox(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.sizeOf(context).height * .36,
+      ),
+      child: Material(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(12),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      key: const ValueKey('procedure-back'),
+                      onPressed: () => _change(() {
+                        if (_finished) {
+                          _finished = false;
+                        } else if (_index! > 0) {
+                          _index = _index! - 1;
+                        } else {
+                          _index = null;
+                          _confirmed = false;
+                        }
+                      }),
+                      child: const Text('Назад'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  if (!_finished)
+                    Expanded(
+                      child: FilledButton(
+                        key: const ValueKey('procedure-next'),
+                        onPressed: () => _change(() {
+                          if (_index! < _variant!.steps.length - 1) {
+                            _index = _index! + 1;
+                          } else {
+                            _finished = true;
+                          }
+                        }),
+                        child: Text(
+                          _index == _variant!.steps.length - 1
+                              ? 'Завершить'
+                              : 'Далее',
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+              TextButton(onPressed: _showSteps, child: const Text('Все шаги')),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+
   @override
   Widget build(BuildContext context) => Scaffold(
-    appBar: AppBar(title: const Text('Пошаговый просмотр')),
+    appBar: AppBar(
+      title: Text(
+        widget.procedure.guideId == 'sipart'
+            ? 'SIPART PS2 · по шагам'
+            : 'Пошаговый просмотр',
+      ),
+    ),
+    bottomNavigationBar: _index == null ? null : _navigation(),
     body: SafeArea(
       child: SingleChildScrollView(
         controller: _scroll,
@@ -227,13 +383,16 @@ class _ProcedurePageState extends State<ProcedurePage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(
-                  widget.procedure.title,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 16),
-                _paragraph(_progressNotice),
-                if (_index == null) ..._preparation() else ..._stepView(),
+                if (_index == null) ...[
+                  Text(
+                    widget.procedure.title,
+                    style: Theme.of(context).textTheme.headlineSmall,
+                  ),
+                  const SizedBox(height: 16),
+                  _paragraph(_progressNotice),
+                  ..._preparation(),
+                ] else
+                  ..._stepView(),
               ],
             ),
           ),

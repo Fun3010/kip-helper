@@ -36,7 +36,12 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
       final all = await library.list();
       if (mounted) {
         setState(() {
-          items = all;
+          items = widget.guideId == null
+              ? all
+              : [
+                  ...all.where((item) => item.guideId == widget.guideId),
+                  ...all.where((item) => item.guideId != widget.guideId),
+                ];
           error = null;
         });
       }
@@ -206,9 +211,22 @@ class _ManualLibraryPageState extends State<ManualLibraryPage> {
           )
         : ListView.builder(
             padding: const EdgeInsets.only(bottom: 100),
-            itemCount: items.length,
+            itemCount: items.length + (widget.guideId == null ? 0 : 1),
             itemBuilder: (context, i) {
-              final item = items[i];
+              if (widget.guideId != null && i == 0) {
+                final count = items
+                    .where((item) => item.guideId == widget.guideId)
+                    .length;
+                return ListTile(
+                  title: Text('PDF этого прибора · $count'),
+                  subtitle: Text(
+                    count == 0
+                        ? 'Связанных PDF пока нет. Добавьте файл или свяжите документ из списка.'
+                        : 'Сначала связанные документы; остальные — ниже. Связь не подтверждает редакцию РЭ.',
+                  ),
+                );
+              }
+              final item = items[i - (widget.guideId == null ? 0 : 1)];
               return ListTile(
                 leading: const Icon(Icons.picture_as_pdf),
                 title: Text(item.title),

@@ -385,7 +385,15 @@ class _HomePageState extends State<HomePage> {
             trailing: FavoriteButton(guide: guide, controller: _quickAccess),
             onTap: () {
               _quickAccess.recordVisit(guide.id);
-              _open(GuidePage(guide: guide, quickAccess: _quickAccess));
+              _open(
+                GuidePage(
+                  guide: guide,
+                  quickAccess: _quickAccess,
+                  initialQuery: guide.matchesIdentity(query)
+                      ? ''
+                      : _search.text.trim(),
+                ),
+              );
             },
           ),
       ],

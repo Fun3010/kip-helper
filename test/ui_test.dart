@@ -8,6 +8,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:kip_helper/app.dart';
 import 'package:kip_helper/data/guides.dart';
+import 'package:kip_helper/features/guides/procedure_page.dart';
 import 'package:kip_helper/domain/calculations.dart';
 import 'package:kip_helper/features/calculators/rtd_calculator.dart';
 import 'package:kip_helper/features/calculators/signal_calculator.dart';
@@ -333,7 +334,7 @@ void main() {
     await tester.pumpAndSettle();
     await tester.enterText(find.byType(TextField), 'чувствительности');
     await tester.pumpAndSettle();
-    expect(find.text('Проверено по источнику'), findsWidgets);
+    expect(find.text('Источник'), findsWidgets);
     expect(find.text('Скан · нужна визуальная сверка'), findsNothing);
     expect(find.textContaining('РЭ с. 43–44'), findsWidgets);
     expect(find.textContaining('PDF с. 44–45'), findsWidgets);
@@ -612,6 +613,12 @@ void main() {
     );
     await tester.pumpAndSettle();
     Future<void> capture(String name) async {
+      await tester.runAsync(() async {
+        for (final image in tester.widgetList<Image>(find.byType(Image))) {
+          await precacheImage(image.image, boundary.currentContext!);
+        }
+      });
+      await tester.pumpAndSettle();
       final render =
           boundary.currentContext!.findRenderObject()! as RenderRepaintBoundary;
       await tester.runAsync(() async {
@@ -629,6 +636,48 @@ void main() {
     addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     await tester.pumpAndSettle();
     await capture('library-dark');
+
+    await tester.enterText(find.byType(TextField), 'RUN2');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('SIPART PS2'));
+    await tester.tap(find.text('SIPART PS2'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('RUN2').last);
+    await capture('field-run2-dark');
+    await tester.scrollUntilVisible(
+      find.byType(TextField),
+      -200,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.enterText(find.byType(TextField), '');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Настройка по шагам'));
+    await tester.tap(find.text('Настройка по шагам'));
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.text('Автоматическая инициализация · кнопки и экраны'),
+    );
+    await tester.pumpAndSettle();
+    for (final key in [
+      'variant-rotary',
+      'procedure-confirm',
+      'procedure-start',
+    ]) {
+      await tester.ensureVisible(find.byKey(ValueKey(key)));
+      await tester.tap(find.byKey(ValueKey(key)));
+      await tester.pumpAndSettle();
+    }
+    expect(find.byType(ProcedurePage), findsOneWidget);
+    await capture('field-entry-dark');
+    for (var i = 0; i < 4; i++) {
+      await tester.tap(find.byKey(const ValueKey('procedure-next')));
+      await tester.pumpAndSettle();
+    }
+    await capture('field-start-dark');
+    for (var i = 0; i < 3; i++) {
+      await tester.tap(find.byType(BackButton).first);
+      await tester.pumpAndSettle();
+    }
     tester.platformDispatcher.clearPlatformBrightnessTestValue();
     await tester.pumpAndSettle();
     await tester.tap(find.text('Расчёты'));

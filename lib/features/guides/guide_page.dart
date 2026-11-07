@@ -10,17 +10,24 @@ import '../../widgets/favorite_button.dart';
 import '../../widgets/quick_access_notice.dart';
 import '../../widgets/su1s_contacts.dart';
 import '../../widgets/guide_illustration.dart';
+import '../../widgets/guide_evidence.dart';
 
 class GuidePage extends StatefulWidget {
-  const GuidePage({super.key, required this.guide, this.quickAccess});
+  const GuidePage({
+    super.key,
+    required this.guide,
+    this.quickAccess,
+    this.initialQuery = '',
+  });
   final InstrumentGuide guide;
   final QuickAccessController? quickAccess;
+  final String initialQuery;
   @override
   State<GuidePage> createState() => _GuidePageState();
 }
 
 class _GuidePageState extends State<GuidePage> {
-  final _search = TextEditingController();
+  late final _search = TextEditingController(text: widget.initialQuery);
   bool _expandAll = false;
   String get _query => _search.text.trim().toLowerCase();
 
@@ -30,98 +37,18 @@ class _GuidePageState extends State<GuidePage> {
     super.dispose();
   }
 
-  String _evidenceStateLabel(GuideEvidenceState state) => switch (state) {
-    GuideEvidenceState.verified => 'Проверено по источнику',
-    GuideEvidenceState.locatorPending =>
-      'Источник подтверждён · страницу уточнить',
-    GuideEvidenceState.workingChecklist =>
-      'Рабочий чек-лист · не дословная процедура',
-    GuideEvidenceState.needsVisualCheck => 'Скан · нужна визуальная сверка',
-  };
-
-  IconData _evidenceStateIcon(GuideEvidenceState state) => switch (state) {
-    GuideEvidenceState.verified => Icons.verified_outlined,
-    GuideEvidenceState.locatorPending => Icons.manage_search_outlined,
-    GuideEvidenceState.workingChecklist => Icons.fact_check_outlined,
-    GuideEvidenceState.needsVisualCheck => Icons.visibility_outlined,
-  };
-
-  Widget _evidenceRow(
-    BuildContext context,
-    InstrumentGuide guide,
-    GuideEvidence evidence,
-  ) {
-    final source = guide.sourceByKey(evidence.sourceKey);
-    final colors = Theme.of(context).colorScheme;
-    final canOpen = source?.url != null;
-    final sourceTitle = source?.title ?? evidence.sourceKey;
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: Material(
-        color: colors.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: canOpen ? () => openSource(context, source!.url!) : null,
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(
-                  _evidenceStateIcon(evidence.state),
-                  size: 18,
-                  color: colors.onSurfaceVariant,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _evidenceStateLabel(evidence.state),
-                        style: Theme.of(context).textTheme.labelMedium
-                            ?.copyWith(
-                              color: colors.onSurfaceVariant,
-                              fontWeight: FontWeight.w600,
-                            ),
-                      ),
-                      const SizedBox(height: 2),
-                      Text(
-                        '$sourceTitle · ${evidence.locator}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: colors.onSurfaceVariant,
-                          height: 1.35,
-                        ),
-                      ),
-                      if (evidence.note != null) ...[
-                        const SizedBox(height: 2),
-                        Text(
-                          evidence.note!,
-                          style: Theme.of(context).textTheme.bodySmall
-                              ?.copyWith(
-                                color: colors.onSurfaceVariant,
-                                height: 1.35,
-                              ),
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-                if (canOpen) ...[
-                  const SizedBox(width: 6),
-                  Icon(
-                    Icons.open_in_new,
-                    size: 16,
-                    color: colors.onSurfaceVariant,
-                  ),
-                ],
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+  List<int> _paragraphOrder(GuideSection section) {
+    final indices = List.generate(section.paragraphs.length, (i) => i);
+    if (_query.isEmpty) return indices;
+    final matched = indices
+        .where(
+          (i) =>
+              section.fieldEntries[i]?.any((entry) => entry.matches(_query)) ??
+              false,
+        )
+        .toList();
+    // Bring the code to the top without hiding context, exclusions or warnings.
+    return [...matched, ...indices.where((i) => !matched.contains(i))];
   }
 
   @override
@@ -276,24 +203,47 @@ class _GuidePageState extends State<GuidePage> {
                       expandedCrossAxisAlignment: CrossAxisAlignment.start,
                       childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
                       children: [
-                        for (
-                          var paragraphIndex = 0;
-                          paragraphIndex < section.paragraphs.length;
-                          paragraphIndex++
-                        )
+                        if (section.notice != null)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 12),
+                            child: Text(
+                              section.notice!,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        for (final paragraphIndex in _paragraphOrder(section))
                           Padding(
                             padding: const EdgeInsets.only(bottom: 14),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                SelectableText(
-                                  section.paragraphs[paragraphIndex],
-                                  style: const TextStyle(height: 1.55),
-                                ),
+                                if (section.fieldEntries[paragraphIndex]
+                                    case final entries?) ...[
+                                  for (final entry in entries.where(
+                                    (entry) =>
+                                        _query.isEmpty ||
+                                        entry.matches(_query) ||
+                                        !entries.any(
+                                          (item) => item.matches(_query),
+                                        ),
+                                  ))
+                                    GuideFieldEntryCard(entry: entry),
+                                ] else
+                                  SelectableText(
+                                    section.paragraphs[paragraphIndex],
+                                    style: const TextStyle(height: 1.55),
+                                  ),
                                 for (final evidence in section.evidenceFor(
                                   paragraphIndex,
                                 ))
-                                  _evidenceRow(context, guide, evidence),
+                                  GuideEvidenceCard(
+                                    evidence: evidence,
+                                    source: guide.sourceByKey(
+                                      evidence.sourceKey,
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -301,36 +251,40 @@ class _GuidePageState extends State<GuidePage> {
                     ),
                   ),
                 const SizedBox(height: 16),
-                Text(
-                  'Источники',
-                  style: Theme.of(context).textTheme.titleLarge,
+                ExpansionTile(
+                  title: const Text('Все документы и источники'),
+                  children: [
+                    const SizedBox(height: 8),
+                    Text(
+                      guide.sources.isEmpty
+                          ? 'Для точной инструкции требуется руководство установленного исполнения.'
+                          : 'Текст и иллюстрации доступны без сети. Для документов указаны файл и страницы. Веб-ссылки открываются в браузере. Свои PDF можно добавить через меню «PDF этого прибора»; выбранная вами связь не подтверждает модель и редакцию документа.',
+                      style: TextStyle(color: colors.onSurfaceVariant),
+                    ),
+                    for (final source in guide.sources)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 12),
+                        child: source.url == null
+                            ? ListTile(
+                                contentPadding: EdgeInsets.zero,
+                                leading: const Icon(Icons.description_outlined),
+                                title: Text(source.title),
+                                subtitle: Text(source.document ?? ''),
+                              )
+                            : OutlinedButton.icon(
+                                onPressed: () =>
+                                    openSource(context, source.url!),
+                                icon: const Icon(Icons.open_in_new, size: 18),
+                                label: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
+                                  child: Text(source.title),
+                                ),
+                              ),
+                      ),
+                  ],
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  guide.sources.isEmpty
-                      ? 'Для точной инструкции требуется руководство установленного исполнения.'
-                      : 'Текст и иллюстрации доступны без сети. Для документов указаны файл и страницы. Веб-ссылки открываются в браузере. Свои PDF можно добавить через меню «PDF этого прибора»; выбранная вами связь не подтверждает модель и редакцию документа.',
-                  style: TextStyle(color: colors.onSurfaceVariant),
-                ),
-                for (final source in guide.sources)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 12),
-                    child: source.url == null
-                        ? ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            leading: const Icon(Icons.description_outlined),
-                            title: Text(source.title),
-                            subtitle: Text(source.document ?? ''),
-                          )
-                        : OutlinedButton.icon(
-                            onPressed: () => openSource(context, source.url!),
-                            icon: const Icon(Icons.open_in_new, size: 18),
-                            label: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                              child: Text(source.title),
-                            ),
-                          ),
-                  ),
               ],
             ),
           ),

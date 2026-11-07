@@ -46,16 +46,33 @@ class GuideIllustration {
       '$title $caption $source'.toLowerCase().contains(query);
 }
 
+class GuideFieldEntry {
+  const GuideFieldEntry({
+    required this.code,
+    required this.meaning,
+    this.detail,
+  });
+  final String code;
+  final String meaning;
+  final String? detail;
+  bool matches(String query) =>
+      '$code $meaning ${detail ?? ''}'.toLowerCase().contains(query);
+}
+
 class GuideSection {
   const GuideSection({
     required this.title,
     required this.paragraphs,
     this.evidenceByParagraph = const {},
+    this.fieldEntries = const {},
+    this.notice,
   });
 
   final String title;
   final List<String> paragraphs;
   final Map<int, List<GuideEvidence>> evidenceByParagraph;
+  final Map<int, List<GuideFieldEntry>> fieldEntries;
+  final String? notice;
 
   List<GuideEvidence> evidenceFor(int paragraphIndex) =>
       evidenceByParagraph[paragraphIndex] ?? const [];
@@ -64,7 +81,10 @@ class GuideSection {
       '$title ${paragraphs.join(' ')}'.toLowerCase().contains(query) ||
       evidenceByParagraph.values
           .expand((items) => items)
-          .any((evidence) => evidence.matches(query));
+          .any((evidence) => evidence.matches(query)) ||
+      fieldEntries.values
+          .expand((items) => items)
+          .any((entry) => entry.matches(query));
 }
 
 class InstrumentGuide {
@@ -97,6 +117,11 @@ class InstrumentGuide {
     }
     return null;
   }
+
+  bool matchesIdentity(String query) =>
+      '$id $title $subtitle $category $scope ${searchTerms.join(' ')}'
+          .toLowerCase()
+          .contains(query);
 
   bool matches(String query) =>
       '$id $title $subtitle $category $scope ${searchTerms.join(' ')}'

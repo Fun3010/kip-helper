@@ -49,9 +49,21 @@ class ProcedureStep {
     required this.action,
     required this.expectedResult,
     required this.evidence,
+    this.title,
+    this.control,
+    this.hold,
+    this.illustration,
+    this.display,
+    this.displayAsset,
   });
 
   final String action;
   final String expectedResult;
   final List<GuideEvidence> evidence;
+  final String? title;
+  final String? control;
+  final String? hold;
+  final GuideIllustration? illustration;
+  final String? display;
+  final String? displayAsset;
 }

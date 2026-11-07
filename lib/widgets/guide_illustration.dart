@@ -2,8 +2,13 @@ import 'package:flutter/material.dart';
 import '../models/guide.dart';
 
 class GuideIllustrationCard extends StatelessWidget {
-  const GuideIllustrationCard({super.key, required this.illustration});
+  const GuideIllustrationCard({
+    super.key,
+    required this.illustration,
+    this.compact = false,
+  });
   final GuideIllustration illustration;
+  final bool compact;
 
   @override
   Widget build(BuildContext context) => Card(
@@ -22,7 +27,7 @@ class GuideIllustrationCard extends StatelessWidget {
             children: [
               Container(
                 color: Colors.white,
-                height: 200,
+                height: compact ? 148 : 200,
                 width: double.infinity,
                 padding: const EdgeInsets.all(8),
                 child: Image.asset(
@@ -51,10 +56,11 @@ class GuideIllustrationCard extends StatelessWidget {
             children: [
               SelectableText(illustration.caption),
               const SizedBox(height: 8),
-              Text(
-                illustration.source,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
+              if (!compact)
+                Text(
+                  illustration.source,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
             ],
           ),
         ),

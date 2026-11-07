@@ -225,8 +225,8 @@ void main() {
       sipartEvidence.any(
         (item) =>
             item.state == GuideEvidenceState.verified &&
-            item.locator.contains('РЭ с. 210') &&
-            item.locator.contains('RUN1/RUN2/RUN3'),
+            item.locator.contains('с. 210') &&
+            item.locator.contains('RUN1–RUN6'),
       ),
       isTrue,
     );

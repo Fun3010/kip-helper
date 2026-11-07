@@ -9,11 +9,22 @@ import 'package:kip_helper/models/local_manual.dart';
 class ObservableLibrary extends ManualLibrary {
   ObservableLibrary(Directory directory) : super(directory: directory);
   Completer<void> loaded = Completer<void>();
+  final associated = Completer<void>();
   @override
   Future<List<LocalManual>> list() async {
     final result = await super.list();
     if (!loaded.isCompleted) loaded.complete();
     return result;
+  }
+
+  @override
+  Future<void> associate(
+    LocalManual item,
+    String guideId,
+    String guideTitle,
+  ) async {
+    await super.associate(item, guideId, guideTitle);
+    associated.complete();
   }
 }
 
@@ -57,6 +68,34 @@ Widget libraryAtLargeText(ManualLibrary library, {required bool dark}) =>
     );
 
 void main() {
+  testWidgets('A guide library puts its own manuals before unrelated files', (
+    tester,
+  ) async {
+    final other = manualFixture(1);
+    final linked = LocalManual(
+      id: '2'.padLeft(64, '0'),
+      title: 'РЭ позиционера',
+      size: 50,
+      path: 'unused.pdf',
+      guideId: 'sipart',
+      guideTitle: 'SIPART PS2',
+    );
+    await tester.pumpWidget(
+      MaterialApp(
+        home: ManualLibraryPage(
+          guideId: 'sipart',
+          guideTitle: 'SIPART PS2',
+          library: MemoryLibrary([other, linked]),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('PDF этого прибора · 1'), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.text(linked.title)).dy,
+      lessThan(tester.getTopLeft(find.text(other.title)).dy),
+    );
+  });
   for (final dark in [false, true]) {
     testWidgets('library failure retries into usable list, dark=$dark', (
       tester,
@@ -182,6 +221,8 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Связать'));
       await tester.pumpAndSettle();
+      // Pumping frames does not await the real filesystem transaction.
+      await store.associated.future.timeout(const Duration(seconds: 5));
       final linked = (await store.list()).single;
       expect(linked.guideId, 'new');
       expect(await File(item.path).exists(), isTrue);

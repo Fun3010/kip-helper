@@ -10,8 +10,13 @@ file_selector; валидация, отмена, ошибки записи и н
 диалог на телефоне, конкретные файловые провайдеры и подписанный APK не проверены.
 [PR №17](https://github.com/Fun3010/kip-helper/pull/17): код `c9b844d`,
 локально 361 тест и анализ без замечаний. [CI с debug APK](https://github.com/Fun3010/kip-helper/actions/runs/44327448272)
-запущен на коде `c9b844d`; результат проверять в запуске. [Архив исходников](https://drive.google.com/file/d/16EmhCL55sNPnewyIwnxmxdEy6kCxQuM2/view?usp=drivesdk)
+успешен на коде `c9b844d`: Android debug APK и release guard, Windows tests, нативные PDF/выход и сборка. [Архив исходников](https://drive.google.com/file/d/16EmhCL55sNPnewyIwnxmxdEy6kCxQuM2/view?usp=drivesdk)
 скачан обратно: SHA-256 `2f50b529b1224e7d04fd934045a0229251046f0c9c81ae73592b56e9788dd387`, CRC без ошибок.
+[Тестовый Android debug ZIP](https://drive.google.com/file/d/16XUxcKZEQ4NaD75OnKgSKBJoYoIVijCG/view?usp=drivesdk)
+содержит отдельную установку `ru.kiphelper.app.dev`, а не совместимое обновление release;
+ZIP SHA-256 `8b456cf21c1735fb4814e0930b35de96ea1b71d8a53acb1076d1fb8a1dc0ec3d`,
+APK SHA-256 `880166db0fa8e3b438fd04d893df8cfc66efd15d2fb746a59621e84889ab9a05`.
+ZIP скачан обратно, сумма и CRC совпали. Телефон и диалог Android не проверены.
 [Notion](https://app.notion.com/p/40d2c52ebe2181d39809fdab1500bb83). MVT-3808-30A:
 PDF TechView найден в индексе Emerson, прямое скачивание вернуло HTTP 403;
 проверенная карточка и настройки по этому PDF пока не добавлены.

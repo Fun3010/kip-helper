@@ -65,16 +65,16 @@ void main() {
       );
       await tapVisible(tester, find.byKey(const ValueKey('procedure-confirm')));
       await tapVisible(tester, find.byKey(const ValueKey('procedure-start')));
-      expect(find.text('Шаг 1 из 5'), findsOneWidget);
+      expect(find.text('Шаг 1 из 8'), findsOneWidget);
       expect(
         find.textContaining('не подтверждает состояние прибора'),
         findsOneWidget,
       );
       await tapVisible(tester, find.byKey(const ValueKey('procedure-next')));
-      expect(find.text('Шаг 2 из 5'), findsOneWidget);
+      expect(find.text('Шаг 2 из 8'), findsOneWidget);
       await tapVisible(tester, find.byKey(const ValueKey('procedure-back')));
-      expect(find.text('Шаг 1 из 5'), findsOneWidget);
-      for (var step = 0; step < 5; step++) {
+      expect(find.text('Шаг 1 из 8'), findsOneWidget);
+      for (var step = 0; step < 8; step++) {
         await tapVisible(tester, find.byKey(const ValueKey('procedure-next')));
       }
       expect(find.text('Просмотр шагов завершён'), findsOneWidget);
@@ -83,7 +83,7 @@ void main() {
         findsOneWidget,
       );
       await tapVisible(tester, find.byKey(const ValueKey('procedure-back')));
-      expect(find.text('Шаг 5 из 5'), findsOneWidget);
+      expect(find.text('Шаг 8 из 8'), findsOneWidget);
       await tapVisible(tester, find.byKey(const ValueKey('procedure-reset')));
       expect(find.byKey(const ValueKey('procedure-step')), findsNothing);
       expect(
@@ -138,7 +138,7 @@ void main() {
         );
         await tapVisible(tester, find.byKey(const ValueKey('procedure-start')));
         await tapVisible(tester, find.byKey(const ValueKey('procedure-next')));
-        expect(find.text('Шаг 2 из 5'), findsOneWidget);
+        expect(find.text('Шаг 2 из 8'), findsOneWidget);
         await tester.ensureVisible(find.text('Источник шага'));
         expect(find.textContaining('PDF с. 51–52'), findsWidgets);
         await tapVisible(tester, find.byKey(const ValueKey('procedure-back')));

@@ -2,6 +2,7 @@ import '../models/guide.dart';
 import '../models/guide_procedure.dart';
 import 'guides.dart';
 import 'sipart_field.dart';
+import 'sokrat_field.dart';
 
 /// Unsupported guide IDs deliberately have no manufacturer-backed workflow.
 List<GuideProcedure> proceduresForGuide(String guideId) =>
@@ -67,39 +68,7 @@ List<GuideProcedure> _sokrat() {
             'Полный ход арматуры разрешён; направление вращения сверено. '
                 'Уплотнение по моменту — отдельная настройка по § 3.11.',
           ],
-          steps: [
-            _step(
-              guide,
-              'Запись закрытого положения',
-              0,
-              'На дисплее МПУ; закрытое положение выставлено ручным дублёром.',
-            ),
-            _step(
-              guide,
-              'Запись закрытого положения',
-              1,
-              'Рукоятка №2 отпущена после 0,2…2 с; №1 установлена к ЗАКР. '
-                  'Запись закрытия выполняется следующим шагом.',
-            ),
-            _step(
-              guide,
-              'Запись закрытого положения',
-              2,
-              'Дождитесь показания 0% и индикации закрытия на приборе.',
-            ),
-            _step(
-              guide,
-              'Запись открытого положения',
-              0,
-              'Открытое положение выставлено ручным дублёром.',
-            ),
-            _step(
-              guide,
-              'Запись открытого положения',
-              1,
-              'Дождитесь показания 100% и индикации открытия на приборе.',
-            ),
-          ],
+          steps: sokratTravelSteps(guide.illustrations[1]),
         ),
       ],
     ),

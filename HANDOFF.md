@@ -8,6 +8,12 @@
 источники и хеши — `docs/position-flow-2026-11-18.md`. Фактические схемы,
 учёт установленных экземпляров, обмен данными карты и остальные модели ещё
 предстоит уточнить и разработать. На физическом приборе и телефоне не проверено.
+[PR №16](https://github.com/Fun3010/kip-helper/pull/16): код `2b4af85`,
+353 теста и анализ локально прошли. [Архив исходников](https://drive.google.com/file/d/1Sa5E_TZkkdp9NVVsbfsskFzvawmyQb0R/view?usp=drivesdk)
+скачан обратно: SHA-256 `d59a00befa812fcde4c874bc43ba2fafe6175001b6f3d1005d8669bc3b82897b`, CRC без ошибок.
+РЭ сохранены отдельно: [УС](https://drive.google.com/file/d/1wOV70O76HtxCBDb__-JcieU08BmNumVW/view?usp=drivesdk),
+[3Пм](https://drive.google.com/file/d/1Ssx4JMSy6YY892ndMTvKtNcdv5snOn_h/view?usp=drivesdk);
+обе копии скачаны обратно с совпавшими SHA-256. [Notion](https://app.notion.com/p/40d2c52ebe2181d39809fdab1500bb83).
 
 
 ## Газоанализ и пользовательская карта — 18.11.2026

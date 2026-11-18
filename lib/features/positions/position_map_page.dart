@@ -23,6 +23,7 @@ class _PositionMapPageState extends State<PositionMapPage> {
   bool busy = false;
   bool blocked = false;
   String? error;
+  Map<String, dynamic>? moving;
 
   @override
   void initState() {
@@ -187,6 +188,14 @@ class _PositionMapPageState extends State<PositionMapPage> {
             child: const Text('Закрыть'),
           ),
           TextButton(
+            onPressed: () => Navigator.pop(ctx, 'edit'),
+            child: const Text('Изменить'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, 'move'),
+            child: const Text('Переместить'),
+          ),
+          TextButton(
             onPressed: () => Navigator.pop(ctx, 'delete'),
             child: const Text('Удалить'),
           ),
@@ -204,6 +213,8 @@ class _PositionMapPageState extends State<PositionMapPage> {
         context,
         MaterialPageRoute<void>(builder: (_) => GuidePage(guide: guide)),
       );
+    } else if (action == 'move') {
+      setState(() => moving = point);
     } else if (action == 'edit') {
       await _add(
         Offset((point['x'] as num).toDouble(), (point['y'] as num).toDouble()),
@@ -254,7 +265,10 @@ class _PositionMapPageState extends State<PositionMapPage> {
                       selected: site == value,
                       onSelected: busy
                           ? null
-                          : (_) => setState(() => site = value),
+                          : (_) => setState(() {
+                              site = value;
+                              moving = null;
+                            }),
                     ),
                 ],
               ),
@@ -270,15 +284,25 @@ class _PositionMapPageState extends State<PositionMapPage> {
                   ),
                 ),
               if (!blocked) ...[
-                const Text(
-                  'Нажмите на поле, чтобы выбрать место позиции; расположение условное.',
+                Text(
+                  moving == null
+                      ? 'Нажмите на поле, чтобы выбрать место позиции; расположение условное.'
+                      : 'Нажмите на новое место для «${moving!['name']}». Расположение условное.',
                 ),
+                if (moving != null)
+                  TextButton(
+                    onPressed: busy
+                        ? null
+                        : () => setState(() => moving = null),
+                    child: const Text('Отменить перемещение'),
+                  ),
                 const SizedBox(height: 8),
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final width = constraints.maxWidth;
                     const height = 320.0;
                     return Container(
+                      key: const ValueKey('position-board'),
                       height: height,
                       decoration: BoxDecoration(
                         color: Theme.of(
@@ -295,8 +319,8 @@ class _PositionMapPageState extends State<PositionMapPage> {
                                 behavior: HitTestBehavior.opaque,
                                 onTapUp: busy || blocked
                                     ? null
-                                    : (d) => _add(
-                                        Offset(
+                                    : (d) {
+                                        final where = Offset(
                                           (d.localPosition.dx / width).clamp(
                                             0.0,
                                             1.0,
@@ -305,8 +329,24 @@ class _PositionMapPageState extends State<PositionMapPage> {
                                             0.0,
                                             1.0,
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                        final target = moving;
+                                        if (target == null) {
+                                          _add(where);
+                                        } else {
+                                          setState(() => moving = null);
+                                          _save([
+                                            for (final p in points)
+                                              identical(p, target)
+                                                  ? {
+                                                      ...p,
+                                                      'x': where.dx,
+                                                      'y': where.dy,
+                                                    }
+                                                  : p,
+                                          ]);
+                                        }
+                                      },
                               ),
                             ),
                             for (final point in points.where(
@@ -323,16 +363,19 @@ class _PositionMapPageState extends State<PositionMapPage> {
                                         .clamp(0.0, height - 48),
                                 width: 120,
                                 height: 48,
-                                child: ActionChip(
-                                  label: Text(
-                                    point['name'] as String,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                child: IgnorePointer(
+                                  ignoring: moving != null,
+                                  child: ActionChip(
+                                    label: Text(
+                                      point['name'] as String,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                    avatar: const Icon(Icons.place, size: 18),
+                                    onPressed: busy
+                                        ? null
+                                        : () => _showPoint(point),
                                   ),
-                                  avatar: const Icon(Icons.place, size: 18),
-                                  onPressed: busy
-                                      ? null
-                                      : () => _showPoint(point),
                                 ),
                               ),
                           ],
@@ -344,7 +387,9 @@ class _PositionMapPageState extends State<PositionMapPage> {
                 const SizedBox(height: 12),
                 FilledButton.icon(
                   key: const ValueKey('add-position'),
-                  onPressed: busy || blocked ? null : () => _add(),
+                  onPressed: busy || blocked || moving != null
+                      ? null
+                      : () => _add(),
                   icon: const Icon(Icons.add_location_alt_outlined),
                   label: const Text('Добавить позицию'),
                 ),
@@ -355,7 +400,9 @@ class _PositionMapPageState extends State<PositionMapPage> {
                     ListTile(
                       title: Text(point['name'] as String),
                       leading: const Icon(Icons.place_outlined),
-                      onTap: busy ? null : () => _showPoint(point),
+                      onTap: busy || moving != null
+                          ? null
+                          : () => _showPoint(point),
                     ),
                 ],
               ],

@@ -1,5 +1,7 @@
 import '../models/guide.dart';
 import 'iva8.dart';
+import 'hyperflow_us.dart';
+import 'hyperflow_3pm.dart';
 import 'field_gas_guides.dart';
 import 'metran150.dart';
 import 'metran100.dart';
@@ -818,4 +820,6 @@ const guides = <InstrumentGuide>[
   ),
   ankat7664micro04,
   sgg20n,
+  hyperflowUsGuide,
+  hyperflow3pmGuide,
 ];

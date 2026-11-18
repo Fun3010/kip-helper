@@ -7,6 +7,7 @@ import 'features/calculators/signal_calculator.dart';
 import 'features/calculators/unit_converter.dart';
 import 'features/guides/guide_page.dart';
 import 'features/manuals/manual_library_page.dart';
+import 'features/positions/position_map_page.dart';
 import 'services/open_source.dart';
 import 'services/quick_access.dart';
 import 'widgets/favorite_button.dart';
@@ -176,6 +177,11 @@ class _HomePageState extends State<HomePage> {
         style: TextStyle(fontWeight: FontWeight.w700),
       ),
       actions: [
+        IconButton(
+          tooltip: 'Карта позиций',
+          icon: const Icon(Icons.map_outlined),
+          onPressed: () => _open(const PositionMapPage()),
+        ),
         IconButton(
           tooltip: 'Мои PDF',
           icon: const Icon(Icons.picture_as_pdf_outlined),

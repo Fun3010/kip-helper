@@ -1,5 +1,6 @@
 import '../models/guide.dart';
 import 'iva8.dart';
+import 'field_gas_guides.dart';
 import 'metran150.dart';
 import 'metran100.dart';
 import 'rosemount8600d.dart';
@@ -815,4 +816,6 @@ const guides = <InstrumentGuide>[
       ),
     ],
   ),
+  ankat7664micro04,
+  sgg20n,
 ];

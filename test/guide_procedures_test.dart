@@ -5,6 +5,23 @@ import 'package:kip_helper/models/guide.dart';
 
 void main() {
   test(
+    'Sokrat travel workflow separates calibration, selection and recording',
+    () {
+      final procedure = proceduresForGuide('sokrat').first;
+      final steps = procedure.variants.single.steps;
+      expect(steps, hasLength(8));
+      expect(steps[1].control, contains('№2'));
+      expect(steps[1].hold, contains('0,2'));
+      expect(steps[1].expectedResult, contains('КАЛИБРОВКА'));
+      expect(steps[2].expectedResult, contains('КАЛИБР:КВЗ'));
+      expect(steps[3].expectedResult, contains('0%'));
+      expect(steps[5].expectedResult, contains('КАЛИБРОВКА'));
+      expect(steps[6].expectedResult, contains('КАЛИБР:КВО'));
+      expect(steps[7].expectedResult, contains('100%'));
+      expect(steps.every((step) => step.illustration != null), isTrue);
+    },
+  );
+  test(
     'Guide lookup excludes unsupported models and preserves source scope',
     () {
       expect(proceduresForGuide('missing'), isEmpty);
@@ -42,7 +59,7 @@ void main() {
             expect(variant.steps, isNotEmpty);
             for (final step in variant.steps) {
               expect(step.action, isNotEmpty);
-              if (guideId != 'sipart') {
+              if (guideId != 'sipart' && procedure.id != 'sokrat-travel') {
                 expect(
                   guide.sections.any(
                     (section) => section.paragraphs.contains(step.action),
@@ -55,7 +72,7 @@ void main() {
               expect(step.evidence, isNotEmpty);
               for (final evidence in step.evidence) {
                 expect(evidence.state, GuideEvidenceState.verified);
-                if (guideId != 'sipart') {
+                if (guideId != 'sipart' && procedure.id != 'sokrat-travel') {
                   expect(
                     verified.any(
                       (item) =>

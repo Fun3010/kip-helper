@@ -10,11 +10,22 @@ class ObservableLibrary extends ManualLibrary {
   ObservableLibrary(Directory directory) : super(directory: directory);
   Completer<void> loaded = Completer<void>();
   final associated = Completer<void>();
+  final reloadedAfterRemoval = Completer<void>();
+  bool _removalFinished = false;
   @override
   Future<List<LocalManual>> list() async {
     final result = await super.list();
     if (!loaded.isCompleted) loaded.complete();
+    if (_removalFinished && !reloadedAfterRemoval.isCompleted) {
+      reloadedAfterRemoval.complete();
+    }
     return result;
+  }
+
+  @override
+  Future<void> remove(LocalManual item) async {
+    await super.remove(item);
+    _removalFinished = true;
   }
 
   @override
@@ -282,7 +293,9 @@ void main() {
       await tester.tap(find.byTooltip('Удалить'));
       await tester.pumpAndSettle();
       await tester.tap(find.text('Удалить').last);
-      await store.list();
+      await store.reloadedAfterRemoval.future.timeout(
+        const Duration(seconds: 5),
+      );
       await tester.pumpAndSettle();
       expect(await store.list(), isEmpty);
       expect(await source.exists(), isTrue);

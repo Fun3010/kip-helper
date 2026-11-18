@@ -8,6 +8,10 @@
 хеши источников: `docs/field-instruments-map-2026-11-18.md`. Фактические позиции,
 схемы площадок, значения сокращений и приёмка остаются открытыми; данные карты
 живут на устройстве и не переносятся с архивом исходников.
+[PR №15](https://github.com/Fun3010/kip-helper/pull/15): код `bb17269`,
+полный локальный прогон 345/345, анализ чистый. [Архив исходников](https://drive.google.com/file/d/1frud_ExnmcAsZV2dg1kDDBTcKbNgPymJ/view?usp=drivesdk)
+скачан обратно; SHA-256 `4fc609dab8c7db35ec8b15b3c1eb940b9f4c264152f4a96fede469e8265980f7`, CRC без ошибок.
+[Состояние Notion](https://app.notion.com/p/40d2c52ebe2181d39809fdab1500bb83).
 
 
 ## Продолжение: СОКРАТ — 18.11.2026

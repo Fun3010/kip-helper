@@ -8,6 +8,13 @@
 file_selector; валидация, отмена, ошибки записи и неизвестные привязки покрыты
 тестами. Подробности и границы: `docs/position-backup-2026-11-18.md`. Нативный
 диалог на телефоне, конкретные файловые провайдеры и подписанный APK не проверены.
+[PR №17](https://github.com/Fun3010/kip-helper/pull/17): код `c9b844d`,
+локально 361 тест и анализ без замечаний. [CI с debug APK](https://github.com/Fun3010/kip-helper/actions/runs/44327448272)
+запущен на коде `c9b844d`; результат проверять в запуске. [Архив исходников](https://drive.google.com/file/d/16EmhCL55sNPnewyIwnxmxdEy6kCxQuM2/view?usp=drivesdk)
+скачан обратно: SHA-256 `2f50b529b1224e7d04fd934045a0229251046f0c9c81ae73592b56e9788dd387`, CRC без ошибок.
+[Notion](https://app.notion.com/p/40d2c52ebe2181d39809fdab1500bb83). MVT-3808-30A:
+PDF TechView найден в индексе Emerson, прямое скачивание вернуло HTTP 403;
+проверенная карточка и настройки по этому PDF пока не добавлены.
 
 
 ## Позиции и ГиперФлоу — 18.11.2026

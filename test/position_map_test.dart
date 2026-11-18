@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:kip_helper/features/positions/position_map_page.dart';
@@ -5,16 +6,95 @@ import 'package:kip_helper/services/guide_notes.dart';
 
 class MemoryPositionStore implements GuideNotesStore {
   final values = <String, String>{};
+  bool failWrites = false;
   @override
   Future<Object?> read(String guideId) async => values[guideId];
   @override
   Future<bool> write(String guideId, String text) async {
+    if (failWrites) return false;
     values[guideId] = text;
     return true;
   }
 }
 
 void main() {
+  testWidgets(
+    'Cancelling a move and a failed save leave the stored point unchanged',
+    (tester) async {
+      final store = MemoryPositionStore();
+      const key = 'user-positions-map-v1';
+      final original = jsonEncode({
+        'version': 1,
+        'points': [
+          {'site': 'ГП', 'name': 'FT-101', 'guide': 'stm10', 'x': .2, 'y': .2},
+        ],
+      });
+      store.values[key] = original;
+      await tester.pumpWidget(MaterialApp(home: PositionMapPage(store: store)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('FT-101').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Переместить'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Отменить перемещение'));
+      await tester.pumpAndSettle();
+      expect(store.values[key], original);
+      await tester.tap(find.text('FT-101').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Переместить'));
+      await tester.pumpAndSettle();
+      store.failWrites = true;
+      await tester.tapAt(
+        tester.getTopLeft(find.byKey(const ValueKey('position-board'))) +
+            const Offset(180, 240),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        find.textContaining('Не удалось сохранить изменение'),
+        findsOneWidget,
+      );
+      expect(store.values[key], original);
+      expect(find.text('FT-101'), findsWidgets);
+    },
+  );
+  testWidgets(
+    'Existing position can be renamed and moved without losing its guide',
+    (tester) async {
+      final store = MemoryPositionStore();
+      store.values['user-positions-map-v1'] = jsonEncode({
+        'version': 1,
+        'points': [
+          {'site': 'ГП', 'name': 'FT-101', 'guide': 'stm10', 'x': .2, 'y': .2},
+        ],
+      });
+      await tester.pumpWidget(MaterialApp(home: PositionMapPage(store: store)));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('FT-101').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Изменить'));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.byKey(const ValueKey('position-name')),
+        'FT-102',
+      );
+      await tester.tap(find.text('Сохранить'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('FT-102').first);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Переместить'));
+      await tester.pumpAndSettle();
+      final board = find.byKey(const ValueKey('position-board'));
+      await tester.tapAt(tester.getTopLeft(board) + const Offset(180, 240));
+      await tester.pumpAndSettle();
+      final data = jsonDecode(store.values['user-positions-map-v1']!) as Map;
+      final point = (data['points'] as List).single as Map;
+      expect(point['name'], 'FT-102');
+      expect(point['guide'], 'stm10');
+      expect(point['x'], isNot(.2));
+      expect(point['y'], closeTo(.75, .01));
+      expect(point['site'], 'ГП');
+    },
+  );
   testWidgets('A user position persists on its selected site', (tester) async {
     final store = MemoryPositionStore();
     Future<void> open() async {
@@ -94,6 +174,12 @@ void main() {
     await tester.tap(find.text('Сохранить'));
     await tester.pumpAndSettle();
     expect(find.text('FT-101'), findsWidgets);
+    await tester.ensureVisible(find.text('FT-101').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('FT-101').first);
+    await tester.pumpAndSettle();
+    expect(find.text('Изменить'), findsOneWidget);
+    expect(find.text('Переместить'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 }

@@ -2,12 +2,14 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import '../../data/guides.dart';
 import '../../services/guide_notes.dart';
+import '../../services/position_backup.dart';
 import '../guides/guide_page.dart';
 
 /// A user-authored sketch, not an authoritative plant diagram.
 class PositionMapPage extends StatefulWidget {
-  const PositionMapPage({super.key, this.store});
+  const PositionMapPage({super.key, this.store, this.backupIO});
   final GuideNotesStore? store;
+  final PositionBackupIO? backupIO;
   @override
   State<PositionMapPage> createState() => _PositionMapPageState();
 }
@@ -16,7 +18,9 @@ class _PositionMapPageState extends State<PositionMapPage> {
   late final GuideNotesStore store =
       widget.store ?? SharedPreferencesGuideNotesStore();
   static const storageId = 'user-positions-map-v1';
-  static const sites = ['ГП', 'ДКС', 'УПМТ'];
+  static const sites = positionSites;
+  late final PositionBackupIO backupIO =
+      widget.backupIO ?? PlatformPositionBackupIO();
   String site = sites.first;
   List<Map<String, dynamic>> points = [];
   bool loading = true;
@@ -36,28 +40,7 @@ class _PositionMapPageState extends State<PositionMapPage> {
       final raw = await store.read(storageId);
       if (raw != null) {
         if (raw is! String) throw const FormatException();
-        final data = jsonDecode(raw);
-        if (data is! Map || data['version'] != 1 || data['points'] is! List) {
-          throw const FormatException();
-        }
-        final parsed = <Map<String, dynamic>>[];
-        for (final entry in data['points'] as List) {
-          if (entry is! Map ||
-              entry['site'] is! String ||
-              !sites.contains(entry['site']) ||
-              entry['name'] is! String ||
-              entry['x'] is! num ||
-              entry['y'] is! num ||
-              (entry['x'] as num) < 0 ||
-              (entry['x'] as num) > 1 ||
-              (entry['y'] as num) < 0 ||
-              (entry['y'] as num) > 1 ||
-              (entry['guide'] != null && entry['guide'] is! String)) {
-            throw const FormatException();
-          }
-          parsed.add(Map<String, dynamic>.from(entry));
-        }
-        points = parsed;
+        points = decodePositionSnapshot(raw);
       }
     } catch (_) {
       blocked = true;
@@ -71,7 +54,8 @@ class _PositionMapPageState extends State<PositionMapPage> {
     Map<String, dynamic>? existing,
   ]) async {
     var input = existing?['name'] as String? ?? '';
-    String? guideId = existing?['guide'] as String?;
+    String? storedGuideId = existing?['guide'] as String?;
+    String? guideId = storedGuideId;
     if (!guides.any((g) => g.id == guideId)) guideId = null;
     final result = await showDialog<Map<String, dynamic>>(
       context: context,
@@ -93,6 +77,10 @@ class _PositionMapPageState extends State<PositionMapPage> {
                     labelText: 'Позиция или обозначение',
                   ),
                 ),
+                if (storedGuideId != null && guideId == null)
+                  const Text(
+                    'Связанная карточка недоступна в этой версии; связь сохранится.',
+                  ),
                 DropdownButtonFormField<String>(
                   initialValue: guideId,
                   isExpanded: true,
@@ -109,7 +97,10 @@ class _PositionMapPageState extends State<PositionMapPage> {
                         ),
                       ),
                   ],
-                  onChanged: (value) => update(() => guideId = value),
+                  onChanged: (value) => update(() {
+                    guideId = value;
+                    storedGuideId = value;
+                  }),
                 ),
               ],
             ),
@@ -124,9 +115,10 @@ class _PositionMapPageState extends State<PositionMapPage> {
                 final name = input.trim();
                 if (name.isEmpty) return;
                 Navigator.pop(ctx, {
+                  ...?existing,
                   'site': site,
                   'name': name,
-                  'guide': guideId,
+                  'guide': storedGuideId,
                   'x': where.dx,
                   'y': where.dy,
                 });
@@ -172,6 +164,72 @@ class _PositionMapPageState extends State<PositionMapPage> {
     }
   }
 
+  Future<void> _exportBackup() async {
+    if (busy || blocked) return;
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    try {
+      final content = jsonEncode({'version': 1, 'points': points});
+      decodePositionSnapshot(content);
+      final saved = await backupIO.saveBackup(content);
+      if (saved && mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('Копия карты сохранена.')));
+      }
+    } catch (_) {
+      if (mounted) setState(() => error = 'Не удалось сохранить копию карты.');
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Future<void> _importBackup() async {
+    if (busy || blocked) return;
+    setState(() {
+      busy = true;
+      error = null;
+    });
+    try {
+      final raw = await backupIO.pickBackup();
+      if (raw == null || !mounted) return;
+      final restored = decodePositionSnapshot(raw);
+      final yes = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Восстановить карту?'),
+          content: Text(
+            'В копии: ${restored.length}. Сейчас на всех площадках: ${points.length}. Все текущие позиции будут заменены. При необходимости сначала сохраните текущую копию.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: const Text('Отмена'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Заменить карту'),
+            ),
+          ],
+        ),
+      );
+      if (yes != true || !mounted) return;
+      setState(() => moving = null);
+      await _save(restored);
+    } catch (_) {
+      if (mounted) {
+        setState(
+          () => error =
+              'Не удалось прочитать копию карты. Текущие данные не изменены.',
+        );
+      }
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
   Future<void> _showPoint(Map<String, dynamic> point) async {
     final matches = guides.where((g) => g.id == point['guide']);
     final guide = matches.isEmpty ? null : matches.first;
@@ -180,7 +238,11 @@ class _PositionMapPageState extends State<PositionMapPage> {
       builder: (ctx) => AlertDialog(
         title: Text(point['name'] as String),
         content: Text(
-          guide == null ? 'Прибор не привязан.' : 'Прибор: ${guide.title}',
+          guide == null
+              ? (point['guide'] == null
+                    ? 'Прибор не привязан.'
+                    : 'Связанная карточка недоступна в этой версии.')
+              : 'Прибор: ${guide.title}',
         ),
         actions: [
           TextButton(
@@ -406,6 +468,26 @@ class _PositionMapPageState extends State<PositionMapPage> {
                     ),
                 ],
               ],
+              Wrap(
+                spacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: busy || blocked || moving != null
+                        ? null
+                        : _exportBackup,
+                    icon: const Icon(Icons.file_upload_outlined),
+                    label: const Text('Сохранить копию'),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: busy || blocked || moving != null
+                        ? null
+                        : _importBackup,
+                    icon: const Icon(Icons.file_download_outlined),
+                    label: const Text('Восстановить из копии'),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
             ],
           ),
   );

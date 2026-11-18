@@ -1,5 +1,6 @@
 import '../models/guide.dart';
 import 'iva8.dart';
+import 'kolion1v06.dart';
 import 'hyperflow_us.dart';
 import 'hyperflow_3pm.dart';
 import 'field_gas_guides.dart';
@@ -761,6 +762,21 @@ const guides = <InstrumentGuide>[
         'Основа: ИБЯЛ.424339.001 РЭ, части 1 и 2. Сообщения -ЧЭ- и -НЧ- ниже — только для СТМ-30-10…-13; не переносить на СТМ-30М.',
     sections: [
       GuideSection(
+        title: 'СТМ-30-50 · выбор руководства',
+        paragraphs: [
+          'РЭ ИБЯЛ.424339.001, часть 1, включает СТМ-30-50; часть 2 относится к СТМ-30-10…-16. Её специальные коды и процедуры нельзя автоматически переносить на -50.',
+        ],
+        evidenceByParagraph: {
+          0: [
+            GuideEvidence(
+              sourceKey: 'stm30-part1',
+              locator:
+                  'область применения · часть 1 РЭ и PDF с. 3; табл. 1.1 · с. 5',
+            ),
+          ],
+        },
+      ),
+      GuideSection(
         title: 'Индикация БСП · часть 1 РЭ',
         paragraphs: [
           'НОРМА — зелёный; ПОРОГ1 и ПОРОГ2 — красные; ОТКАЗ ВД — жёлтый. Запишите активные индикаторы и канал. Время прогрева по РЭ — до 10 минут.',
@@ -807,6 +823,7 @@ const guides = <InstrumentGuide>[
     ],
     sources: [
       GuideSource(
+        key: 'stm30-part1',
         title: 'Аналитприбор · СТМ-30, часть 1 РЭ',
         url:
             'https://www.analitpribor-smolensk.ru/files/rukovodstva/2015/ctm-30/stm-30_ibyal_424339_001_re_ch1.pdf',
@@ -822,4 +839,5 @@ const guides = <InstrumentGuide>[
   sgg20n,
   hyperflowUsGuide,
   hyperflow3pmGuide,
+  kolion1v06Guide,
 ];

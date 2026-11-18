@@ -146,13 +146,19 @@ class _PositionMapPageState extends State<PositionMapPage> {
       error = null;
     });
     try {
-      if (!await store.write(
-        storageId,
-        jsonEncode({'version': 1, 'points': next}),
-      )) {
+      final snapshot = jsonEncode({'version': 1, 'points': next});
+      decodePositionSnapshot(snapshot);
+      if (!await store.write(storageId, snapshot)) {
         throw StateError('write failed');
       }
       if (mounted) setState(() => points = next);
+    } on FormatException {
+      if (mounted) {
+        setState(
+          () => error =
+              'Карта слишком большая или содержит неверные данные. Изменение не сохранено.',
+        );
+      }
     } catch (_) {
       if (mounted) {
         setState(

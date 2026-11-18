@@ -42,6 +42,44 @@ Future<void> tapBackupButton(WidgetTester tester, String text) async {
 }
 
 void main() {
+  testWidgets('An oversized edit cannot replace a readable map', (
+    tester,
+  ) async {
+    final store = MemoryPositionStore();
+    const key = 'user-positions-map-v1';
+    final original = jsonEncode({
+      'version': 1,
+      'points': [
+        {
+          'site': 'ГП',
+          'name': 'FT-101',
+          'guide': null,
+          'x': .2,
+          'y': .2,
+          'extra': 'x' * (maxPositionBackupBytes - 160),
+        },
+      ],
+    });
+    expect(utf8.encode(original).length, lessThan(maxPositionBackupBytes));
+    store.values[key] = original;
+    await tester.pumpWidget(MaterialApp(home: PositionMapPage(store: store)));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.byKey(const ValueKey('add-position')),
+      250,
+      scrollable: find.byType(Scrollable).first,
+    );
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey('add-position')));
+    await tester.pumpAndSettle();
+    await tester.enterText(
+      find.byKey(const ValueKey('position-name')),
+      'A' * 80,
+    );
+    await tester.tap(find.text('Сохранить'));
+    await tester.pumpAndSettle();
+    expect(store.values[key], original);
+  });
   testWidgets(
     'Backup restore requires confirmation and preserves all site data',
     (tester) async {

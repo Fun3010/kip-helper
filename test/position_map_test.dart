@@ -42,6 +42,21 @@ Future<void> tapBackupButton(WidgetTester tester, String text) async {
 }
 
 void main() {
+  testWidgets(
+    'GP makes the missing background explicit while other sites remain sketches',
+    (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(home: PositionMapPage(store: MemoryPositionStore())),
+      );
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Подложка недоступна'), findsOneWidget);
+      await tester.tap(find.text('ДКС').first);
+      await tester.pumpAndSettle();
+      expect(find.textContaining('Подложка недоступна'), findsNothing);
+      expect(find.byKey(const ValueKey('position-board')), findsOneWidget);
+    },
+  );
+
   testWidgets('An oversized edit cannot replace a readable map', (
     tester,
   ) async {
@@ -103,6 +118,7 @@ void main() {
             'futureField': 'keep',
           },
           {'site': 'УПМТ', 'name': 'TT-3', 'guide': null, 'x': .1, 'y': .5},
+          {'site': 'ГП', 'name': 'PT-2', 'guide': null, 'x': .3, 'y': .6},
         ],
       });
       store.values[key] = original;
@@ -123,6 +139,7 @@ void main() {
         find.textContaining('Сейчас на всех площадках: 1'),
         findsOneWidget,
       );
+      expect(find.textContaining('ГП: 1, ДКС: 1, УПМТ: 1'), findsOneWidget);
       await tester.tap(find.text('Отмена'));
       await tester.pumpAndSettle();
       expect(store.values[key], original);

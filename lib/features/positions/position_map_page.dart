@@ -207,7 +207,7 @@ class _PositionMapPageState extends State<PositionMapPage> {
         builder: (ctx) => AlertDialog(
           title: const Text('Восстановить карту?'),
           content: Text(
-            'В копии: ${restored.length}. Сейчас на всех площадках: ${points.length}. Все текущие позиции будут заменены. При необходимости сначала сохраните текущую копию.',
+            'В копии: ${restored.length}. ${sites.map((s) => '$s: ${restored.where((p) => p['site'] == s).length}').join(', ')}. Сейчас на всех площадках: ${points.length}. Все текущие позиции будут заменены. При необходимости сначала сохраните текущую копию.',
           ),
           actions: [
             TextButton(
@@ -341,6 +341,12 @@ class _PositionMapPageState extends State<PositionMapPage> {
                 ],
               ),
               const SizedBox(height: 12),
+              if (site == 'ГП') ...[
+                const Text(
+                  'Подложка недоступна. Ниже показана условная карта.',
+                ),
+                const SizedBox(height: 12),
+              ],
               if (error != null)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 12),
